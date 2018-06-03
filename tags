@@ -1,0 +1,432 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ANDROID_API_JB_OR_LATER	VTCLoopback.cpp	20;"	d	file:
+ANDROID_API_JB_OR_LATER	VTCTestApp.cpp	25;"	d	file:
+AcceptEncodedBuffer	IOMXDecoder.cpp	/^void OMXDecoder::AcceptEncodedBuffer(void *pBuffer, OMX_U32 nFilledLen, OMX_TICKS nTimeStamp) {$/;"	f	class:OMXDecoder
+BITRATE	VTCLoopback.h	89;"	d
+BufferInfo	IOMXDecoder.h	/^    struct BufferInfo {$/;"	s	struct:OMXDecoder
+BufferInfo	IOMXEncoder.h	/^    struct BufferInfo {$/;"	s	struct:OMXEncoder
+BufferStatus	IOMXDecoder.h	/^    enum BufferStatus {$/;"	g	struct:OMXDecoder
+COMMAND_EXIT	IOMXDecoder.h	/^            COMMAND_EXIT = -1,$/;"	e	enum:OMXDecoder::OMXCallbackHandler::__anon2
+COMMAND_EXIT	IOMXDecoder.h	/^            COMMAND_EXIT = -1,$/;"	e	enum:OMXDecoder::SourceHandler::__anon1
+COMMAND_EXIT	IOMXEncoder.h	/^            COMMAND_EXIT = -1,$/;"	e	enum:OMXEncoder::OMXCallbackHandler::__anon3
+COMMAND_PROCESS_MSG	IOMXDecoder.h	/^            COMMAND_PROCESS_MSG,$/;"	e	enum:OMXDecoder::OMXCallbackHandler::__anon2
+COMMAND_PROCESS_MSG	IOMXDecoder.h	/^            COMMAND_PROCESS_MSG,$/;"	e	enum:OMXDecoder::SourceHandler::__anon1
+COMMAND_PROCESS_MSG	IOMXEncoder.h	/^            COMMAND_PROCESS_MSG,$/;"	e	enum:OMXEncoder::OMXCallbackHandler::__anon3
+Configuration	VTCLoopback.cpp	/^struct Configuration {$/;"	s	file:
+DEBUG_DUMP_CAMERA_TIMESTAMP	VTCLoopback.h	97;"	d
+DEBUG_DUMP_ENCODER_TIMESTAMP	VTCLoopback.h	98;"	d
+DECODER_LATENCY	VTCLoopback.h	104;"	d
+ENCODER_EFFECTIVE_BITRATE	VTCLoopback.h	99;"	d
+ENCODER_LATENCY	VTCLoopback.h	103;"	d
+ENCODER_MAX_BUFFER_COUNT	VTCLoopback.h	106;"	d
+ENCODER_NO_FILE_WRTIE	VTCLoopback.h	100;"	d
+EmptyBufferDone	IOMXDecoder.cpp	/^status_t OMXDecoder::EmptyBufferDone(OMX_BUFFERHEADERTYPE* pBufferHdr) {$/;"	f	class:OMXDecoder
+EmptyBufferDone	IOMXEncoder.cpp	/^status_t OMXEncoder::EmptyBufferDone(OMX_BUFFERHEADERTYPE* pBufferHdr)$/;"	f	class:OMXEncoder
+EncodedBufferCallback	IOMXEncoder.h	/^typedef void (*EncodedBufferCallback)(void* pBuffer, OMX_U32 nFilledLen, OMX_TICKS nTimeStamp);$/;"	t
+EventHandler	IOMXDecoder.cpp	/^OMX_ERRORTYPE OMXDecoder::EventHandler(OMX_EVENTTYPE eEvent, OMX_U32 nData1,OMX_U32 nData2) {$/;"	f	class:OMXDecoder
+EventHandler	IOMXEncoder.cpp	/^OMX_ERRORTYPE OMXEncoder::EventHandler(OMX_EVENTTYPE eEvent, OMX_U32 nData1,OMX_U32 nData2) {$/;"	f	class:OMXEncoder
+FPS_CAMERA	VTCLoopback.h	94;"	d
+FPS_DECODER	VTCLoopback.h	96;"	d
+FPS_ENCODER	VTCLoopback.h	95;"	d
+FillBufferDone	IOMXDecoder.cpp	/^status_t OMXDecoder::FillBufferDone(OMX_BUFFERHEADERTYPE* pBufferHdr) {$/;"	f	class:OMXDecoder
+FillBufferDone	IOMXEncoder.cpp	/^status_t OMXEncoder::FillBufferDone(OMX_BUFFERHEADERTYPE* pBufferHdr, OMX_U32 nOffset, OMX_U32 nFilledLen, OMX_TICKS nTimeStamp) {$/;"	f	class:OMXEncoder
+HEIGHT	VTCLoopback.h	88;"	d
+HEIGHT	VTCTestApp.cpp	90;"	d	file:
+Handler	IOMXDecoder.cpp	/^bool OMXDecoder::OMXCallbackHandler::Handler() {$/;"	f	class:OMXDecoder::OMXCallbackHandler
+Handler	IOMXDecoder.cpp	/^bool OMXDecoder::SourceHandler::Handler() {$/;"	f	class:OMXDecoder::SourceHandler
+Handler	IOMXEncoder.cpp	/^bool OMXEncoder::OMXCallbackHandler::Handler() {$/;"	f	class:OMXEncoder::OMXCallbackHandler
+INIT_OMX_STRUCT	VTCLoopback.h	109;"	d
+INPUT_OUTPUT_SLICE_MODE	VTCLoopback.h	102;"	d
+INPUT_PORT	VTCLoopback.h	90;"	d
+INPUT_SLICE_MODE	VTCLoopback.h	101;"	d
+IOMX_DECODER_H	IOMXDecoder.h	22;"	d
+IOMX_ENCODER_H	IOMXEncoder.h	22;"	d
+InPortBufferInfo	IOMXDecoder.h	/^    struct InPortBufferInfo{$/;"	s	struct:OMXDecoder
+InsertIDRFrameEveryXSecs	VTCTestApp.cpp	/^int InsertIDRFrameEveryXSecs = 1;$/;"	v
+LOCAL_MODULE	Android.mk	/^LOCAL_MODULE := VTCLoopbackTest$/;"	m
+LOCAL_MODULE	Android.mk	/^LOCAL_MODULE := vtcTestApp$/;"	m
+LOCAL_MODULE	Android.mk	/^LOCAL_MODULE:= CameraHardwareInterfaceTest$/;"	m
+LOCAL_MODULE_TAGS	Android.mk	/^LOCAL_MODULE_TAGS:= optional$/;"	m
+LOCAL_MODULE_TAGS	Android.mk	/^LOCAL_MODULE_TAGS:= tests$/;"	m
+LOCAL_PATH	Android.mk	/^LOCAL_PATH:= $(call my-dir)$/;"	m
+LOCAL_PRELINK_MODULE	Android.mk	/^LOCAL_PRELINK_MODULE := false$/;"	m
+LOCAL_SHARED_LIBRARIES	Android.mk	/^LOCAL_SHARED_LIBRARIES := \\$/;"	m
+LOCAL_SHARED_LIBRARIES	Android.mk	/^LOCAL_SHARED_LIBRARIES:= \\$/;"	m
+LOCAL_SRC_FILES	Android.mk	/^LOCAL_SRC_FILES := VTCLoopback.cpp IOMXEncoder.cpp IOMXDecoder.cpp$/;"	m
+LOCAL_SRC_FILES	Android.mk	/^LOCAL_SRC_FILES := VTCTestApp.cpp$/;"	m
+LOCAL_SRC_FILES	Android.mk	/^LOCAL_SRC_FILES:= CameraHardwareInterfaceTest.cpp$/;"	m
+LOG_FUNCTION_NAME_ENTRY	VtcCommon.h	44;"	d
+LOG_FUNCTION_NAME_ENTRY	VtcCommon.h	51;"	d
+LOG_FUNCTION_NAME_EXIT	VtcCommon.h	48;"	d
+LOG_FUNCTION_NAME_EXIT	VtcCommon.h	52;"	d
+LOG_NDEBUG	CameraHardwareInterfaceTest.cpp	22;"	d	file:
+LOG_NDEBUG	IOMXDecoder.cpp	24;"	d	file:
+LOG_NDEBUG	IOMXEncoder.cpp	24;"	d	file:
+LOG_NDEBUG	VTCLoopback.cpp	26;"	d	file:
+LOG_TAG	CameraHardwareInterfaceTest.cpp	23;"	d	file:
+LOG_TAG	IOMXDecoder.cpp	23;"	d	file:
+LOG_TAG	IOMXEncoder.cpp	23;"	d	file:
+LOG_TAG	VTCLoopback.cpp	27;"	d	file:
+LOG_TAG	VTCTestApp.cpp	23;"	d	file:
+MAX_FRAME_HEIGHT	IOMXDecoder.cpp	33;"	d	file:
+MAX_FRAME_HEIGHT_720P	IOMXDecoder.cpp	36;"	d	file:
+MAX_FRAME_WIDTH	IOMXDecoder.cpp	32;"	d	file:
+MAX_FRAME_WIDTH_720P	IOMXDecoder.cpp	35;"	d	file:
+MAX_OUTPUT_BUF_NUM	IOMXDecoder.cpp	30;"	d	file:
+MyCameraClient	VTCLoopback.cpp	/^MyCameraClient::MyCameraClient() {$/;"	f	class:MyCameraClient
+MyCameraClient	VTCLoopback.h	/^class MyCameraClient : public BnCameraClient {$/;"	c
+MyCameraListener	VTCTestApp.cpp	/^class MyCameraListener: public CameraListener {$/;"	c	file:
+NAME	VTCLoopback.cpp	123;"	d	file:
+NO_PORT_RECONFIG	IOMXDecoder.cpp	26;"	d	file:
+NUM_PORTS	VTCLoopback.h	107;"	d
+OMXCallbackHandler	IOMXDecoder.h	/^        OMXCallbackHandler(OMXDecoder* dec)$/;"	f	class:OMXDecoder::OMXCallbackHandler
+OMXCallbackHandler	IOMXDecoder.h	/^    class OMXCallbackHandler : public Thread {$/;"	c	struct:OMXDecoder
+OMXCallbackHandler	IOMXEncoder.h	/^        OMXCallbackHandler(OMXEncoder* enc)$/;"	f	class:OMXEncoder::OMXCallbackHandler
+OMXCallbackHandler	IOMXEncoder.h	/^    class OMXCallbackHandler : public Thread {$/;"	c	struct:OMXEncoder
+OMXDecoder	IOMXDecoder.cpp	/^OMXDecoder::OMXDecoder(int width, int height, int framerate):$/;"	f	class:OMXDecoder
+OMXDecoder	IOMXDecoder.h	/^struct OMXDecoder : public MediaSource$/;"	s
+OMXDecoderObserver	IOMXDecoder.h	/^    OMXDecoderObserver() {$/;"	f	struct:OMXDecoderObserver
+OMXDecoderObserver	IOMXDecoder.h	/^struct OMXDecoderObserver : public BnOMXObserver {$/;"	s
+OMXEncoder	IOMXEncoder.cpp	/^OMXEncoder::OMXEncoder(const sp<IOMX> &omx, IOMX::node_id node, sp<MyCameraClient> camera, int width, int height, int framerate, int bitrate, char *fname, int sliceHeight):$/;"	f	class:OMXEncoder
+OMXEncoder	IOMXEncoder.h	/^struct OMXEncoder : public MediaSource {$/;"	s
+OMXEncoderObserver	IOMXEncoder.h	/^    OMXEncoderObserver() {$/;"	f	struct:OMXEncoderObserver
+OMXEncoderObserver	IOMXEncoder.h	/^struct OMXEncoderObserver : public BnOMXObserver {$/;"	s
+OMXStateName	VTCLoopback.cpp	/^const char *OMXStateName(OMX_STATETYPE state) {$/;"	f
+OUTPUT_PORT	VTCLoopback.h	91;"	d
+OWNED_BY_CLIENT	IOMXDecoder.h	/^        OWNED_BY_CLIENT,$/;"	e	enum:OMXDecoder::BufferStatus
+OWNED_BY_COMPONENT	IOMXDecoder.h	/^        OWNED_BY_COMPONENT,$/;"	e	enum:OMXDecoder::BufferStatus
+OWNED_BY_NATIVE_WINDOW	IOMXDecoder.h	/^        OWNED_BY_NATIVE_WINDOW,$/;"	e	enum:OMXDecoder::BufferStatus
+OWNED_BY_US	IOMXDecoder.h	/^        OWNED_BY_US,$/;"	e	enum:OMXDecoder::BufferStatus
+PlayerListener	VTCTestApp.cpp	/^class PlayerListener: public MediaPlayerListener {$/;"	c	file:
+PortBufferInfo	IOMXDecoder.h	/^    struct PortBufferInfo{$/;"	s	struct:OMXDecoder
+PrintCameraFPS	VTCLoopback.cpp	/^static void PrintCameraFPS() {$/;"	f	file:
+PrintDecoderFPS	IOMXDecoder.cpp	/^static void PrintDecoderFPS() {$/;"	f	file:
+PrintEffectiveBitrate	IOMXEncoder.cpp	/^static void PrintEffectiveBitrate(OMX_U32 filledLen) {$/;"	f	file:
+PrintEncoderFPS	IOMXEncoder.cpp	/^static void PrintEncoderFPS() {$/;"	f	file:
+PrintEncoderLatency	IOMXEncoder.cpp	/^static void PrintEncoderLatency(nsecs_t ts) {$/;"	f	file:
+PrintVTCLatency	IOMXDecoder.cpp	/^static void PrintVTCLatency(nsecs_t ts) {$/;"	f	file:
+SLEEP_AFTER_STARTING_PLAYBACK	VTCTestApp.cpp	88;"	d	file:
+SLEEP_AFTER_STARTING_PREVIEW	VTCLoopback.h	86;"	d
+SLEEP_AFTER_STARTING_PREVIEW	VTCTestApp.cpp	87;"	d	file:
+SourceHandler	IOMXDecoder.h	/^        SourceHandler(OMXDecoder* dec)$/;"	f	class:OMXDecoder::SourceHandler
+SourceHandler	IOMXDecoder.h	/^    class SourceHandler : public Thread {$/;"	c	struct:OMXDecoder
+TWO_SECOND	VTCLoopback.h	92;"	d
+TestFunctions	VTCLoopback.cpp	/^pt2TestFunction TestFunctions[10] = {0, test_DEFAULT_Frame, test_DEFAULT_Slice, test_Frame_Robustness, test_Slice_Robustness, 0, 0, 0, 0, 0};$/;"	v
+TestFunctions	VTCTestApp.cpp	/^pt2TestFunction TestFunctions[10] = {$/;"	v
+VTC_LOGD	VtcCommon.h	27;"	d
+VTC_LOGD	VtcCommon.h	33;"	d
+VTC_LOGE	VtcCommon.h	31;"	d
+VTC_LOGE	VtcCommon.h	37;"	d
+VTC_LOGI	VtcCommon.h	29;"	d
+VTC_LOGI	VtcCommon.h	35;"	d
+VTC_LOGV	VtcCommon.h	28;"	d
+VTC_LOGV	VtcCommon.h	34;"	d
+VTC_LOGW	VtcCommon.h	30;"	d
+VTC_LOGW	VtcCommon.h	36;"	d
+VTC_LOOPBACK_H	VTCLoopback.h	22;"	d
+VTC_TEST_COMMON_H	VtcCommon.h	18;"	d
+WIDTH	VTCLoopback.h	87;"	d
+WIDTH	VTCTestApp.cpp	89;"	d	file:
+allocateOutputBuffer	IOMXEncoder.cpp	/^status_t OMXEncoder::allocateOutputBuffer() {$/;"	f	class:OMXEncoder
+allocateOutputBuffersFromNativeWindow	IOMXDecoder.cpp	/^status_t OMXDecoder::allocateOutputBuffersFromNativeWindow() {$/;"	f	class:OMXDecoder
+bPlaying	VTCTestApp.cpp	/^bool bPlaying = false;$/;"	v
+bRecording	VTCTestApp.cpp	/^bool bRecording = false;$/;"	v
+b_id	IOMXDecoder.h	/^        IOMX::buffer_id b_id;$/;"	m	struct:OMXDecoder::InPortBufferInfo
+b_id	IOMXDecoder.h	/^        IOMX::buffer_id b_id;$/;"	m	struct:OMXDecoder::PortBufferInfo
+camera	VTCTestApp.cpp	/^sp<Camera> camera;$/;"	v
+cameraId	CameraHardwareInterfaceTest.cpp	/^static int cameraId = 0;$/;"	v	file:
+cameraPayloadQueue	VTCLoopback.h	/^    List<sp<IMemory> > cameraPayloadQueue;$/;"	m	class:MyCameraClient
+cameraPayloadQueueMutex	VTCLoopback.h	/^    Mutex cameraPayloadQueueMutex;$/;"	m	class:MyCameraClient
+cameraPayloadWait	VTCLoopback.h	/^    Condition cameraPayloadWait;$/;"	m	class:MyCameraClient
+cameraPayloadWaitFlag	VTCLoopback.h	/^    int cameraPayloadWaitFlag;$/;"	m	class:MyCameraClient
+cameraSurfaceHeight	VTCTestApp.cpp	/^uint32_t cameraSurfaceHeight = 0;$/;"	v
+cameraSurfaceWidth	VTCTestApp.cpp	/^uint32_t cameraSurfaceWidth = 0;$/;"	v
+cameraWinX	VTCTestApp.cpp	/^uint32_t cameraWinX = 0;$/;"	v
+cameraWinY	VTCTestApp.cpp	/^uint32_t cameraWinY = 0;$/;"	v
+camera_index	VTCTestApp.cpp	/^int camera_index = 0;$/;"	v
+changeBitRate	IOMXEncoder.cpp	/^status_t OMXEncoder::changeBitRate(int bitrate) {$/;"	f	class:OMXEncoder
+changeFrameRate	IOMXEncoder.cpp	/^status_t OMXEncoder::changeFrameRate(int framerate) {$/;"	f	class:OMXEncoder
+clearCommandQ	IOMXDecoder.h	/^        void clearCommandQ() {$/;"	f	class:OMXDecoder::OMXCallbackHandler
+clearCommandQ	IOMXDecoder.h	/^        void clearCommandQ() {$/;"	f	class:OMXDecoder::SourceHandler
+clearCommandQ	IOMXEncoder.h	/^        void clearCommandQ() {$/;"	f	class:OMXEncoder::OMXCallbackHandler
+client	VTCTestApp.cpp	/^sp<SurfaceComposerClient> client;$/;"	v
+configure	IOMXDecoder.cpp	/^status_t OMXDecoder::configure(OMX_VIDEO_AVCPROFILETYPE profile, OMX_VIDEO_AVCLEVELTYPE level, OMX_U32 refFrames) {$/;"	f	class:OMXDecoder
+configure	IOMXEncoder.cpp	/^status_t OMXEncoder::configure(OMX_VIDEO_AVCPROFILETYPE profile, OMX_VIDEO_AVCLEVELTYPE level, OMX_U32 refFrames) {$/;"	f	class:OMXEncoder
+configureCamera	VTCLoopback.cpp	/^int configureCamera() {$/;"	f
+createPlaybackSurface	IOMXDecoder.cpp	/^status_t OMXDecoder::createPlaybackSurface() {$/;"	f	class:OMXDecoder
+createPreviewSurface	VTCLoopback.cpp	/^int createPreviewSurface() {$/;"	f
+createPreviewSurface	VTCTestApp.cpp	/^int createPreviewSurface() {$/;"	f
+dataCallback	VTCLoopback.h	/^    virtual void dataCallback(int32_t msgType, const sp<IMemory>& data,$/;"	f	class:MyCameraClient
+dataCallbackTimestamp	VTCLoopback.cpp	/^void MyCameraClient::dataCallbackTimestamp(nsecs_t timestamp, int32_t msgType, const sp<IMemory>& data) {$/;"	f	class:MyCameraClient
+deinit	IOMXEncoder.cpp	/^status_t OMXEncoder::deinit() {$/;"	f	class:OMXEncoder
+destroyPlaybackSurface	IOMXDecoder.cpp	/^status_t OMXDecoder::destroyPlaybackSurface() {$/;"	f	class:OMXDecoder
+destroyPreviewSurface	VTCLoopback.cpp	/^int destroyPreviewSurface() {$/;"	f
+destroyPreviewSurface	VTCTestApp.cpp	/^int destroyPreviewSurface() {$/;"	f
+drainInputBuffer	IOMXDecoder.cpp	/^status_t OMXDecoder::drainInputBuffer(InPortBufferInfo *info) {$/;"	f	class:OMXDecoder
+dump_video_port_values	VTCLoopback.cpp	/^void dump_video_port_values(OMX_PARAM_PORTDEFINITIONTYPE& def) {$/;"	f
+encodedBufferCallback	VTCLoopback.cpp	/^void encodedBufferCallback(void* pBuffer, OMX_U32 nFilledLen, OMX_TICKS nTimeStamp) {$/;"	f
+encoderNotReady	VTCLoopback.h	/^    void encoderNotReady() { encoder_is_ready = 0; }$/;"	f	class:MyCameraClient
+encoderReady	VTCLoopback.h	/^    void encoderReady() { encoder_is_ready = 1; }$/;"	f	class:MyCameraClient
+encoder_is_ready	VTCLoopback.h	/^    int encoder_is_ready;$/;"	m	class:MyCameraClient
+filename	VTCTestApp.cpp	/^int filename = 0;$/;"	v
+frameTimeQueue	VTCLoopback.h	/^    List<int64_t> frameTimeQueue;$/;"	m	class:MyCameraClient
+freeOutputBuffers	IOMXDecoder.cpp	/^status_t OMXDecoder::freeOutputBuffers() {$/;"	f	class:OMXDecoder
+gCameraClient	VTCLoopback.cpp	/^sp<MyCameraClient> gCameraClient;$/;"	v
+gCameraFrameRate	VTCLoopback.cpp	/^int gCameraFrameRate = 30;$/;"	v
+gCameraIndex	VTCLoopback.cpp	/^int gCameraIndex = 0;$/;"	v
+gCameraService	VTCLoopback.cpp	/^sp<ICameraService> gCameraService;$/;"	v
+gCameraSurfaceHeight	VTCLoopback.cpp	/^uint32_t gCameraSurfaceHeight = 400;$/;"	v
+gCameraSurfaceWidth	VTCLoopback.cpp	/^uint32_t gCameraSurfaceWidth = 400;$/;"	v
+gCameraWinX	VTCLoopback.cpp	/^uint32_t gCameraWinX = 50;$/;"	v
+gCameraWinY	VTCLoopback.cpp	/^uint32_t gCameraWinY = 50;$/;"	v
+gDebugFlags	VTCLoopback.cpp	/^uint32_t gDebugFlags = FPS_DECODER; \/\/ | ENCODER_ONLY ;$/;"	v
+gDuration	VTCLoopback.cpp	/^int gDuration = 10;$/;"	v
+gEnableAlgo	VTCLoopback.cpp	/^int gEnableAlgo = 0;$/;"	v
+gEnableLoopback	VTCLoopback.cpp	/^bool gEnableLoopback = false;$/;"	v
+gEncoderBitRate	VTCLoopback.cpp	/^uint32_t gEncoderBitRate = BITRATE;$/;"	v
+gEncoderOutputBufferCount	VTCLoopback.cpp	/^uint32_t gEncoderOutputBufferCount = 4;$/;"	v
+gEncoderOutputSliceSizeBytes	VTCLoopback.cpp	/^uint32_t gEncoderOutputSliceSizeBytes = 0;$/;"	v
+gEncoderOutputSliceSizeMB	VTCLoopback.cpp	/^uint32_t gEncoderOutputSliceSizeMB = 0;$/;"	v
+gFilename	VTCLoopback.cpp	/^int gFilename = 0;$/;"	v
+gICamera	VTCLoopback.cpp	/^sp<ICamera> gICamera;$/;"	v
+gLevel	VTCLoopback.cpp	/^OMX_VIDEO_AVCLEVELTYPE gLevel = OMX_VIDEO_AVCLevel4;$/;"	v
+gMaxEncoderBitRate	VTCLoopback.cpp	/^uint32_t gMaxEncoderBitRate = BITRATE;$/;"	v
+gMinEncoderBitRate	VTCLoopback.cpp	/^uint32_t gMinEncoderBitRate = BITRATE;$/;"	v
+gNewCameraFrameRate	VTCLoopback.cpp	/^int gNewCameraFrameRate = 0;$/;"	v
+gPreviewHeight	VTCLoopback.cpp	/^int gPreviewHeight = HEIGHT;$/;"	v
+gPreviewSurface	VTCLoopback.cpp	/^sp<Surface> gPreviewSurface;$/;"	v
+gPreviewWidth	VTCLoopback.cpp	/^int gPreviewWidth = WIDTH;$/;"	v
+gProfile	VTCLoopback.cpp	/^OMX_VIDEO_AVCPROFILETYPE gProfile = OMX_VIDEO_AVCProfileBaseline;$/;"	v
+gRecordFileName	VTCLoopback.cpp	/^char gRecordFileName[256];$/;"	v
+gRefFrames	VTCLoopback.cpp	/^OMX_U32 gRefFrames = 1;$/;"	v
+gSliceHeight	VTCLoopback.cpp	/^uint32_t gSliceHeight = 0;$/;"	v
+gSurfaceComposerClient	VTCLoopback.cpp	/^sp<SurfaceComposerClient> gSurfaceComposerClient;$/;"	v
+gSurfaceControl	VTCLoopback.cpp	/^sp<SurfaceControl> gSurfaceControl;$/;"	v
+gTestcaseID	VTCLoopback.cpp	/^int gTestcaseID = 1;$/;"	v
+gVaryFrameRate	VTCLoopback.cpp	/^bool gVaryFrameRate = false;$/;"	v
+gVaryOrientation	VTCLoopback.cpp	/^bool gVaryOrientation = false;$/;"	v
+gb	IOMXDecoder.h	/^        sp<GraphicBuffer> gb;$/;"	m	struct:OMXDecoder::PortBufferInfo
+getCameraPayload	VTCLoopback.cpp	/^sp<IMemory> MyCameraClient::getCameraPayload(int64_t& frameTime) {$/;"	f	class:MyCameraClient
+getFormat	IOMXDecoder.cpp	/^sp<MetaData> OMXDecoder::getFormat() {$/;"	f	class:OMXDecoder
+getFormat	IOMXEncoder.cpp	/^sp<MetaData> OMXEncoder::getFormat() {$/;"	f	class:OMXEncoder
+getMediaserverInfo	VTCTestApp.cpp	/^int getMediaserverInfo(int *PID, int *VSIZE){$/;"	f
+get_time_of_day_ms	IOMXEncoder.cpp	/^static uint64_t get_time_of_day_ms() {$/;"	f	file:
+height	VTCLoopback.cpp	/^    size_t width, height;$/;"	m	struct:Configuration	file:
+mAcceptingBuffers	IOMXDecoder.h	/^    int mAcceptingBuffers;$/;"	m	struct:OMXDecoder
+mAcceptingBuffers	IOMXEncoder.h	/^    int mAcceptingBuffers;$/;"	m	struct:OMXEncoder
+mAsyncCompletion	IOMXDecoder.h	/^    Condition mAsyncCompletion;$/;"	m	struct:OMXDecoder
+mAsyncCompletion	IOMXEncoder.h	/^    Condition mAsyncCompletion;$/;"	m	struct:OMXEncoder
+mBitRate	IOMXEncoder.h	/^    uint32_t mBitRate;$/;"	m	struct:OMXEncoder
+mBufferCount	IOMXEncoder.h	/^    int mBufferCount;$/;"	m	struct:OMXEncoder
+mBufferHdr	IOMXEncoder.h	/^        OMX_BUFFERHEADERTYPE* mBufferHdr;$/;"	m	struct:OMXEncoder::BufferInfo
+mBufferInfo	IOMXEncoder.h	/^    BufferInfo mBufferInfo[NUM_PORTS][ENCODER_MAX_BUFFER_COUNT];$/;"	m	struct:OMXEncoder
+mCallbackSet	IOMXEncoder.h	/^    bool mCallbackSet;$/;"	m	struct:OMXEncoder
+mCamMem	IOMXEncoder.h	/^        sp<IMemory> mCamMem;$/;"	m	struct:OMXEncoder::BufferInfo
+mCameraListener	VTCTestApp.cpp	/^sp<MyCameraListener> mCameraListener;$/;"	v
+mCameraSource	IOMXEncoder.h	/^    sp<MyCameraClient> mCameraSource;$/;"	m	struct:OMXEncoder
+mCameraThrewError	VTCTestApp.cpp	/^bool mCameraThrewError = false;$/;"	v
+mCommandMsgQ	IOMXDecoder.h	/^        Ti::Utils::MessageQueue mCommandMsgQ;$/;"	m	class:OMXDecoder::OMXCallbackHandler
+mCommandMsgQ	IOMXDecoder.h	/^        Ti::Utils::MessageQueue mCommandMsgQ;$/;"	m	class:OMXDecoder::SourceHandler
+mCommandMsgQ	IOMXEncoder.h	/^        Ti::Utils::MessageQueue mCommandMsgQ;$/;"	m	class:OMXEncoder::OMXCallbackHandler
+mComposerClient	CameraHardwareInterfaceTest.cpp	/^sp<SurfaceComposerClient> mComposerClient;$/;"	v
+mCond	CameraHardwareInterfaceTest.cpp	/^static pthread_cond_t mCond;$/;"	v	file:
+mCond	VTCTestApp.cpp	/^static pthread_cond_t mCond;$/;"	v	file:
+mCycles	VTCTestApp.cpp	/^uint32_t mCycles = 10;$/;"	v
+mDealer	IOMXDecoder.h	/^    sp<MemoryDealer> mDealer;$/;"	m	struct:OMXDecoder
+mDealer	IOMXEncoder.h	/^    sp<MemoryDealer> mDealer[NUM_PORTS];$/;"	m	struct:OMXEncoder
+mDebugFlags	IOMXDecoder.h	/^    uint32_t mDebugFlags;$/;"	m	struct:OMXDecoder
+mDebugFlags	IOMXEncoder.h	/^    uint32_t mDebugFlags;$/;"	m	struct:OMXEncoder
+mDisable1080pTesting	VTCTestApp.cpp	/^int mDisable1080pTesting = 0;$/;"	v
+mDuration	VTCTestApp.cpp	/^int mDuration = 10;$/;"	v
+mEmptyInputBuffers	IOMXDecoder.h	/^    List<InPortBufferInfo*> mEmptyInputBuffers;$/;"	m	struct:OMXDecoder
+mEncMem	IOMXEncoder.h	/^        sp<IMemory> mEncMem;$/;"	m	struct:OMXEncoder::BufferInfo
+mEncodedBufferCallback	IOMXEncoder.h	/^    EncodedBufferCallback mEncodedBufferCallback;$/;"	m	struct:OMXEncoder
+mFailCount	VTCTestApp.cpp	/^int mFailCount = 0;$/;"	v
+mFrameRate	IOMXDecoder.h	/^    uint32_t mFrameRate;$/;"	m	struct:OMXDecoder
+mFrameRate	IOMXEncoder.h	/^    uint32_t mFrameRate;$/;"	m	struct:OMXEncoder
+mHardware	CameraHardwareInterfaceTest.cpp	/^sp<CameraHardwareInterface> mHardware = NULL;$/;"	v
+mHeight	CameraHardwareInterfaceTest.cpp	/^int mHeight = 480;$/;"	v
+mHeight	IOMXDecoder.h	/^    int mHeight;$/;"	m	struct:OMXDecoder
+mHeight	IOMXEncoder.h	/^    int mHeight;$/;"	m	struct:OMXEncoder
+mIFramesIntervalSec	VTCTestApp.cpp	/^int32_t mIFramesIntervalSec = 1;$/;"	v
+mInputBuffers	IOMXDecoder.h	/^    Vector<InPortBufferInfo*> mInputBuffers;$/;"	m	struct:OMXDecoder
+mIsSizeInBytes	VTCTestApp.cpp	/^bool mIsSizeInBytes = true;$/;"	v
+mLock	IOMXDecoder.h	/^        Mutex mLock;$/;"	m	class:OMXDecoder::OMXCallbackHandler
+mLock	IOMXDecoder.h	/^        Mutex mLock;$/;"	m	class:OMXDecoder::SourceHandler
+mLock	IOMXDecoder.h	/^    Mutex mLock;$/;"	m	struct:OMXDecoder
+mLock	IOMXEncoder.h	/^        Mutex mLock;$/;"	m	class:OMXEncoder::OMXCallbackHandler
+mLock	IOMXEncoder.h	/^    Mutex mLock;$/;"	m	struct:OMXEncoder
+mMediaPlayerThrewError	VTCTestApp.cpp	/^bool mMediaPlayerThrewError = false;$/;"	v
+mMediaServerPID	VTCTestApp.cpp	/^int mMediaServerPID = -1;$/;"	v
+mModule	CameraHardwareInterfaceTest.cpp	/^camera_module_t *mModule;$/;"	v
+mMutex	CameraHardwareInterfaceTest.cpp	/^static pthread_mutex_t mMutex;$/;"	v	file:
+mMutex	VTCTestApp.cpp	/^static pthread_mutex_t mMutex;$/;"	v	file:
+mNativeWindow	IOMXDecoder.h	/^    sp<ANativeWindow> mNativeWindow;$/;"	m	struct:OMXDecoder
+mNewVideoBitRate	VTCTestApp.cpp	/^uint32_t mNewVideoBitRate   = 100000;$/;"	v
+mNewVideoFrameRate	VTCTestApp.cpp	/^uint32_t mNewVideoFrameRate = 15;$/;"	v
+mNode	IOMXDecoder.h	/^    IOMX::node_id mNode;$/;"	m	struct:OMXDecoder
+mNode	IOMXEncoder.h	/^    IOMX::node_id mNode;$/;"	m	struct:OMXEncoder
+mOMX	IOMXDecoder.h	/^    sp<IOMX> mOMX;$/;"	m	struct:OMXDecoder
+mOMX	IOMXEncoder.h	/^    sp<IOMX> mOMX;$/;"	m	struct:OMXEncoder
+mOMXCallbackHandler	IOMXDecoder.h	/^    sp<OMXCallbackHandler> mOMXCallbackHandler;$/;"	m	struct:OMXDecoder
+mOMXCallbackHandler	IOMXEncoder.h	/^    sp<OMXCallbackHandler> mOMXCallbackHandler;$/;"	m	struct:OMXEncoder
+mOMXClient	IOMXDecoder.h	/^    OMXClient mOMXClient;$/;"	m	struct:OMXDecoder
+mOMXDecoder	IOMXDecoder.h	/^        OMXDecoder* mOMXDecoder;$/;"	m	class:OMXDecoder::OMXCallbackHandler
+mOMXDecoder	IOMXDecoder.h	/^        OMXDecoder* mOMXDecoder;$/;"	m	class:OMXDecoder::SourceHandler
+mOMXDecoder	VTCLoopback.cpp	/^sp<OMXDecoder> mOMXDecoder;$/;"	v
+mOMXEncoder	IOMXEncoder.h	/^        OMXEncoder* mOMXEncoder;$/;"	m	class:OMXEncoder::OMXCallbackHandler
+mObserver	IOMXDecoder.h	/^    sp<OMXDecoderObserver> mObserver;$/;"	m	struct:OMXDecoder
+mOutputBufferCount	IOMXEncoder.h	/^    uint32_t mOutputBufferCount;$/;"	m	struct:OMXEncoder
+mOutputBuffers	IOMXDecoder.h	/^    Vector<PortBufferInfo> mOutputBuffers;$/;"	m	struct:OMXDecoder
+mOutputFD	IOMXEncoder.h	/^    FILE* mOutputFD;$/;"	m	struct:OMXEncoder
+mOutputFd	VTCTestApp.cpp	/^int mOutputFd = -1;$/;"	v
+mParamValue	VTCLoopback.cpp	/^char mParamValue[100];$/;"	v
+mParamValue	VTCTestApp.cpp	/^char mParamValue[100];$/;"	v
+mPlaybackDuration	VTCTestApp.cpp	/^int mPlaybackDuration = 0;$/;"	v
+mPlaybackFileName	VTCTestApp.cpp	/^char mPlaybackFileName[256];$/;"	v
+mPlayerListener	VTCTestApp.cpp	/^sp<PlayerListener> mPlayerListener;$/;"	v
+mPortReconfigInProgress	IOMXDecoder.h	/^    bool mPortReconfigInProgress;$/;"	m	struct:OMXDecoder
+mPreviewHeight	VTCTestApp.cpp	/^int mPreviewHeight = HEIGHT;$/;"	v
+mPreviewWidth	VTCTestApp.cpp	/^int mPreviewWidth = WIDTH;$/;"	v
+mPriority	CameraHardwareInterfaceTest.cpp	/^static int mPriority = 0;$/;"	v	file:
+mRecordFileName	VTCTestApp.cpp	/^char mRecordFileName[256];$/;"	v
+mReleaser	VTCLoopback.h	/^    ICamera *mReleaser;$/;"	m	class:MyCameraClient
+mResultsFP	VTCTestApp.cpp	/^FILE *mResultsFP = NULL;$/;"	v
+mRobustnessTestType	VTCTestApp.cpp	/^int mRobustnessTestType = -1;$/;"	v
+mSizeOfAllAllocatedOutputBuffers	IOMXDecoder.h	/^    int mSizeOfAllAllocatedOutputBuffers;$/;"	m	struct:OMXDecoder
+mSliceHeight	IOMXEncoder.h	/^    int mSliceHeight;$/;"	m	struct:OMXEncoder
+mSliceSizeBytes	VTCTestApp.cpp	/^int mSliceSizeBytes = 500;$/;"	v
+mSliceSizeMB	VTCTestApp.cpp	/^int mSliceSizeMB = 100;$/;"	v
+mSourceHandler	IOMXDecoder.h	/^    sp<SourceHandler> mSourceHandler;$/;"	m	struct:OMXDecoder
+mStartMemory	VTCTestApp.cpp	/^int mStartMemory = 0;$/;"	v
+mState	IOMXDecoder.h	/^    OMX_STATETYPE mState;$/;"	m	struct:OMXDecoder
+mState	IOMXEncoder.h	/^    OMX_STATETYPE mState;$/;"	m	struct:OMXEncoder
+mStatus	IOMXDecoder.h	/^        BufferStatus mStatus;$/;"	m	struct:OMXDecoder::PortBufferInfo
+mSurface	CameraHardwareInterfaceTest.cpp	/^sp<Surface> mSurface;$/;"	v
+mSurfaceComposerClient	IOMXDecoder.h	/^    sp<SurfaceComposerClient> mSurfaceComposerClient;$/;"	m	struct:OMXDecoder
+mSurfaceControl	CameraHardwareInterfaceTest.cpp	/^sp<SurfaceControl> mSurfaceControl;$/;"	v
+mSurfaceControl	IOMXDecoder.h	/^    sp<SurfaceControl> mSurfaceControl;$/;"	m	struct:OMXDecoder
+mTarget	IOMXDecoder.h	/^    wp<OMXDecoder> mTarget;$/;"	m	struct:OMXDecoderObserver
+mTarget	IOMXEncoder.h	/^    wp<OMXEncoder> mTarget;$/;"	m	struct:OMXEncoderObserver
+mTestCount	VTCTestApp.cpp	/^int mTestCount = 0;$/;"	v
+mVideoBitRate	VTCTestApp.cpp	/^uint32_t mVideoBitRate      = 1000000;$/;"	v
+mVideoFrameRate	VTCTestApp.cpp	/^uint32_t mVideoFrameRate    = 30;$/;"	v
+mWidth	CameraHardwareInterfaceTest.cpp	/^int mWidth = 640;$/;"	v
+mWidth	IOMXDecoder.h	/^    int mWidth;$/;"	m	struct:OMXDecoder
+mWidth	IOMXEncoder.h	/^    int mWidth;$/;"	m	struct:OMXEncoder
+mWindow	CameraHardwareInterfaceTest.cpp	/^sp<ANativeWindow> mWindow;$/;"	v
+main	CameraHardwareInterfaceTest.cpp	/^int main (int argc, char* argv[]) {$/;"	f
+main	VTCLoopback.cpp	/^int main (int argc, char* argv[]) {$/;"	f
+main	VTCTestApp.cpp	/^int main (int argc, char* argv[]) {$/;"	f
+mem	IOMXDecoder.h	/^        sp<IMemory> mem;$/;"	m	struct:OMXDecoder::InPortBufferInfo
+my_dataCallback	CameraHardwareInterfaceTest.cpp	/^void my_dataCallback(int32_t msgType, const sp<IMemory>& dataPtr, camera_frame_metadata_t *metadata, void* user) {$/;"	f
+my_dataCallbackTimestamp	CameraHardwareInterfaceTest.cpp	/^void my_dataCallbackTimestamp(nsecs_t timestamp, int32_t msgType, const sp<IMemory>& dataPtr, void* user) {$/;"	f
+my_notifyCallback	CameraHardwareInterfaceTest.cpp	/^void my_notifyCallback(int32_t msgType, int32_t ext1, int32_t ext2, void* user) {$/;"	f
+my_pthread_cond_timedwait	VTCTestApp.cpp	/^int my_pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t * mutex, int waitTimeInMilliSecs) {$/;"	f
+nFilledLen	IOMXDecoder.h	/^        OMX_U32 nFilledLen;$/;"	m	struct:OMXDecoder::BufferInfo
+nFilledLen	IOMXDecoder.h	/^        OMX_U32 nFilledLen;$/;"	m	struct:OMXDecoder::InPortBufferInfo
+nTimeStamp	IOMXDecoder.h	/^        OMX_TICKS nTimeStamp;$/;"	m	struct:OMXDecoder::BufferInfo
+nTimeStamp	IOMXDecoder.h	/^        OMX_TICKS nTimeStamp;$/;"	m	struct:OMXDecoder::InPortBufferInfo
+notify	VTCTestApp.cpp	/^        virtual void notify(int32_t msgType, int32_t ext1, int32_t \/* ext2 *\/) {$/;"	f	class:MyCameraListener
+notify	VTCTestApp.cpp	/^    virtual void notify(int msg, int ext1, int ext2, const Parcel * \/* obj *\/)$/;"	f	class:PlayerListener
+notifyCallback	VTCLoopback.h	/^    virtual void notifyCallback(int32_t msgType, int32_t ext1, int32_t ext2) {}$/;"	f	class:MyCameraClient
+onMessage	IOMXDecoder.h	/^    virtual void onMessage(const omx_message &omx_msg) {$/;"	f	struct:OMXDecoderObserver
+onMessage	IOMXEncoder.h	/^    virtual void onMessage(const omx_message &omx_msg) {$/;"	f	struct:OMXEncoderObserver
+on_message	IOMXDecoder.cpp	/^void OMXDecoder::on_message(const omx_message &msg) {$/;"	f	class:OMXDecoder
+on_message	IOMXEncoder.cpp	/^void OMXEncoder::on_message(const omx_message &msg) {$/;"	f	class:OMXEncoder
+pBuffer	IOMXDecoder.h	/^        void* pBuffer;$/;"	m	struct:OMXDecoder::BufferInfo
+params	VTCTestApp.cpp	/^CameraParameters params;$/;"	v
+playbackComposerClient	VTCTestApp.cpp	/^sp<SurfaceComposerClient> playbackComposerClient;$/;"	v
+playbackSurface	VTCTestApp.cpp	/^sp<Surface> playbackSurface;$/;"	v
+playbackSurfaceControl	VTCTestApp.cpp	/^sp<SurfaceControl> playbackSurfaceControl;$/;"	v
+playbackSurfaceHeight	VTCTestApp.cpp	/^uint32_t playbackSurfaceHeight = 400;$/;"	v
+playbackSurfaceWidth	VTCTestApp.cpp	/^uint32_t playbackSurfaceWidth = 400;$/;"	v
+player	VTCTestApp.cpp	/^sp<MediaPlayer> player;$/;"	v
+playerWinX	VTCTestApp.cpp	/^uint32_t playerWinX = 0;$/;"	v
+playerWinY	VTCTestApp.cpp	/^uint32_t playerWinY = 0;$/;"	v
+postData	VTCTestApp.cpp	/^        virtual void postData(int32_t \/* msgType *\/,$/;"	f	class:MyCameraListener
+postDataTimestamp	VTCTestApp.cpp	/^        virtual void postDataTimestamp(nsecs_t \/* timestamp *\/, int32_t \/* msgType *\/, const sp<IMemory>& \/* dataPtr *\/){}$/;"	f	class:MyCameraListener
+prepare	IOMXDecoder.cpp	/^status_t OMXDecoder::prepare() {$/;"	f	class:OMXDecoder
+prepare	IOMXEncoder.cpp	/^status_t OMXEncoder::prepare() {$/;"	f	class:OMXEncoder
+previewSurface	VTCTestApp.cpp	/^sp<Surface> previewSurface;$/;"	v
+printUsage	VTCLoopback.cpp	/^void printUsage() {$/;"	f
+printUsage	VTCTestApp.cpp	/^void printUsage() {$/;"	f
+pt2TestFunction	VTCLoopback.cpp	/^typedef int (*pt2TestFunction)();$/;"	t	file:
+pt2TestFunction	VTCTestApp.cpp	/^typedef int (*pt2TestFunction)();$/;"	t	file:
+put	IOMXDecoder.h	/^        status_t put(Ti::Utils::Message* msg) {$/;"	f	class:OMXDecoder::OMXCallbackHandler
+put	IOMXDecoder.h	/^        status_t put(Ti::Utils::Message* msg) {$/;"	f	class:OMXDecoder::SourceHandler
+put	IOMXEncoder.h	/^        status_t put(Ti::Utils::Message* msg) {$/;"	f	class:OMXEncoder::OMXCallbackHandler
+putCameraPayload	VTCLoopback.cpp	/^void MyCameraClient::putCameraPayload(sp<IMemory> payload, int64_t frameTime) {$/;"	f	class:MyCameraClient
+read	IOMXDecoder.cpp	/^status_t OMXDecoder::read(MediaBuffer **buffer, const ReadOptions *options) {$/;"	f	class:OMXDecoder
+read	IOMXEncoder.cpp	/^status_t OMXEncoder::read(MediaBuffer **buffer, const ReadOptions *options) {$/;"	f	class:OMXEncoder
+recorder	VTCTestApp.cpp	/^sp<MediaRecorder> recorder;$/;"	v
+releaseBuffer	VTCLoopback.h	/^    void releaseBuffer(sp<IMemory> data)$/;"	f	class:MyCameraClient
+resetParameters	IOMXEncoder.cpp	/^status_t OMXEncoder::resetParameters(int width, int height, int framerate, int bitrate, char *fname, int sliceHeight) {$/;"	f	class:OMXEncoder
+restart	IOMXDecoder.cpp	/^status_t OMXDecoder::restart() {$/;"	f	class:OMXDecoder
+setCallback	IOMXEncoder.cpp	/^void OMXEncoder::setCallback(EncodedBufferCallback fp) {$/;"	f	class:OMXEncoder
+setCodec	IOMXDecoder.h	/^    void setCodec(const sp<OMXDecoder> &target) {$/;"	f	struct:OMXDecoderObserver
+setCodec	IOMXEncoder.h	/^    void setCodec(const sp<OMXEncoder> &target) {$/;"	f	struct:OMXEncoderObserver
+setCurrentState	IOMXDecoder.cpp	/^status_t OMXDecoder::setCurrentState(OMX_STATETYPE newState) {$/;"	f	class:OMXDecoder
+setCurrentState	IOMXEncoder.cpp	/^status_t OMXEncoder::setCurrentState(OMX_STATETYPE newState) {$/;"	f	class:OMXEncoder
+setEncoderOutputSlice	IOMXEncoder.cpp	/^status_t OMXEncoder::setEncoderOutputSlice(OMX_U32 nHeight, OMX_U32 nWidth, OMX_U32 sizeBytes, OMX_U32 sizeMB) {$/;"	f	class:OMXEncoder
+setFrameRate	VTCLoopback.cpp	/^void setFrameRate(sp<OMXEncoder> pOMXEncoder) {$/;"	f
+setReleaser	VTCLoopback.h	/^    void setReleaser(ICamera *releaser) {$/;"	f	class:MyCameraClient
+start	IOMXDecoder.cpp	/^status_t OMXDecoder::start(MetaData *params) {$/;"	f	class:OMXDecoder
+start	IOMXEncoder.cpp	/^status_t OMXEncoder::start(MetaData *params) {$/;"	f	class:OMXEncoder
+startPlayback	VTCTestApp.cpp	/^int startPlayback() {$/;"	f
+startPreview	VTCTestApp.cpp	/^int startPreview() {$/;"	f
+startPreviewNow	CameraHardwareInterfaceTest.cpp	/^int startPreviewNow = 1;$/;"	v
+startRecording	VTCTestApp.cpp	/^int startRecording() {$/;"	f
+stop	IOMXDecoder.cpp	/^status_t OMXDecoder::stop() {$/;"	f	class:OMXDecoder
+stop	IOMXEncoder.cpp	/^status_t OMXEncoder::stop() {$/;"	f	class:OMXEncoder
+stopPlayback	VTCTestApp.cpp	/^int stopPlayback() {$/;"	f
+stopPreview	VTCLoopback.cpp	/^void stopPreview() {$/;"	f
+stopPreview	VTCTestApp.cpp	/^void stopPreview() {$/;"	f
+stopRecording	VTCTestApp.cpp	/^int stopRecording() {$/;"	f
+surfaceControl	VTCTestApp.cpp	/^sp<SurfaceControl> surfaceControl;$/;"	v
+surfaceInit	CameraHardwareInterfaceTest.cpp	/^void surfaceInit() {$/;"	f
+surface_setup_complete	CameraHardwareInterfaceTest.cpp	/^static int surface_setup_complete = 0;$/;"	v	file:
+tInPortDef	IOMXDecoder.h	/^    OMX_PARAM_PORTDEFINITIONTYPE tInPortDef;$/;"	m	struct:OMXDecoder
+tInPortDef	IOMXEncoder.h	/^    OMX_PARAM_PORTDEFINITIONTYPE tInPortDef;$/;"	m	struct:OMXEncoder
+tOutPortDef	IOMXDecoder.h	/^    OMX_PARAM_PORTDEFINITIONTYPE tOutPortDef;$/;"	m	struct:OMXDecoder
+tOutPortDef	IOMXEncoder.h	/^    OMX_PARAM_PORTDEFINITIONTYPE tOutPortDef;$/;"	m	struct:OMXEncoder
+test_ALL	VTCTestApp.cpp	/^int test_ALL()$/;"	f
+test_ChangeBitRate	VTCTestApp.cpp	/^int test_ChangeBitRate() {$/;"	f
+test_ChangeFrameRate	VTCTestApp.cpp	/^int test_ChangeFrameRate() {$/;"	f
+test_DEFAULT	VTCTestApp.cpp	/^int test_DEFAULT() {$/;"	f
+test_DEFAULT_Frame	VTCLoopback.cpp	/^int test_DEFAULT_Frame() {$/;"	f
+test_DEFAULT_Slice	VTCLoopback.cpp	/^int test_DEFAULT_Slice() {$/;"	f
+test_Frame_Robustness	VTCLoopback.cpp	/^int test_Frame_Robustness() {$/;"	f
+test_InsertIDRFrames	VTCTestApp.cpp	/^int test_InsertIDRFrames() {$/;"	f
+test_MaxNALSize	VTCTestApp.cpp	/^int test_MaxNALSize() {$/;"	f
+test_PlaybackAndRecord_PIP	VTCTestApp.cpp	/^int test_PlaybackAndRecord_PIP() {$/;"	f
+test_PlaybackAndRecord_sidebyside	VTCTestApp.cpp	/^int test_PlaybackAndRecord_sidebyside() {$/;"	f
+test_PlaybackOnly	VTCTestApp.cpp	/^int test_PlaybackOnly()$/;"	f
+test_Robust	VTCTestApp.cpp	/^int test_Robust() {$/;"	f
+test_Robustness	VTCLoopback.cpp	/^int test_Robustness() {$/;"	f
+test_Slice_Robustness	VTCLoopback.cpp	/^int test_Slice_Robustness() {$/;"	f
+testcase	VTCTestApp.cpp	/^int testcase = 1;$/;"	v
+threadLoop	IOMXDecoder.h	/^        virtual bool threadLoop() {$/;"	f	class:OMXDecoder::OMXCallbackHandler
+threadLoop	IOMXDecoder.h	/^        virtual bool threadLoop() {$/;"	f	class:OMXDecoder::SourceHandler
+threadLoop	IOMXEncoder.h	/^        virtual bool threadLoop() {$/;"	f	class:OMXEncoder::OMXCallbackHandler
+updatePassRate	VTCTestApp.cpp	/^void updatePassRate(int test_status, bool verifyRecordedClip) {$/;"	f
+varyBitRate	VTCLoopback.cpp	/^void varyBitRate(sp<OMXEncoder> pOMXEncoder) {$/;"	f
+varyBitRate1	VTCLoopback.cpp	/^void varyBitRate1(sp<OMXEncoder> pOMXEncoder) {$/;"	f
+varyBitRate2	VTCLoopback.cpp	/^void varyBitRate2(sp<OMXEncoder> pOMXEncoder) {$/;"	f
+varyFrameRate	VTCLoopback.cpp	/^void varyFrameRate(sp<OMXEncoder> pOMXEncoder) {$/;"	f
+varyOrientation	VTCLoopback.cpp	/^void varyOrientation(sp<OMXEncoder> pOMXEncoder) {$/;"	f
+verfiyByPlayback	VTCTestApp.cpp	/^int verfiyByPlayback() {$/;"	f
+waitForStateChange	IOMXDecoder.h	/^    int waitForStateChange;$/;"	m	struct:OMXDecoder
+waitForStateSet	IOMXDecoder.cpp	/^status_t OMXDecoder::waitForStateSet(OMX_STATETYPE newState) {$/;"	f	class:OMXDecoder
+waitForStateSet	IOMXEncoder.cpp	/^status_t OMXEncoder::waitForStateSet(OMX_STATETYPE newState) {$/;"	f	class:OMXEncoder
+width	VTCLoopback.cpp	/^    size_t width, height;$/;"	m	struct:Configuration	file:
+~MyCameraClient	VTCLoopback.h	/^    ~MyCameraClient() {}$/;"	f	class:MyCameraClient
+~OMXDecoder	IOMXDecoder.cpp	/^OMXDecoder::~OMXDecoder() {$/;"	f	class:OMXDecoder
+~OMXDecoderObserver	IOMXDecoder.h	/^    virtual ~OMXDecoderObserver() {}$/;"	f	struct:OMXDecoderObserver
+~OMXEncoder	IOMXEncoder.cpp	/^OMXEncoder::~OMXEncoder() {$/;"	f	class:OMXEncoder
+~OMXEncoderObserver	IOMXEncoder.h	/^    virtual ~OMXEncoderObserver() {}$/;"	f	struct:OMXEncoderObserver
