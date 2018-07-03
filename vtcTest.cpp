@@ -19,7 +19,7 @@
  */
 
 
-//#define LOG_NDEBUG 0
+#define LOG_NDEBUG 0
 #define LOG_TAG "VTCTest"
 
 #define ANDROID_API_JB_OR_LATER 1
@@ -169,10 +169,11 @@ int test_PlaybackAndRecord_PIP();
 int test_PlaybackOnly();
 int test_Robust();
 int test_RecordPlayback();
+int test_CameraPreview();
 
 
 typedef int (*pt2TestFunction)();
-pt2TestFunction TestFunctions[11] = {
+pt2TestFunction TestFunctions[12] = {
     test_ALL, // 0
     test_RecordDEFAULT, // 1
     test_InsertIDRFrames, // 2
@@ -183,13 +184,14 @@ pt2TestFunction TestFunctions[11] = {
     test_PlaybackAndRecord_PIP, // 7
     test_PlaybackOnly, // 8
     test_Robust, // 9
-    test_RecordPlayback //10
+    test_RecordPlayback, //10
+    test_CameraPreview //11
 };
 
 class MyCameraListener: public CameraListener {
     public:
         virtual void notify(int32_t msgType, int32_t ext1, int32_t /* ext2 */) {
-                        VTC_LOGD("\n\n\n notifynotifynotifynotifynotifynotifynotifyCamera reported an error!!!\n\n\n");
+                        VTC_LOGD("\n\n\n notify reported an error!!!\n\n\n");
 
             if ( msgType & CAMERA_MSG_ERROR && (ext1 == 1)) {
                 VTC_LOGD("\n\n\n Camera reported an error!!!\n\n\n");
@@ -491,7 +493,7 @@ int startRecording() {
         return -1;
     }
 
-#if 1
+#if 0
     sprintf(mParamValue,"time-lapse-enable=1");
     String8 tl_enable(mParamValue);
     if ( recorder->setParameters(tl_enable) < 0 ) {
@@ -562,14 +564,14 @@ int startPreview() {
     bRecording = false;
 
     createPreviewSurface();
-#if 0
-    camera = Camera::connect(camera_index, String16(), -1);
+#if 1
+    camera = Camera::connect(camera_index, String16(), -1, -1 );
 #else
-    status_t status = Camera::connectLegacy(camera_index, 256, String16(),
+    status_t status = Camera::connectLegacy(camera_index, 550, String16(),
                 Camera::USE_CALLING_UID, camera);
     if (status != NO_ERROR) {
         VTC_LOGE("camera connectLegacy failed");
-        return status;
+        //return status;
     }
 #endif
     if (camera.get() == NULL){
@@ -634,6 +636,16 @@ void stopPreview() {
     destroyPreviewSurface();
 }
 
+int test_CameraPreview() {
+    startPreview();
+    int64_t start = systemTime();
+    sleep(mDuration);
+    int64_t end = systemTime();
+    stopPreview();
+
+    return 0;
+}
+
 int test_RecordDEFAULT() {
     startPreview();
     int64_t start = systemTime();
@@ -642,7 +654,7 @@ int test_RecordDEFAULT() {
     stopRecording();
     int64_t end = systemTime();
     stopPreview();
-    //fprintf(stderr, "encoding %d frames in %" PRId64 " us\n", nFrames, (end-start)/1000);
+    //fprintf(stderr, "encoding %d frames in %d  us\n", nFrames, (end-start)/1000);
     //fprintf(stderr, "encoding speed is: %.2f fps\n", (nFrames * 1E9) / (end-start));
 
     return 0;
@@ -1475,6 +1487,8 @@ void printUsage() {
     printf("\n7 - Test PIP. Option: -p, -n");
     printf("\n8 - Test Video playback Only. Option: -p");
     printf("\n9 - Robustness. Default: play and record the predefined resolutions (VGA & 720p). Option: -c, -v");
+    printf("\n10 - record and playback the /sdcard/output.mp4 default ");
+    printf("\n11 - test camera preview ");
 
     printf("\n\n\nAvailable Options:");
 	printf("\n-a video codec: [0] AVC [1] HEVC (default: 0)\n");
