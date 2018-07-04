@@ -365,16 +365,19 @@ int createPreviewSurface() {
     if(client->initCheck() != (status_t)OK)
 		VTC_LOGD(" initCheck error ");
 
+    VTC_LOGD("\n\n jgl prex %d, prey %d, prew %d , preh %d, \n\n\n", cameraWinX, cameraWinY, cameraSurfaceWidth, cameraSurfaceHeight);
     sp<IBinder> dtoken(SurfaceComposerClient::getBuiltInDisplay(
             ISurfaceComposer::eDisplayIdMain));
     DisplayInfo dinfo;
     status_t status = SurfaceComposerClient::getDisplayInfo(dtoken, &dinfo);
 
     printf("Display info %d %d\n", dinfo.w, dinfo.h);
+    /*
     if ((cameraSurfaceWidth == 0) || (cameraSurfaceHeight == 0)){
         cameraSurfaceWidth = WIDTH;//client->getDisplayWidth(0);
         cameraSurfaceHeight = HEIGHT;//client->getDisplayHeight(0);
     }
+    */
 
     surfaceControl = client->createSurface(String8("previewSurface"),
             cameraSurfaceWidth,
@@ -579,7 +582,7 @@ int startPreview() {
         return -1;
     }
 
-    VTC_LOGD("\n\n mPreviewWidth = %d, mPreviewHeight = %d, mVideoFrameRate = %d, mVideoBitRate = %d \n\n\n",
+    VTC_LOGD("\n\n mPreviewWidth = %d, mPreviewHeight = %d, prex %d, prey %d, prew %d , preh %d, mVideoFrameRate = %d, mVideoBitRate = %d \n\n\n",
         mPreviewWidth, mPreviewHeight, mVideoFrameRate, mVideoBitRate);
 
     params.unflatten(camera->getParameters());
@@ -958,10 +961,6 @@ int test_PlaybackOnly()
         cameraSurfaceHeight = panelheight/2;
     } else {// Landscape
         VTC_LOGD("\n Landscape Device\n");
-        playbackSurfaceWidth = panelwidth;
-        playbackSurfaceHeight = panelheight;
-        playerWinX = 0;
-        playerWinY = 0;
     }
 
     startPlayback();
@@ -1409,6 +1408,17 @@ void printUsage() {
     printf("\n-c: Robustness, number of cycles. Default = %d", mCycles);
     printf("\n-v: Robustness. Which test to repeat? Range: 1-8. Read test descriptions above. Default = -1 = play and record the predefined resolutions (VGA & 720p)");
     printf("\n-t: Playback Duration in milli secs. Default = %d = Play till EOF", mPlaybackDuration);
+
+    printf("\n-playx: Playback pos x");
+    printf("\n-playy: Playback pos y");
+    printf("\n-playw: Playback width");
+    printf("\n-playh: Playback height");
+    printf("\n-prex: Preview pos x");
+    printf("\n-prey: Preview pos y");
+    printf("\n-prew: Preview width");
+    printf("\n-preh: Preview height");
+    printf("\n-encw: record width");
+    printf("\n-ench: record height");
     printf("\n\n\n");
 
 }
@@ -1438,6 +1448,16 @@ int main (int argc, char* argv[]) {
         {"num_cycles", 1, NULL, 'c'},
         {"playback_duration", 1, NULL, 't'},
         {"robustness_test_type", 1, NULL, 'v'},
+        {"playx", required_argument, NULL, 1 },
+        {"playy", required_argument, NULL, 2 },
+        {"playw", required_argument, NULL, 3 },
+        {"playh", required_argument, NULL, 4 },
+        {"prex", required_argument, NULL, 5 },
+        {"prey", required_argument, NULL, 6 },
+        {"prew", required_argument, NULL, 7 },
+        {"preh", required_argument, NULL, 8 },
+        {"encw", required_argument, NULL, 9 },
+        {"ench", required_argument, NULL, 10 },
         {NULL, 0, NULL, 0}
     };
 
@@ -1450,8 +1470,38 @@ int main (int argc, char* argv[]) {
     }
     testcase = atoi(argv[1]);
 
-    while((opt = getopt_long(argc, argv, short_options, long_options, NULL)) != -1) {
+    while((opt = getopt_long_only(argc, argv, short_options, long_options, NULL)) != -1) {
         switch(opt) {
+            case 1:
+                playerWinX = atoi(optarg);
+                break;
+            case 2:
+                playerWinY= atoi(optarg);
+                break;
+            case 3:
+                playbackSurfaceWidth = atoi(optarg);
+                break;
+            case 4:
+                playbackSurfaceHeight= atoi(optarg);
+                 break;
+            case 5:
+                cameraWinX= atoi(optarg);
+                break;
+            case 6:
+                cameraWinY= atoi(optarg);
+                break;
+            case 7:
+                cameraSurfaceWidth= atoi(optarg);
+                break;
+            case 8:
+                cameraSurfaceHeight= atoi(optarg);
+                 break;
+            case 9:
+                mPreviewWidth= atoi(optarg);
+                 break;
+            case 10:
+                mPreviewHeight= atoi(optarg);
+                 break;
             case 'n':
                 strcpy(mRecordFileName, optarg);
                 break;
