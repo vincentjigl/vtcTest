@@ -1083,164 +1083,65 @@ int test_ALL()
         VTC_LOGD("\n\n\n\n########  1080p Testing as been disable  #######\n\n\n");
     }
 
-  if(!mDisable1080pTesting){
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_1080p_30fps_1Mbps_i-frame-2sec.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 1920;
-    mPreviewHeight = 1080;
-    mIFramesIntervalSec = 2;
-    status = test_RecordDEFAULT();
-    updatePassRate(status, true);
+    uint32_t resolution[3]={1/*1080 */, 2 /*720p */, 3/*480p */};
 
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_1080p_30fps_1Mbps_i-frame-10sec.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 1920;
-    mPreviewHeight = 1080;
-    mIFramesIntervalSec = 10;
-    mDuration = 30;
-    status = test_RecordDEFAULT();
-    updatePassRate(status, true);
+    uint32_t a[3]={2, 10, 0};
+    uint32_t b[3]={3, 8, 0};
+    uint32_t c[3]={1, 15, 0};
+    int i=0, k=0;
 
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_1080p_30fps_1Mbps_i-frame-0sec.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 1920;
-    mPreviewHeight = 1080;
-    mIFramesIntervalSec = 0;
-    status = test_RecordDEFAULT();
-    updatePassRate(status, true);
+    for(k=0;k++;k<3){
+        uint32_t res=resolution[k];
+        uint32_t *t;
+        switch(res){
+        case 1:// 1080p
+            mPreviewWidth = 1920;
+            mPreviewHeight = 1080;
+            InsertIDRFrameEveryXSecs = 2;
+            t=a;
+            break;
+        case 2:
+            mPreviewWidth = 1280;
+            mPreviewHeight = 720;
+            InsertIDRFrameEveryXSecs = 5;
+            t=b;
+            break;
+        case 3:
+            mPreviewWidth = 640;
+            mPreviewHeight = 480;
+            InsertIDRFrameEveryXSecs = 8;
+            t=c;
+            break;
+        default:
+            break;
+        }
+        
+        for(i=0;i++;i<3){
+            sprintf(mRecordFileName,  "/data/output/utr_%03d_%dp_30fps_1mbps_i-frame-%dsec.mp4", mTestCount,mPreviewHeight, t[i]);
+            VTC_LOGD("\n\n###################################################### recording. filename: %s\n\n", mRecordFileName);
+            mIFramesIntervalSec = t[i];
+            status = test_RecordDEFAULT();
+            updatePassRate(status, true);
+        }
+
+        int f1[3]={30, 30, 15};
+        int f2[3]={24, 15, 30};
+        for(i=0;i<3;i++){
+             sprintf(mRecordFileName,  "/data/output/utr_%03d_%dp_1mbps_%dfps-%dfps.mp4", mTestCount,mPreviewHeight,f1[i], f2[i]);
+             VTC_LOGD("\n\n###################################################### recording. filename: %s\n\n", mRecordFileName);
+             mVideoFrameRate = f1[i];
+             mNewVideoFrameRate = f2[i];
+             status = test_ChangeFrameRate();
+             updatePassRate(status, true);
+        }
+
+        sprintf(mRecordFileName,  "/data/output/utr_%03d_%dp_30fps_1mbps_i-frames_every-%dsec.mp4", mTestCount,mPreviewHeight, InsertIDRFrameEveryXSecs);
+        VTC_LOGD("\n\n###################################################### recording. filename: %s\n\n", mRecordFileName);
+        status = test_InsertIDRFrames();
+        updatePassRate(status, true);
+
+
     }
-
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_720p_30fps_1Mbps_i-frame-3sec.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 1280;
-    mPreviewHeight = 720;
-    mIFramesIntervalSec = 3;
-    status = test_RecordDEFAULT();
-    updatePassRate(status, true);
-
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_720p_30fps_1Mbps_i-frame-8sec.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 1280;
-    mPreviewHeight = 720;
-    mIFramesIntervalSec = 8;
-    status = test_RecordDEFAULT();
-    updatePassRate(status, true);
-
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_720p_30fps_1Mbps_i-frame-0sec.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 1280;
-    mPreviewHeight = 720;
-    mIFramesIntervalSec = 0;
-    status = test_RecordDEFAULT();
-    updatePassRate(status, true);
-
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_VGA_30fps_1Mbps_i-frame-1sec.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 640;
-    mPreviewHeight = 480;
-    mIFramesIntervalSec = 1;
-    status = test_RecordDEFAULT();
-    updatePassRate(status, true);
-
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_VGA_30fps_1Mbps_i-frame-15sec.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 640;
-    mPreviewHeight = 480;
-    mIFramesIntervalSec = 15;
-    mDuration = 30;
-    status = test_RecordDEFAULT();
-    updatePassRate(status, true);
-
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_VGA_30fps_1Mbps_i-frame-0sec.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 640;
-    mPreviewHeight = 480;
-    mIFramesIntervalSec = 0;
-    status = test_RecordDEFAULT();
-    updatePassRate(status, true);
-
-  if(!mDisable1080pTesting){
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_1080p_1Mbps_30fps-15fps.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 1920;
-    mPreviewHeight = 1080;
-    mVideoFrameRate = 30;
-    mNewVideoFrameRate = 15;
-    status = test_ChangeFrameRate();
-    updatePassRate(status, true);
-
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_1080p_1Mbps_15fps-30fps.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 1920;
-    mPreviewHeight = 1080;
-    mVideoFrameRate = 15;
-    mNewVideoFrameRate = 30;
-    status = test_ChangeFrameRate();
-    updatePassRate(status, true);
-
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_1080p_1Mbps_30fps-24fps.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 1920;
-    mPreviewHeight = 1080;
-    mVideoFrameRate = 30;
-    mNewVideoFrameRate = 24;
-    status = test_ChangeFrameRate();
-    updatePassRate(status, true);
-    }
-
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_720p_1Mbps_30fps-15fps.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 1280;
-    mPreviewHeight = 720;
-    mVideoFrameRate = 30;
-    mNewVideoFrameRate = 15;
-    status = test_ChangeFrameRate();
-    updatePassRate(status, true);
-
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_720p_1Mbps_15fps-30fps.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 1280;
-    mPreviewHeight = 720;
-    mVideoFrameRate = 30;
-    mNewVideoFrameRate = 24;
-    status = test_ChangeFrameRate();
-    updatePassRate(status, true);
-
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_720p_1Mbps_24fps-30fps.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 1280;
-    mPreviewHeight = 720;
-    mVideoFrameRate = 15;
-    mNewVideoFrameRate = 30;
-    status = test_ChangeFrameRate();
-    updatePassRate(status, true);
-
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_VGA_1Mbps_30fps-15fps.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 640;
-    mPreviewHeight = 480;
-    mVideoFrameRate = 30;
-    mNewVideoFrameRate = 15;
-    status = test_ChangeFrameRate();
-    updatePassRate(status, true);
-
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_VGA_1Mbps_15fps-30fps.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 640;
-    mPreviewHeight = 480;
-    mVideoFrameRate = 30;
-    mNewVideoFrameRate = 24;
-    status = test_ChangeFrameRate();
-    updatePassRate(status, true);
-
-    sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_VGA_1Mbps_24fps-30fps.3gp", mTestCount);
-    VTC_LOGD("\n\n###################################################### Recording. Filename: %s\n\n", mRecordFileName);
-    mPreviewWidth = 640;
-    mPreviewHeight = 480;
-    mVideoFrameRate = 24;
-    mNewVideoFrameRate = 30;
-    status = test_ChangeFrameRate();
-    updatePassRate(status, true);
 
   if(!mDisable1080pTesting){
     sprintf(mRecordFileName,  "/mnt/sdcard/vtc/UTR_%03d_1080p_30fps_1Mbps_max-1000MB.3gp", mTestCount);
