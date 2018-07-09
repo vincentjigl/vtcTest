@@ -213,7 +213,7 @@ class PlayerListener: public MediaPlayerListener {
 public:
     virtual void notify(int msg, int ext1, int ext2, const Parcel * /* obj */)
     {
-        VTC_LOGD("Notify cb: %d %d %d\n", msg, ext1, ext2);
+        //VTC_LOGD("Notify cb: %d %d %d\n", msg, ext1, ext2);
 
         if ( msg == MEDIA_PREPARED ){
             VTC_LOGD("MEDIA_PREPARED!");
@@ -582,12 +582,12 @@ int startPreview() {
         return -1;
     }
 
-    VTC_LOGD("\n\n mPreviewWidth = %d, mPreviewHeight = %d, prex %d, prey %d, prew %d , preh %d, mVideoFrameRate = %d, mVideoBitRate = %d \n\n\n",
+    VTC_LOGD("\n\n mPreviewWidth = %d, mPreviewHeight = %d, mVideoFrameRate = %d, mVideoBitRate = %d \n\n\n",
         mPreviewWidth, mPreviewHeight, mVideoFrameRate, mVideoBitRate);
 
     params.unflatten(camera->getParameters());
     params.setPreviewSize(mPreviewWidth, mPreviewHeight);
-    //params.setPreviewFrameRate(30/*mVideoFrameRate*/);
+    params.setPreviewFrameRate(30/*mVideoFrameRate*/);
     params.set(CameraParameters::KEY_RECORDING_HINT, CameraParameters::TRUE);// Set recording hint, otherwise it defaults to high-quality and there is not enough memory available to do playback and camera preview simultaneously!
     //sprintf(mParamValue,"%u,%u", 30/*mVideoFrameRate*/*1000, 30/*mVideoFrameRate*/*1000);
     //params.set("preview-fps-range", mParamValue);
@@ -604,7 +604,7 @@ int startPreview() {
     //params.set("zsl", "off");
     //params.set("video-hdr", "off");
     params.set("video-hfr", "off");
-    params.set("video-hsr", "60");
+    params.set("video-hsr", "30");
     sprintf(mParamValue,"%u,%u", 30/*mVideoFrameRate*/*1000, 30/*mVideoFrameRate*/*1000);
     //sprintf(mParamValue,"%u,%u", mVideoFrameRate*1000, mVideoFrameRate*1000);
     params.set("preview-fps-range", mParamValue);
@@ -650,6 +650,7 @@ int test_CameraPreview() {
 }
 
 int test_RecordDEFAULT() {
+    VTC_LOGI("\n\nRecorded Output is stored in %s\n\n", mRecordFileName);
     startPreview();
     int64_t start = systemTime();
     startRecording();
@@ -664,6 +665,7 @@ int test_RecordDEFAULT() {
 }
 
 int test_RecordPlayback() {
+    VTC_LOGI("\n\nRecorded Output is stored in %s\n\n", mRecordFileName);
     startPreview();
     int64_t start = systemTime();
     startRecording();
@@ -806,6 +808,7 @@ int test_ChangeFrameRate() {
 }
 
 int test_PlaybackAndRecord_sidebyside() {
+    VTC_LOGI("\n\nRecorded Output is stored in %s\n\n", mRecordFileName);
     playbackComposerClient = new SurfaceComposerClient();
     //CHECK_EQ(playbackComposerClient->initCheck(), (status_t)OK);
     if(playbackComposerClient->initCheck() != (status_t)OK)
@@ -862,6 +865,7 @@ int test_PlaybackAndRecord_sidebyside() {
 
 
 int test_PlaybackAndRecord_PIP() {
+    VTC_LOGI("\n\nRecorded Output is stored in %s\n\n", mRecordFileName);
     playbackComposerClient = new SurfaceComposerClient();
     //CHECK_EQ(playbackComposerClient->initCheck(), (status_t)OK);
     if(playbackComposerClient->initCheck() != (status_t)OK)
@@ -1576,7 +1580,6 @@ int main (int argc, char* argv[]) {
         }
     }
 
-    VTC_LOGI("\n\nRecorded Output is stored in %s\n\n", mRecordFileName);
     system("echo VTCTestApp > /sys/power/wake_lock");
     TestFunctions[testcase]();
     system("echo VTCTestApp > /sys/power/wake_unlock");
