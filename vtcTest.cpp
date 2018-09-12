@@ -152,8 +152,8 @@ uint32_t cameraWinY = 0;
 uint32_t playerWinX = 0;
 uint32_t playerWinY = 0;
 
-uint32_t cameraSurfaceWidth = 0;
-uint32_t cameraSurfaceHeight = 0;
+uint32_t cameraSurfaceWidth = 1280;
+uint32_t cameraSurfaceHeight = 720;
 uint32_t playbackSurfaceWidth = 400;
 uint32_t playbackSurfaceHeight = 400;
 
@@ -221,16 +221,16 @@ public:
         }
 
         if ( msg == MEDIA_SET_VIDEO_SIZE ){
-            VTC_LOGD("MEDIA_SET_VIDEO_SIZE!");
+            VTC_LOGD("\nMEDIA_SET_VIDEO_SIZE!");
         }
 
         if ( msg == MEDIA_PLAYBACK_COMPLETE ){
-            VTC_LOGD("MEDIA_PLAYBACK_COMPLETE!");
+            VTC_LOGD("\nMEDIA_PLAYBACK_COMPLETE!");
             pthread_cond_signal(&mCond);
         }
 
         if ( msg == MEDIA_ERROR ){
-            VTC_LOGD("PLAYER REPORTED MEDIA_ERROR!");
+            VTC_LOGD("\nPLAYER REPORTED MEDIA_ERROR!");
             mMediaPlayerThrewError = true;
             pthread_cond_signal(&mCond);
         }
@@ -512,12 +512,12 @@ int startRecording() {
     }
 #endif
 
-    /*sprintf(mParamValue,"video-param-i-frames-interval=%u", mIFramesIntervalSec);
+    sprintf(mParamValue,"video-param-i-frames-interval=%u", mIFramesIntervalSec);
     String8 interval(mParamValue);
     if ( recorder->setParameters(interval) < 0 ) {
         VTC_LOGD("error while configuring i-frame interval\n");
         return -1;
-    }*/
+    }
 
     if ( recorder->prepare() < 0 ) {
         VTC_LOGD("recorder prepare failed\n");
