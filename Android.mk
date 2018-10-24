@@ -8,6 +8,7 @@ LOCAL_C_INCLUDES += \
     $(TOP)/frameworks/native/include/media/hardware\
     $(TOP)/frameworks/native/include\
     $(TOP)/frameworks/av/include\
+    $(TOP)/frameworks/av/include/media\
     $(TOP)/frameworks/base/include
 
 LOCAL_SHARED_LIBRARIES := \

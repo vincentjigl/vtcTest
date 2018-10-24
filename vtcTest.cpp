@@ -124,6 +124,7 @@ FILE *mResultsFP = NULL;
 // If seconds >  0, it is the time spacing (seconds) between 2 neighboring I frames
 int32_t mIFramesIntervalSec = 1;
 uint32_t mVideoBitRate      = 10000000;
+uint32_t mVideoSvcLayer     = 0;
 uint32_t mVideoFrameRate    = 60;
 uint32_t mNewVideoBitRate   = 1000000;
 uint32_t mNewVideoFrameRate = 15;
@@ -493,6 +494,14 @@ int startRecording() {
     String8 bit_rate(mParamValue);
     if ( recorder->setParameters(bit_rate) < 0 ) {
         VTC_LOGD("error while configuring bit rate\n");
+        return -1;
+    }
+
+    sprintf(mParamValue,"video-param-svc-layer=%u", 3);
+    String8 svc_layer(mParamValue);
+    printf("svc layer setting %s", mParamValue);
+    if ( recorder->setParameters(svc_layer) < 0 ) {
+        VTC_LOGD("error while configuring svc layer\n");
         return -1;
     }
 
@@ -1434,7 +1443,7 @@ int main (int argc, char* argv[]) {
     pthread_cond_init(&mCond, NULL);
 
     int opt;
-    const char* const short_options = "a:n:w:h:d:s:i:I:b:f:B:F:p:M:c:t:v:";
+    const char* const short_options = "a:n:w:l:h:d:s:i:I:b:f:B:F:p:M:c:t:v:";
     const struct option long_options[] = {
         {"record_filename", 1, NULL, 'n'},
         {"width", 1, NULL, 'w'},
@@ -1524,6 +1533,9 @@ int main (int argc, char* argv[]) {
                 break;
             case 'b':
                 mVideoBitRate = atoi(optarg);
+                break;
+            case 'l':
+                mVideoSvcLayer = atoi(optarg);
                 break;
             case 'B':
                 mNewVideoBitRate = atoi(optarg);
