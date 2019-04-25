@@ -499,7 +499,7 @@ int startRecording() {
 
     sprintf(mParamValue,"video-param-svc-layer=%u", 3);
     String8 svc_layer(mParamValue);
-    printf("svc layer setting %s", mParamValue);
+    printf("svc layer setting %s \n", mParamValue);
     if ( recorder->setParameters(svc_layer) < 0 ) {
         VTC_LOGD("error while configuring svc layer\n");
         return -1;
@@ -823,8 +823,8 @@ int test_PlaybackAndRecord_sidebyside() {
     if(playbackComposerClient->initCheck() != (status_t)OK)
 		VTC_LOGD(" initCheck error ");
 
-    int panelwidth = WIDTH;//playbackComposerClient->getDisplayWidth(0);
-    int panelheight = HEIGHT;//playbackComposerClient->getDisplayHeight(0);
+    int panelwidth = 1920;//playbackComposerClient->getDisplayWidth(0);
+    int panelheight = 1080;//playbackComposerClient->getDisplayHeight(0);
     VTC_LOGD("Panel WxH = %d x %d", panelwidth, panelheight);
     if (panelwidth < panelheight) {//Portrait Phone
         VTC_LOGD("\nPortrait Device\n");
@@ -837,17 +837,17 @@ int test_PlaybackAndRecord_sidebyside() {
         cameraWinY = playbackSurfaceHeight;
         cameraSurfaceWidth = panelwidth;
         cameraSurfaceHeight = panelheight/2;
-    } else {// Landscape
+    } else if(0) {// Landscape
         VTC_LOGD("\n Landscape Device\n");
         playbackSurfaceWidth = panelwidth/2;
-        playbackSurfaceHeight = panelheight;
+        playbackSurfaceHeight = panelheight/2;
         playerWinX = 0;
         playerWinY = 0;
 
         cameraWinX = playbackSurfaceWidth;
-        cameraWinY = 0;
+        cameraWinY = playbackSurfaceHeight;
         cameraSurfaceWidth = panelwidth/2;
-        cameraSurfaceHeight = panelheight;
+        cameraSurfaceHeight = panelheight/2;
     }
 
     startPlayback();
