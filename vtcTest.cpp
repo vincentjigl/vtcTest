@@ -171,10 +171,12 @@ int test_PlaybackOnly();
 int test_Robust();
 int test_RecordPlayback();
 int test_CameraPreview();
+int test_SvcSpace();
+
 
 
 typedef int (*pt2TestFunction)();
-pt2TestFunction TestFunctions[12] = {
+pt2TestFunction TestFunctions[13] = {
     test_ALL, // 0
     test_RecordDEFAULT, // 1
     test_InsertIDRFrames, // 2
@@ -186,7 +188,8 @@ pt2TestFunction TestFunctions[12] = {
     test_PlaybackOnly, // 8
     test_Robust, // 9
     test_RecordPlayback, //10
-    test_CameraPreview //11
+    test_CameraPreview, //11
+    test_SvcSpace //12
 };
 
 class MyCameraListener: public CameraListener {
@@ -497,7 +500,135 @@ int startRecording() {
         return -1;
     }
 
-    sprintf(mParamValue,"video-param-svc-layer=%u", 3);
+	if(mVideoSvcLayer != 0){
+	    sprintf(mParamValue,"video-param-svc-layer=%u", mVideoSvcLayer);
+	    String8 svc_layer(mParamValue);
+	    printf("svc layer setting %s \n", mParamValue);
+	    if ( recorder->setParameters(svc_layer) < 0 ) {
+	        VTC_LOGD("error while configuring svc layer\n");
+	        return -1;
+	    }
+	}
+
+#if 0
+    sprintf(mParamValue,"time-lapse-enable=1");
+    String8 tl_enable(mParamValue);
+    if ( recorder->setParameters(tl_enable) < 0 ) {
+        VTC_LOGD("error while configuring bit rate\n");
+        return -1;
+    }
+
+    sprintf(mParamValue,"time-lapse-fps=%u", mVideoFrameRate);
+    String8 tl_fps(mParamValue);
+    if ( recorder->setParameters(tl_fps) < 0 ) {
+        VTC_LOGD("error while configuring time lapse fps\n");
+        return -1;
+    }
+#endif
+
+    sprintf(mParamValue,"video-param-i-frames-interval=%u", mIFramesIntervalSec);
+    String8 interval(mParamValue);
+    if ( recorder->setParameters(interval) < 0 ) {
+        VTC_LOGD("error while configuring i-frame interval\n");
+        return -1;
+    }
+
+    if ( recorder->prepare() < 0 ) {
+        VTC_LOGD("recorder prepare failed\n");
+        return -1;
+    }
+
+    if ( recorder->start() < 0 ) {
+        VTC_LOGD("recorder start failed\n");
+        return -1;
+    }
+
+    bRecording = true;
+    return 0;
+}
+
+int startRecording_svcSpace() {
+
+    if (camera.get() == NULL) return -1;
+
+    recorder = new MediaRecorder(String16());
+
+    if ( NULL == recorder.get() ) {
+        VTC_LOGD("Error while creating MediaRecorder\n");
+        return -1;
+    }
+
+    camera->unlock();
+
+    if ( recorder->setCamera(camera->remote(), camera->getRecordingProxy()) < 0 ) {
+        VTC_LOGD("error while setting the camera\n");
+        return -1;
+    }
+
+    if ( recorder->setVideoSource(1 /*VIDEO_SOURCE_CAMERA*/) < 0 ) {
+        VTC_LOGD("error while configuring camera video source\n");
+        return -1;
+    }
+#if 0
+    if ( recorder->setAudioSource(AUDIO_SOURCE_DEFAULT) < 0 ) {
+        VTC_LOGD("error while configuring camera audio source\n");
+        return -1;
+    }
+#endif
+    if ( recorder->setOutputFormat(OUTPUT_FORMAT_MPEG_4) < 0 ) {
+        VTC_LOGD("error while configuring output format\n");
+        return -1;
+    }
+
+    //if(mkdir("/mnt/obb/vtc",0777) == -1)
+         //VTC_LOGD("\n Directory \'vtc\' was not created or maybe it was already created \n");
+
+    mOutputFd = open(mRecordFileName, O_CREAT | O_RDWR |O_APPEND);
+
+    if(mOutputFd < 0){
+        VTC_LOGD("Error while creating video filename\n");
+        return -1;
+    }
+
+    if ( recorder->setOutputFile(mOutputFd, 0, 0) < 0 ) {
+        VTC_LOGD("error while configuring video filename\n");
+
+        return -1;
+    }
+
+    if ( recorder->setVideoFrameRate(mVideoFrameRate) < 0 ) {
+        VTC_LOGD("error while configuring video framerate\n");
+        return -1;
+    }
+
+    if ( recorder->setVideoSize(mPreviewWidth, mPreviewHeight) < 0 ) {
+        VTC_LOGD("error while configuring video size\n");
+        return -1;
+    }
+
+    if ( recorder->setVideoEncoder(mVideoCodec) < 0 ) {
+        VTC_LOGD("error while configuring video codec\n");
+        return -1;
+    }
+#if 0
+    if ( recorder->setAudioEncoder(AUDIO_ENCODER_AMR_NB) < 0 ) {
+        VTC_LOGD("error while configuring audio codec\n");
+        return -1;
+    }
+#endif
+    if ( recorder->setPreviewSurface(previewSurface->getIGraphicBufferProducer()) < 0 ) {
+        VTC_LOGD("error while configuring preview surface\n");
+        return -1;
+    }
+
+    sprintf(mParamValue,"video-param-encoding-bitrate=%u", mVideoBitRate);
+    String8 bit_rate(mParamValue);
+    if ( recorder->setParameters(bit_rate) < 0 ) {
+        VTC_LOGD("error while configuring bit rate\n");
+        return -1;
+    }
+
+    sprintf(mParamValue,"video-param-svc-layer=%u", 55);
     String8 svc_layer(mParamValue);
     printf("svc layer setting %s \n", mParamValue);
     if ( recorder->setParameters(svc_layer) < 0 ) {
@@ -666,6 +797,25 @@ int test_RecordDEFAULT() {
     sleep(mDuration);
     stopRecording();
     int64_t end = systemTime();
+    stopPreview();
+    //fprintf(stderr, "encoding %d frames in %d  us\n", nFrames, (end-start)/1000);
+    //fprintf(stderr, "encoding speed is: %.2f fps\n", (nFrames * 1E9) / (end-start));
+
+    return 0;
+}
+
+int test_SvcSpace() {
+    VTC_LOGI("\n\nRecorded Output is stored in %s\n\n", mRecordFileName);
+    startPreview();
+    int64_t start = systemTime();
+    startRecording();
+    sleep(mDuration/2);
+    stopRecording();
+	startRecording_svcSpace();
+    sleep(mDuration/2);
+    stopRecording();
+    int64_t end = systemTime();
+	
     stopPreview();
     //fprintf(stderr, "encoding %d frames in %d  us\n", nFrames, (end-start)/1000);
     //fprintf(stderr, "encoding speed is: %.2f fps\n", (nFrames * 1E9) / (end-start));
