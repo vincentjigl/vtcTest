@@ -118,6 +118,8 @@ bool mMediaPlayerThrewError = false;
 char mParamValue[100];
 char mRecordFileName[256];
 char mPlaybackFileName[256];
+char mPlaybackFileName2[256];
+
 FILE *mResultsFP = NULL;
 // If seconds <  0, only the first frame is I frame, and rest are all P frames
 // If seconds == 0, all frames are encoded as I frames. No P frames
@@ -142,6 +144,12 @@ sp<MediaPlayer> player;
 sp<SurfaceComposerClient> playbackComposerClient;
 sp<SurfaceControl> playbackSurfaceControl;
 sp<Surface> playbackSurface;
+
+sp<MediaPlayer> player2;
+sp<SurfaceComposerClient> playbackComposerClient2;
+sp<SurfaceControl> playbackSurfaceControl2;
+sp<Surface> playbackSurface2;
+
 //To perform better
 static pthread_cond_t mCond;
 static pthread_mutex_t mMutex;
@@ -241,7 +249,38 @@ public:
     }
 };
 
+class PlayerListener2: public MediaPlayerListener {
+public:
+    virtual void notify(int msg, int ext1, int ext2, const Parcel * /* obj */)
+    {
+        //VTC_LOGD("Notify cb: %d %d %d\n", msg, ext1, ext2);
+
+        if ( msg == MEDIA_PREPARED ){
+            VTC_LOGD("MEDIA_PREPARED!");
+            
+			player2->start();
+        }
+
+        if ( msg == MEDIA_SET_VIDEO_SIZE ){
+            VTC_LOGD("\nMEDIA_SET_VIDEO_SIZE!");
+        }
+
+        if ( msg == MEDIA_PLAYBACK_COMPLETE ){
+            VTC_LOGD("\nMEDIA_PLAYBACK_COMPLETE!");
+            pthread_cond_signal(&mCond);
+        }
+
+        if ( msg == MEDIA_ERROR ){
+            VTC_LOGD("\nPLAYER REPORTED MEDIA_ERROR!");
+            mMediaPlayerThrewError = true;
+            pthread_cond_signal(&mCond);
+        }
+    }
+};
+
 sp<PlayerListener> mPlayerListener;
+sp<PlayerListener2> mPlayerListener2;
+
 
 int getMediaserverInfo(int *PID, int *VSIZE){
     FILE *fp;
@@ -315,6 +354,65 @@ int startPlayback() {
     return 0;
 }
 
+int startPlayback2() {
+
+//playback 1
+    playbackSurfaceControl = playbackComposerClient->createSurface(String8("jglSurface"), 960, 540, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl != NULL);
+    CHECK(playbackSurfaceControl->isValid());
+    playbackSurface = playbackSurfaceControl->getSurface();
+    CHECK(playbackSurface != NULL);
+
+    playbackComposerClient->openGlobalTransaction();
+    playbackSurfaceControl->setLayer(0x7fffffff);
+    playbackSurfaceControl->setPosition(0, 0);
+    playbackSurfaceControl->setSize(960, 540);
+    playbackSurfaceControl->show();
+    playbackComposerClient->closeGlobalTransaction();
+
+
+
+    player = new MediaPlayer();
+    mPlayerListener = new PlayerListener();
+    mMediaPlayerThrewError = false;
+    player->setListener(mPlayerListener);
+    int fd = open(mPlaybackFileName, O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize = lseek64(fd, 0, SEEK_END);
+    player->setDataSource(fd, 0, fileSize);
+    player->setVideoSurfaceTexture(playbackSurface->getIGraphicBufferProducer());
+    player->prepareAsync();
+    player->setLooping(true);
+
+	printf("test playback 1+1 in one process \n");
+	//playback 2
+    playbackSurfaceControl2 = playbackComposerClient2->createSurface(String8("jglSurface2"), 959, 540, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl2 != NULL);
+    CHECK(playbackSurfaceControl2->isValid());
+	
+    playbackSurface2 = playbackSurfaceControl2->getSurface();
+    CHECK(playbackSurface2 != NULL);
+    playbackComposerClient2->openGlobalTransaction();
+    playbackSurfaceControl2->setLayer(0x7fffffff);
+    playbackSurfaceControl2->setPosition(961, 0);
+    playbackSurfaceControl2->setSize(959, 540);
+    playbackSurfaceControl2->show();
+    playbackComposerClient2->closeGlobalTransaction();
+
+    player2 = new MediaPlayer();
+    mPlayerListener2 = new PlayerListener2();
+    mMediaPlayerThrewError = false;
+    player2->setListener(mPlayerListener2);
+    int fd2 = open(mPlaybackFileName2, O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize2 = lseek64(fd2, 0, SEEK_END);
+    player2->setDataSource(fd2, 0, fileSize);
+    player2->setVideoSurfaceTexture(playbackSurface2->getIGraphicBufferProducer());
+    player2->prepareAsync();
+    player2->setLooping(true);
+
+    bPlaying = true;
+    return 0;
+}
+
 int stopPlayback() {
 
     VTC_LOGD("%d: %s", __LINE__, __FUNCTION__);
@@ -336,6 +434,52 @@ int stopPlayback() {
     if ( NULL != playbackComposerClient.get() ) {
         playbackComposerClient->dispose();
         playbackComposerClient.clear();
+    }
+
+    return 0;
+}
+
+int stopPlayback2() {
+
+    VTC_LOGD("%d: %s", __LINE__, __FUNCTION__);
+    player->stop();
+    player->setListener(0);
+    player->disconnect();
+    player.clear();
+    mPlayerListener.clear();
+
+    if ( NULL != playbackSurface.get() ) {
+        playbackSurface.clear();
+    }
+
+    if ( NULL != playbackSurfaceControl.get() ) {
+        playbackSurfaceControl->clear();
+        playbackSurfaceControl.clear();
+    }
+
+    if ( NULL != playbackComposerClient.get() ) {
+        playbackComposerClient->dispose();
+        playbackComposerClient.clear();
+    }
+
+    player2->stop();
+    player2->setListener(0);
+    player2->disconnect();
+    player2.clear();
+    mPlayerListener2.clear();
+
+    if ( NULL != playbackSurface2.get() ) {
+        playbackSurface2.clear();
+    }
+	
+    if ( NULL != playbackSurfaceControl2.get() ) {
+        playbackSurfaceControl2->clear();
+        playbackSurfaceControl2.clear();
+    }
+
+    if ( NULL != playbackComposerClient2.get() ) {
+        playbackComposerClient2->dispose();
+        playbackComposerClient2.clear();
     }
 
     return 0;
@@ -969,6 +1113,7 @@ int test_ChangeFrameRate() {
 int test_PlaybackAndRecord_sidebyside() {
     VTC_LOGI("\n\nRecorded Output is stored in %s\n\n", mRecordFileName);
     playbackComposerClient = new SurfaceComposerClient();
+    playbackComposerClient2 = new SurfaceComposerClient();
     //CHECK_EQ(playbackComposerClient->initCheck(), (status_t)OK);
     if(playbackComposerClient->initCheck() != (status_t)OK)
 		VTC_LOGD(" initCheck error ");
@@ -1000,7 +1145,7 @@ int test_PlaybackAndRecord_sidebyside() {
         cameraSurfaceHeight = panelheight/2;
     }
 
-    startPlayback();
+    startPlayback2();
     sleep(SLEEP_AFTER_STARTING_PLAYBACK);
     startPreview();
     startRecording();
@@ -1013,7 +1158,7 @@ int test_PlaybackAndRecord_sidebyside() {
 
     stopRecording();
     stopPreview();
-    stopPlayback();
+    stopPlayback2();
 
     cameraWinX = 0;
     cameraWinY = 0;
@@ -1593,7 +1738,7 @@ int main (int argc, char* argv[]) {
     pthread_cond_init(&mCond, NULL);
 
     int opt;
-    const char* const short_options = "a:n:w:l:h:d:s:i:I:b:f:B:F:p:M:c:t:v:";
+    const char* const short_options = "a:n:w:l:h:d:s:i:I:b:f:B:F:p:q:M:c:t:v:";
     const struct option long_options[] = {
         {"record_filename", 1, NULL, 'n'},
         {"width", 1, NULL, 'w'},
@@ -1607,6 +1752,7 @@ int main (int argc, char* argv[]) {
         {"framerate", 1, NULL, 'f'},
         {"new_framerate", 1, NULL, 'F'},
         {"playback_filename", 1, NULL, 'p'},
+        {"playback_filename2", 1, NULL, 'q'},
         {"slice_size_MB", 1, NULL, 'M'},
         {"num_cycles", 1, NULL, 'c'},
         {"playback_duration", 1, NULL, 't'},
@@ -1719,6 +1865,10 @@ int main (int argc, char* argv[]) {
             case 'p':
                 strcpy(mPlaybackFileName, optarg);
                 VTC_LOGD("Playback clip %s", mPlaybackFileName);
+                break;
+	case 'q':
+                strcpy(mPlaybackFileName2, optarg);
+                VTC_LOGD("Playback clip %s", mPlaybackFileName2);
                 break;
             case 'M':
                 mSliceSizeMB = atoi(optarg);
