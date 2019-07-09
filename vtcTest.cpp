@@ -42,7 +42,8 @@
 #include <binder/IServiceManager.h>
 
 #include <camera/Camera.h>
-#include <camera/android/hardware/ICamera.h>
+#include <camera/ICamera.h>
+//#include <camera/android/hardware/ICamera.h>
 #include <system/audio.h>
 
 #include <cutils/log.h>
@@ -851,7 +852,7 @@ int startPreview() {
     bRecording = false;
 
     createPreviewSurface();
-#if 1
+#if 0
     camera = Camera::connect(camera_index, String16(), -1, -1 );
 #else
     status_t status = Camera::connectLegacy(camera_index, 550, String16(),
