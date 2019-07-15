@@ -852,8 +852,9 @@ int startPreview() {
     bRecording = false;
 
     createPreviewSurface();
-#if 0
-    camera = Camera::connect(camera_index, String16(), -1, -1 );
+#if 1
+    //camera = Camera::connect(camera_index, String16(), -1, -1 );
+	camera = Camera::connect(camera_index, String16(), -1);
 #else
     status_t status = Camera::connectLegacy(camera_index, 550, String16(),
                 Camera::USE_CALLING_UID, camera);
