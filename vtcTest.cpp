@@ -119,6 +119,13 @@ char mParamValue[100];
 char mRecordFileName[256];
 char mPlaybackFileName[256];
 char mPlaybackFileName2[256];
+char mPlaybackFileName3[256];
+char mPlaybackFileName4[256];
+char mPlaybackFileName5[256];
+char mPlaybackFileName6[256];
+char mPlaybackFileName7[256];
+char mPlaybackFileName8[256];
+char mPlaybackFileName9[256];
 
 FILE *mResultsFP = NULL;
 // If seconds <  0, only the first frame is I frame, and rest are all P frames
@@ -140,6 +147,7 @@ sp<SurfaceControl> surfaceControl;
 sp<Surface> previewSurface;
 CameraParameters params;
 sp<MediaRecorder> recorder;
+
 sp<MediaPlayer> player;
 sp<SurfaceComposerClient> playbackComposerClient;
 sp<SurfaceControl> playbackSurfaceControl;
@@ -149,6 +157,41 @@ sp<MediaPlayer> player2;
 sp<SurfaceComposerClient> playbackComposerClient2;
 sp<SurfaceControl> playbackSurfaceControl2;
 sp<Surface> playbackSurface2;
+
+sp<MediaPlayer> player3;
+sp<SurfaceComposerClient> playbackComposerClient3;
+sp<SurfaceControl> playbackSurfaceControl3;
+sp<Surface> playbackSurface3;
+
+sp<MediaPlayer> player4;
+sp<SurfaceComposerClient> playbackComposerClient4;
+sp<SurfaceControl> playbackSurfaceControl4;
+sp<Surface> playbackSurface4;
+
+sp<MediaPlayer> player5;
+sp<SurfaceComposerClient> playbackComposerClient5;
+sp<SurfaceControl> playbackSurfaceControl5;
+sp<Surface> playbackSurface5;
+
+sp<MediaPlayer> player6;
+sp<SurfaceComposerClient> playbackComposerClient6;
+sp<SurfaceControl> playbackSurfaceControl6;
+sp<Surface> playbackSurface6;
+
+sp<MediaPlayer> player7;
+sp<SurfaceComposerClient> playbackComposerClient7;
+sp<SurfaceControl> playbackSurfaceControl7;
+sp<Surface> playbackSurface7;
+
+sp<MediaPlayer> player8;
+sp<SurfaceComposerClient> playbackComposerClient8;
+sp<SurfaceControl> playbackSurfaceControl8;
+sp<Surface> playbackSurface8;
+
+sp<MediaPlayer> player9;
+sp<SurfaceComposerClient> playbackComposerClient9;
+sp<SurfaceControl> playbackSurfaceControl9;
+sp<Surface> playbackSurface9;
 
 //To perform better
 static pthread_cond_t mCond;
@@ -176,6 +219,7 @@ int test_ChangeFrameRate();
 int test_PlaybackAndRecord_sidebyside();
 int test_PlaybackAndRecord_PIP();
 int test_PlaybackOnly();
+int test_Playback3x3();
 int test_Robust();
 int test_RecordPlayback();
 int test_CameraPreview();
@@ -188,7 +232,7 @@ pt2TestFunction TestFunctions[13] = {
     test_ALL, // 0
     test_RecordDEFAULT, // 1
     test_InsertIDRFrames, // 2
-    test_MaxNALSize, // 3
+    test_Playback3x3, // 3
     test_ChangeBitRate, // 4
     test_ChangeFrameRate, // 5
     test_PlaybackAndRecord_sidebyside, // 6
@@ -278,8 +322,218 @@ public:
     }
 };
 
+class PlayerListener3: public MediaPlayerListener {
+public:
+    virtual void notify(int msg, int ext1, int ext2, const Parcel * /* obj */)
+    {
+        //VTC_LOGD("Notify cb: %d %d %d\n", msg, ext1, ext2);
+
+        if ( msg == MEDIA_PREPARED ){
+            VTC_LOGD("MEDIA_PREPARED!");
+            
+			player3->start();
+        }
+
+        if ( msg == MEDIA_SET_VIDEO_SIZE ){
+            VTC_LOGD("\nMEDIA_SET_VIDEO_SIZE!");
+        }
+
+        if ( msg == MEDIA_PLAYBACK_COMPLETE ){
+            VTC_LOGD("\nMEDIA_PLAYBACK_COMPLETE!");
+            pthread_cond_signal(&mCond);
+        }
+
+        if ( msg == MEDIA_ERROR ){
+            VTC_LOGD("\nPLAYER REPORTED MEDIA_ERROR!");
+            mMediaPlayerThrewError = true;
+            pthread_cond_signal(&mCond);
+        }
+    }
+};
+
+class PlayerListener4: public MediaPlayerListener {
+public:
+    virtual void notify(int msg, int ext1, int ext2, const Parcel * /* obj */)
+    {
+        //VTC_LOGD("Notify cb: %d %d %d\n", msg, ext1, ext2);
+
+        if ( msg == MEDIA_PREPARED ){
+            VTC_LOGD("MEDIA_PREPARED!");
+            
+			player4->start();
+        }
+
+        if ( msg == MEDIA_SET_VIDEO_SIZE ){
+            VTC_LOGD("\nMEDIA_SET_VIDEO_SIZE!");
+        }
+
+        if ( msg == MEDIA_PLAYBACK_COMPLETE ){
+            VTC_LOGD("\nMEDIA_PLAYBACK_COMPLETE!");
+            pthread_cond_signal(&mCond);
+        }
+
+        if ( msg == MEDIA_ERROR ){
+            VTC_LOGD("\nPLAYER REPORTED MEDIA_ERROR!");
+            mMediaPlayerThrewError = true;
+            pthread_cond_signal(&mCond);
+        }
+    }
+};
+
+class PlayerListener5: public MediaPlayerListener {
+public:
+    virtual void notify(int msg, int ext1, int ext2, const Parcel * /* obj */)
+    {
+        //VTC_LOGD("Notify cb: %d %d %d\n", msg, ext1, ext2);
+
+        if ( msg == MEDIA_PREPARED ){
+            VTC_LOGD("MEDIA_PREPARED!");
+            
+			player5->start();
+        }
+
+        if ( msg == MEDIA_SET_VIDEO_SIZE ){
+            VTC_LOGD("\nMEDIA_SET_VIDEO_SIZE!");
+        }
+
+        if ( msg == MEDIA_PLAYBACK_COMPLETE ){
+            VTC_LOGD("\nMEDIA_PLAYBACK_COMPLETE!");
+            pthread_cond_signal(&mCond);
+        }
+
+        if ( msg == MEDIA_ERROR ){
+            VTC_LOGD("\nPLAYER REPORTED MEDIA_ERROR!");
+            mMediaPlayerThrewError = true;
+            pthread_cond_signal(&mCond);
+        }
+    }
+};
+
+class PlayerListener6: public MediaPlayerListener {
+public:
+    virtual void notify(int msg, int ext1, int ext2, const Parcel * /* obj */)
+    {
+        //VTC_LOGD("Notify cb: %d %d %d\n", msg, ext1, ext2);
+
+        if ( msg == MEDIA_PREPARED ){
+            VTC_LOGD("MEDIA_PREPARED!");
+            
+			player6->start();
+        }
+
+        if ( msg == MEDIA_SET_VIDEO_SIZE ){
+            VTC_LOGD("\nMEDIA_SET_VIDEO_SIZE!");
+        }
+
+        if ( msg == MEDIA_PLAYBACK_COMPLETE ){
+            VTC_LOGD("\nMEDIA_PLAYBACK_COMPLETE!");
+            pthread_cond_signal(&mCond);
+        }
+
+        if ( msg == MEDIA_ERROR ){
+            VTC_LOGD("\nPLAYER REPORTED MEDIA_ERROR!");
+            mMediaPlayerThrewError = true;
+            pthread_cond_signal(&mCond);
+        }
+    }
+};
+
+class PlayerListener7: public MediaPlayerListener {
+public:
+    virtual void notify(int msg, int ext1, int ext2, const Parcel * /* obj */)
+    {
+        //VTC_LOGD("Notify cb: %d %d %d\n", msg, ext1, ext2);
+
+        if ( msg == MEDIA_PREPARED ){
+            VTC_LOGD("MEDIA_PREPARED!");
+            
+			player7->start();
+        }
+
+        if ( msg == MEDIA_SET_VIDEO_SIZE ){
+            VTC_LOGD("\nMEDIA_SET_VIDEO_SIZE!");
+        }
+
+        if ( msg == MEDIA_PLAYBACK_COMPLETE ){
+            VTC_LOGD("\nMEDIA_PLAYBACK_COMPLETE!");
+            pthread_cond_signal(&mCond);
+        }
+
+        if ( msg == MEDIA_ERROR ){
+            VTC_LOGD("\nPLAYER REPORTED MEDIA_ERROR!");
+            mMediaPlayerThrewError = true;
+            pthread_cond_signal(&mCond);
+        }
+    }
+};
+
+class PlayerListener8: public MediaPlayerListener {
+public:
+    virtual void notify(int msg, int ext1, int ext2, const Parcel * /* obj */)
+    {
+        //VTC_LOGD("Notify cb: %d %d %d\n", msg, ext1, ext2);
+
+        if ( msg == MEDIA_PREPARED ){
+            VTC_LOGD("MEDIA_PREPARED!");
+            
+			player8->start();
+        }
+
+        if ( msg == MEDIA_SET_VIDEO_SIZE ){
+            VTC_LOGD("\nMEDIA_SET_VIDEO_SIZE!");
+        }
+
+        if ( msg == MEDIA_PLAYBACK_COMPLETE ){
+            VTC_LOGD("\nMEDIA_PLAYBACK_COMPLETE!");
+            pthread_cond_signal(&mCond);
+        }
+
+        if ( msg == MEDIA_ERROR ){
+            VTC_LOGD("\nPLAYER REPORTED MEDIA_ERROR!");
+            mMediaPlayerThrewError = true;
+            pthread_cond_signal(&mCond);
+        }
+    }
+};
+
+class PlayerListener9: public MediaPlayerListener {
+public:
+    virtual void notify(int msg, int ext1, int ext2, const Parcel * /* obj */)
+    {
+        //VTC_LOGD("Notify cb: %d %d %d\n", msg, ext1, ext2);
+
+        if ( msg == MEDIA_PREPARED ){
+            VTC_LOGD("MEDIA_PREPARED!");
+            
+			player9->start();
+        }
+
+        if ( msg == MEDIA_SET_VIDEO_SIZE ){
+            VTC_LOGD("\nMEDIA_SET_VIDEO_SIZE!");
+        }
+
+        if ( msg == MEDIA_PLAYBACK_COMPLETE ){
+            VTC_LOGD("\nMEDIA_PLAYBACK_COMPLETE!");
+            pthread_cond_signal(&mCond);
+        }
+
+        if ( msg == MEDIA_ERROR ){
+            VTC_LOGD("\nPLAYER REPORTED MEDIA_ERROR!");
+            mMediaPlayerThrewError = true;
+            pthread_cond_signal(&mCond);
+        }
+    }
+};
+
 sp<PlayerListener> mPlayerListener;
 sp<PlayerListener2> mPlayerListener2;
+sp<PlayerListener3> mPlayerListener3;
+sp<PlayerListener4> mPlayerListener4;
+sp<PlayerListener5> mPlayerListener5;
+sp<PlayerListener6> mPlayerListener6;
+sp<PlayerListener7> mPlayerListener7;
+sp<PlayerListener8> mPlayerListener8;
+sp<PlayerListener9> mPlayerListener9;
 
 
 int getMediaserverInfo(int *PID, int *VSIZE){
@@ -413,6 +667,239 @@ int startPlayback2() {
     return 0;
 }
 
+int startPlayback3x3() {
+
+//playback 1
+    playbackSurfaceControl = playbackComposerClient->createSurface(String8("jglSurface"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl != NULL);
+    CHECK(playbackSurfaceControl->isValid());
+    playbackSurface = playbackSurfaceControl->getSurface();
+    CHECK(playbackSurface != NULL);
+
+    playbackComposerClient->openGlobalTransaction();
+    playbackSurfaceControl->setLayer(0x7fffffff);
+    playbackSurfaceControl->setPosition(0, 0);
+    playbackSurfaceControl->setSize(640, 360);
+    playbackSurfaceControl->show();
+    playbackComposerClient->closeGlobalTransaction();
+
+    player = new MediaPlayer();
+    mPlayerListener = new PlayerListener();
+    mMediaPlayerThrewError = false;
+    player->setListener(mPlayerListener);
+    int fd = open("/data/city360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize = lseek64(fd, 0, SEEK_END);
+    player->setDataSource(fd, 0, fileSize);
+    player->setVideoSurfaceTexture(playbackSurface->getIGraphicBufferProducer());
+    player->prepareAsync();
+    player->setLooping(true);
+
+	printf("test playback 3x3 in one process \n");
+//playback 2
+    playbackSurfaceControl2 = playbackComposerClient2->createSurface(String8("jglSurface2"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl2 != NULL);
+    CHECK(playbackSurfaceControl2->isValid());
+	
+    playbackSurface2 = playbackSurfaceControl2->getSurface();
+    CHECK(playbackSurface2 != NULL);
+    playbackComposerClient2->openGlobalTransaction();
+    playbackSurfaceControl2->setLayer(0x7fffffff);
+    playbackSurfaceControl2->setPosition(640, 0);
+    playbackSurfaceControl2->setSize(640, 360);
+    playbackSurfaceControl2->show();
+    playbackComposerClient2->closeGlobalTransaction();
+
+    player2 = new MediaPlayer();
+    mPlayerListener2 = new PlayerListener2();
+    mMediaPlayerThrewError = false;
+    player2->setListener(mPlayerListener2);
+    int fd2 = open("/data/jony360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize2 = lseek64(fd2, 0, SEEK_END);
+    player2->setDataSource(fd2, 0, fileSize2);
+    player2->setVideoSurfaceTexture(playbackSurface2->getIGraphicBufferProducer());
+    player2->prepareAsync();
+    player2->setLooping(true);
+
+//playback 3
+    playbackSurfaceControl3 = playbackComposerClient3->createSurface(String8("jglSurface3"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl3 != NULL);
+    CHECK(playbackSurfaceControl3->isValid());
+	
+    playbackSurface3 = playbackSurfaceControl3->getSurface();
+    CHECK(playbackSurface3 != NULL);
+    playbackComposerClient3->openGlobalTransaction();
+    playbackSurfaceControl3->setLayer(0x7fffffff);
+    playbackSurfaceControl3->setPosition(1280, 0);
+    playbackSurfaceControl3->setSize(640, 360);
+    playbackSurfaceControl3->show();
+    playbackComposerClient3->closeGlobalTransaction();
+
+    player3 = new MediaPlayer();
+    mPlayerListener3 = new PlayerListener3();
+    mMediaPlayerThrewError = false;
+    player3->setListener(mPlayerListener3);
+    int fd3 = open("/data/city360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize3 = lseek64(fd3, 0, SEEK_END);
+    player3->setDataSource(fd3, 0, fileSize3);
+    player3->setVideoSurfaceTexture(playbackSurface3->getIGraphicBufferProducer());
+    player3->prepareAsync();
+    player3->setLooping(true);
+
+//playback 4
+    playbackSurfaceControl4 = playbackComposerClient4->createSurface(String8("jglSurface4"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl4 != NULL);
+    CHECK(playbackSurfaceControl4->isValid());
+	
+    playbackSurface4 = playbackSurfaceControl4->getSurface();
+    CHECK(playbackSurface4 != NULL);
+    playbackComposerClient4->openGlobalTransaction();
+    playbackSurfaceControl4->setLayer(0x7fffffff);
+    playbackSurfaceControl4->setPosition(0, 360);
+    playbackSurfaceControl4->setSize(640, 360);
+    playbackSurfaceControl4->show();
+    playbackComposerClient4->closeGlobalTransaction();
+
+    player4 = new MediaPlayer();
+    mPlayerListener4 = new PlayerListener4();
+    mMediaPlayerThrewError = false;
+    player4->setListener(mPlayerListener4);
+    int fd4 = open("/data/jony360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize4 = lseek64(fd4, 0, SEEK_END);
+    player4->setDataSource(fd4, 0, fileSize4);
+    player4->setVideoSurfaceTexture(playbackSurface4->getIGraphicBufferProducer());
+    player4->prepareAsync();
+    player4->setLooping(true);
+
+//playback 5
+    playbackSurfaceControl5 = playbackComposerClient5->createSurface(String8("jglSurface5"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl5 != NULL);
+    CHECK(playbackSurfaceControl5->isValid());
+	
+    playbackSurface5 = playbackSurfaceControl5->getSurface();
+    CHECK(playbackSurface5 != NULL);
+    playbackComposerClient5->openGlobalTransaction();
+    playbackSurfaceControl5->setLayer(0x7fffffff);
+    playbackSurfaceControl5->setPosition(640, 360);
+    playbackSurfaceControl5->setSize(640, 360);
+    playbackSurfaceControl5->show();
+    playbackComposerClient5->closeGlobalTransaction();
+
+    player5 = new MediaPlayer();
+    mPlayerListener5 = new PlayerListener5();
+    mMediaPlayerThrewError = false;
+    player5->setListener(mPlayerListener5);
+    int fd5 = open("/data/city360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize5 = lseek64(fd5, 0, SEEK_END);
+    player5->setDataSource(fd5, 0, fileSize5);
+    player5->setVideoSurfaceTexture(playbackSurface5->getIGraphicBufferProducer());
+    player5->prepareAsync();
+    player5->setLooping(true);
+
+//playback 6
+    playbackSurfaceControl6 = playbackComposerClient6->createSurface(String8("jglSurface6"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl6 != NULL);
+    CHECK(playbackSurfaceControl6->isValid());
+	
+    playbackSurface6 = playbackSurfaceControl6->getSurface();
+    CHECK(playbackSurface6 != NULL);
+    playbackComposerClient6->openGlobalTransaction();
+    playbackSurfaceControl6->setLayer(0x7fffffff);
+    playbackSurfaceControl6->setPosition(1280, 360);
+    playbackSurfaceControl6->setSize(640, 360);
+    playbackSurfaceControl6->show();
+    playbackComposerClient6->closeGlobalTransaction();
+
+    player6 = new MediaPlayer();
+    mPlayerListener6 = new PlayerListener6();
+    mMediaPlayerThrewError = false;
+    player6->setListener(mPlayerListener6);
+    int fd6 = open("/data/jony360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize6 = lseek64(fd6, 0, SEEK_END);
+    player6->setDataSource(fd6, 0, fileSize6);
+    player6->setVideoSurfaceTexture(playbackSurface6->getIGraphicBufferProducer());
+    player6->prepareAsync();
+    player6->setLooping(true);
+
+//playback 7
+    playbackSurfaceControl7 = playbackComposerClient7->createSurface(String8("jglSurface7"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl7 != NULL);
+    CHECK(playbackSurfaceControl7->isValid());
+	
+    playbackSurface7 = playbackSurfaceControl7->getSurface();
+    CHECK(playbackSurface7 != NULL);
+    playbackComposerClient7->openGlobalTransaction();
+    playbackSurfaceControl7->setLayer(0x7fffffff);
+    playbackSurfaceControl7->setPosition(0, 720);
+    playbackSurfaceControl7->setSize(640, 360);
+    playbackSurfaceControl7->show();
+    playbackComposerClient7->closeGlobalTransaction();
+
+    player7 = new MediaPlayer();
+    mPlayerListener7 = new PlayerListener7();
+    mMediaPlayerThrewError = false;
+    player7->setListener(mPlayerListener7);
+    int fd7 = open("/data/city360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize7 = lseek64(fd7, 0, SEEK_END);
+    player7->setDataSource(fd7, 0, fileSize7);
+    player7->setVideoSurfaceTexture(playbackSurface7->getIGraphicBufferProducer());
+    player7->prepareAsync();
+    player7->setLooping(true);
+
+
+//playback 8
+    playbackSurfaceControl8 = playbackComposerClient8->createSurface(String8("jglSurface8"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl8 != NULL);
+    CHECK(playbackSurfaceControl8->isValid());
+	
+    playbackSurface8 = playbackSurfaceControl8->getSurface();
+    CHECK(playbackSurface8 != NULL);
+    playbackComposerClient8->openGlobalTransaction();
+    playbackSurfaceControl8->setLayer(0x7fffffff);
+    playbackSurfaceControl8->setPosition(640, 720);
+    playbackSurfaceControl8->setSize(640, 360);
+    playbackSurfaceControl8->show();
+    playbackComposerClient8->closeGlobalTransaction();
+
+    player8 = new MediaPlayer();
+    mPlayerListener8 = new PlayerListener8();
+    mMediaPlayerThrewError = false;
+    player8->setListener(mPlayerListener8);
+    int fd8 = open("/data/jony360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize8 = lseek64(fd8, 0, SEEK_END);
+    player8->setDataSource(fd8, 0, fileSize8);
+    player8->setVideoSurfaceTexture(playbackSurface8->getIGraphicBufferProducer());
+    player8->prepareAsync();
+    player8->setLooping(true);
+
+//playback 9
+    playbackSurfaceControl9 = playbackComposerClient9->createSurface(String8("jglSurface9"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl9 != NULL);
+    CHECK(playbackSurfaceControl9->isValid());
+	
+    playbackSurface9 = playbackSurfaceControl9->getSurface();
+    CHECK(playbackSurface9 != NULL);
+    playbackComposerClient9->openGlobalTransaction();
+    playbackSurfaceControl9->setLayer(0x7fffffff);
+    playbackSurfaceControl9->setPosition(1280, 720);
+    playbackSurfaceControl9->setSize(640, 360);
+    playbackSurfaceControl9->show();
+    playbackComposerClient9->closeGlobalTransaction();
+
+    player9 = new MediaPlayer();
+    mPlayerListener9 = new PlayerListener9();
+    mMediaPlayerThrewError = false;
+    player9->setListener(mPlayerListener9);
+    int fd9 = open("/data/city360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize9 = lseek64(fd9, 0, SEEK_END);
+    player9->setDataSource(fd9, 0, fileSize9);
+    player9->setVideoSurfaceTexture(playbackSurface9->getIGraphicBufferProducer());
+    player9->prepareAsync();
+    player9->setLooping(true);
+
+    bPlaying = true;
+    return 0;
+}
+
 int stopPlayback() {
 
     VTC_LOGD("%d: %s", __LINE__, __FUNCTION__);
@@ -480,6 +967,200 @@ int stopPlayback2() {
     if ( NULL != playbackComposerClient2.get() ) {
         playbackComposerClient2->dispose();
         playbackComposerClient2.clear();
+    }
+
+    return 0;
+}
+
+int stopPlayback3x3() {
+
+    VTC_LOGD("%d: %s", __LINE__, __FUNCTION__);
+    player->stop();
+    player->setListener(0);
+    player->disconnect();
+    player.clear();
+    mPlayerListener.clear();
+
+    if ( NULL != playbackSurface.get() ) {
+        playbackSurface.clear();
+    }
+
+    if ( NULL != playbackSurfaceControl.get() ) {
+        playbackSurfaceControl->clear();
+        playbackSurfaceControl.clear();
+    }
+
+    if ( NULL != playbackComposerClient.get() ) {
+        playbackComposerClient->dispose();
+        playbackComposerClient.clear();
+    }
+
+//stop play2 
+    player2->stop();
+    player2->setListener(0);
+    player2->disconnect();
+    player2.clear();
+    mPlayerListener2.clear();
+
+    if ( NULL != playbackSurface2.get() ) {
+        playbackSurface2.clear();
+    }
+	
+    if ( NULL != playbackSurfaceControl2.get() ) {
+        playbackSurfaceControl2->clear();
+        playbackSurfaceControl2.clear();
+    }
+
+    if ( NULL != playbackComposerClient2.get() ) {
+        playbackComposerClient2->dispose();
+        playbackComposerClient2.clear();
+    }
+
+//stop play3 
+    player3->stop();
+    player3->setListener(0);
+    player3->disconnect();
+    player3.clear();
+    mPlayerListener3.clear();
+
+    if ( NULL != playbackSurface3.get() ) {
+        playbackSurface3.clear();
+    }
+	
+    if ( NULL != playbackSurfaceControl3.get() ) {
+        playbackSurfaceControl3->clear();
+        playbackSurfaceControl3.clear();
+    }
+
+    if ( NULL != playbackComposerClient3.get() ) {
+        playbackComposerClient3->dispose();
+        playbackComposerClient3.clear();
+    }
+
+//stop play4 
+    player4->stop();
+    player4->setListener(0);
+    player4->disconnect();
+    player4.clear();
+    mPlayerListener4.clear();
+
+    if ( NULL != playbackSurface4.get() ) {
+        playbackSurface4.clear();
+    }
+	
+    if ( NULL != playbackSurfaceControl4.get() ) {
+        playbackSurfaceControl4->clear();
+        playbackSurfaceControl4.clear();
+    }
+
+    if ( NULL != playbackComposerClient4.get() ) {
+        playbackComposerClient4->dispose();
+        playbackComposerClient4.clear();
+    }
+
+//stop play5 
+    player5->stop();
+    player5->setListener(0);
+    player5->disconnect();
+    player5.clear();
+    mPlayerListener5.clear();
+
+    if ( NULL != playbackSurface5.get() ) {
+        playbackSurface5.clear();
+    }
+	
+    if ( NULL != playbackSurfaceControl5.get() ) {
+        playbackSurfaceControl5->clear();
+        playbackSurfaceControl5.clear();
+    }
+
+    if ( NULL != playbackComposerClient5.get() ) {
+        playbackComposerClient5->dispose();
+        playbackComposerClient5.clear();
+    }
+
+//stop play6 
+    player6->stop();
+    player6->setListener(0);
+    player6->disconnect();
+    player6.clear();
+    mPlayerListener6.clear();
+
+    if ( NULL != playbackSurface6.get() ) {
+        playbackSurface6.clear();
+    }
+	
+    if ( NULL != playbackSurfaceControl6.get() ) {
+        playbackSurfaceControl6->clear();
+        playbackSurfaceControl6.clear();
+    }
+
+    if ( NULL != playbackComposerClient6.get() ) {
+        playbackComposerClient6->dispose();
+        playbackComposerClient6.clear();
+    }
+
+//stop play7 
+    player7->stop();
+    player7->setListener(0);
+    player7->disconnect();
+    player7.clear();
+    mPlayerListener7.clear();
+
+    if ( NULL != playbackSurface7.get() ) {
+        playbackSurface7.clear();
+    }
+	
+    if ( NULL != playbackSurfaceControl7.get() ) {
+        playbackSurfaceControl7->clear();
+        playbackSurfaceControl7.clear();
+    }
+
+    if ( NULL != playbackComposerClient7.get() ) {
+        playbackComposerClient7->dispose();
+        playbackComposerClient7.clear();
+    }
+
+//stop play8 
+    player8->stop();
+    player8->setListener(0);
+    player8->disconnect();
+    player8.clear();
+    mPlayerListener8.clear();
+
+    if ( NULL != playbackSurface8.get() ) {
+        playbackSurface8.clear();
+    }
+	
+    if ( NULL != playbackSurfaceControl8.get() ) {
+        playbackSurfaceControl8->clear();
+        playbackSurfaceControl8.clear();
+    }
+
+    if ( NULL != playbackComposerClient8.get() ) {
+        playbackComposerClient8->dispose();
+        playbackComposerClient8.clear();
+    }
+
+//stop play9 
+    player9->stop();
+    player9->setListener(0);
+    player9->disconnect();
+    player9.clear();
+    mPlayerListener9.clear();
+
+    if ( NULL != playbackSurface9.get() ) {
+        playbackSurface9.clear();
+    }
+	
+    if ( NULL != playbackSurfaceControl9.get() ) {
+        playbackSurfaceControl9->clear();
+        playbackSurfaceControl9.clear();
+    }
+
+    if ( NULL != playbackComposerClient9.get() ) {
+        playbackComposerClient9->dispose();
+        playbackComposerClient9.clear();
     }
 
     return 0;
@@ -1107,6 +1788,54 @@ int test_ChangeFrameRate() {
     sleep(mDuration/2);
     stopRecording();
     stopPreview();
+    return 0;
+}
+
+int test_Playback3x3() {
+    VTC_LOGI("\n\nRecorded Output is stored in %s\n\n", mRecordFileName);
+    playbackComposerClient = new SurfaceComposerClient();
+    playbackComposerClient2 = new SurfaceComposerClient();
+    playbackComposerClient3 = new SurfaceComposerClient();
+    playbackComposerClient4 = new SurfaceComposerClient();
+    playbackComposerClient5 = new SurfaceComposerClient();
+    playbackComposerClient6 = new SurfaceComposerClient();
+    playbackComposerClient7 = new SurfaceComposerClient();
+    playbackComposerClient8 = new SurfaceComposerClient();
+    playbackComposerClient9 = new SurfaceComposerClient();
+    //CHECK_EQ(playbackComposerClient->initCheck(), (status_t)OK);
+    if(playbackComposerClient->initCheck() != (status_t)OK)
+		VTC_LOGD(" initCheck error ");
+    if(playbackComposerClient2->initCheck() != (status_t)OK)
+		VTC_LOGD(" initCheck error ");
+    if(playbackComposerClient3->initCheck() != (status_t)OK)
+		VTC_LOGD(" initCheck error ");
+    if(playbackComposerClient4->initCheck() != (status_t)OK)
+		VTC_LOGD(" initCheck error ");
+    if(playbackComposerClient5->initCheck() != (status_t)OK)
+		VTC_LOGD(" initCheck error ");
+    if(playbackComposerClient6->initCheck() != (status_t)OK)
+		VTC_LOGD(" initCheck error ");
+    if(playbackComposerClient7->initCheck() != (status_t)OK)
+		VTC_LOGD(" initCheck error ");
+    if(playbackComposerClient8->initCheck() != (status_t)OK)
+		VTC_LOGD(" initCheck error ");
+    if(playbackComposerClient9->initCheck() != (status_t)OK)
+		VTC_LOGD(" initCheck error ");
+
+    int panelwidth = 1920;//playbackComposerClient->getDisplayWidth(0);
+    int panelheight = 1080;//playbackComposerClient->getDisplayHeight(0);
+    VTC_LOGD("Panel WxH = %d x %d", panelwidth, panelheight);
+
+    startPlayback3x3();
+
+    pthread_mutex_lock(&mMutex);
+    if (bPlaying ){
+        my_pthread_cond_timedwait(&mCond, &mMutex, mPlaybackDuration);
+    }
+    pthread_mutex_unlock(&mMutex);
+
+    stopPlayback3x3();
+
     return 0;
 }
 
