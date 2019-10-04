@@ -213,7 +213,7 @@ int test_PlaybackAndRecord_sidebyside();
 int test_PlaybackAndRecord_PIP();
 int test_PlaybackOnly();
 int test_Playback3x3();
-int test_Playback_change_layout();
+int test_Playback_change_2x2layout();
 int test_Playback_change_3x3layout();
 int test_Robust();
 int test_RecordPlayback();
@@ -227,7 +227,7 @@ pt2TestFunction TestFunctions[13] = {
     test_Playback_change_3x3layout, // 0
     test_RecordDEFAULT, // 1
     //test_InsertIDRFrames, // 2
-    test_Playback_change_layout, //
+    test_Playback_change_2x2layout, //
     test_Playback3x3, // 3
     test_ChangeBitRate, // 4
     test_ChangeFrameRate, // 5
@@ -434,8 +434,12 @@ int startPlayback2() {
     return 0;
 }
 
-int startPlayback_layout1() {
+int startPlayback2x2() {
 	printf("test startPlayback_layout1 \n");
+    playbackComposerClient = new SurfaceComposerClient();
+    //CHECK_EQ(playbackComposerClient->initCheck(), (status_t)OK);
+    if(playbackComposerClient->initCheck() != (status_t)OK)
+		VTC_LOGD(" initCheck error ");
 
 //playback 1
     playbackSurfaceControl = playbackComposerClient->createSurface(String8("jglSurface"), 960, 540, PIXEL_FORMAT_RGB_565, 0);
@@ -542,7 +546,7 @@ int startPlayback_layout1() {
     return 0;
 }
 
-int startPlayback_layout3() {
+int startPlayback2x2_layout2() {
 	printf("test startPlayback_layout3 \n");
 
 //playback 1
@@ -612,7 +616,7 @@ int startPlayback_layout3() {
     return 0;
 }
 
-int startPlayback_layout2() {
+int startPlayback2x2_layout1() {
 	printf("test startPlayback_layout2 \n");
 
 //playback 1
@@ -1297,7 +1301,7 @@ int stopPlayback2() {
     return 0;
 }
 
-int stopPlayback_layout1() {
+int stopPlayback2x2_layout() {
     VTC_LOGD("%d: %s \n", __LINE__, __FUNCTION__);
 
     if ( NULL != playbackSurface.get() ) {
@@ -1321,7 +1325,7 @@ int stopPlayback_layout1() {
     return 0;
 }
 
-int stopPlayback_layout() {
+int stopPlayback2x2() {
     VTC_LOGD("%d: %s \n", __LINE__, __FUNCTION__);
     player->stop();
     player->setListener(0);
@@ -2247,34 +2251,22 @@ int test_Playback3x3() {
     return 0;
 }
 
-int test_Playback_change_layout() {
+int test_Playback_change_2x2layout() {
     VTC_LOGI("\n\playback change layout \n\n");
-    playbackComposerClient = new SurfaceComposerClient();
-    //CHECK_EQ(playbackComposerClient->initCheck(), (status_t)OK);
-    if(playbackComposerClient->initCheck() != (status_t)OK)
-		VTC_LOGD(" initCheck error ");
 
-    startPlayback_layout1();
+    startPlayback2x2();
 	sleep(3);
-    stopPlayback_layout1();
+    stopPlayback2x2_layout();
 
     for(int i=0;i<10;i++){
-	    startPlayback_layout2();
+	    startPlayback2x2_layout1();
 		sleep(3);
-	    stopPlayback_layout1();
-	    startPlayback_layout3();
+	    stopPlayback2x2_layout();
+	    startPlayback2x2_layout2();
 		sleep(3);
-	    stopPlayback_layout1();
+	    stopPlayback2x2_layout();
     }
-    startPlayback_layout2();
-
-    pthread_mutex_lock(&mMutex);
-    if (bPlaying ){
-        my_pthread_cond_timedwait(&mCond, &mMutex, mPlaybackDuration);
-    }
-    pthread_mutex_unlock(&mMutex);
-
-    stopPlayback_layout();
+    stopPlayback2x2();
 
     return 0;
 }
