@@ -2230,13 +2230,6 @@ int test_ChangeFrameRate() {
 
 int test_Playback3x3() {
     VTC_LOGI("\n\playback 3x3 in\n\n");
-    playbackComposerClient = new SurfaceComposerClient();
-    //CHECK_EQ(playbackComposerClient->initCheck(), (status_t)OK);
-    if(playbackComposerClient->initCheck() != (status_t)OK)
-		VTC_LOGD(" initCheck error ");
-    int panelwidth = 1920;//playbackComposerClient->getDisplayWidth(0);
-    int panelheight = 1080;//playbackComposerClient->getDisplayHeight(0);
-    VTC_LOGD("Panel WxH = %d x %d", panelwidth, panelheight);
 
     startPlayback3x3();
 
