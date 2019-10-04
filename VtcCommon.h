@@ -21,7 +21,7 @@
 
 
 
-#define OPEN_LOG 
+//#define OPEN_LOG 
 // logging macros
 #ifdef OPEN_LOG
 #define VTC_LOGD(f, ...) LOG_PRI(ANDROID_LOG_DEBUG,   LOG_TAG, f, ##__VA_ARGS__)
