@@ -403,18 +403,18 @@ int startPlayback2() {
 
 	printf("test playback 1+1 in one process \n");
 	//playback 2
-    playbackSurfaceControl2 = playbackComposerClient2->createSurface(String8("jglSurface2"), 959, 540, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl2 = playbackComposerClient->createSurface(String8("jglSurface2"), 959, 540, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl2 != NULL);
     CHECK(playbackSurfaceControl2->isValid());
 	
     playbackSurface2 = playbackSurfaceControl2->getSurface();
     CHECK(playbackSurface2 != NULL);
-    playbackComposerClient2->openGlobalTransaction();
+    playbackComposerClient->openGlobalTransaction();
     playbackSurfaceControl2->setLayer(0x7fffffff);
     playbackSurfaceControl2->setPosition(961, 0);
     playbackSurfaceControl2->setSize(959, 540);
     playbackSurfaceControl2->show();
-    playbackComposerClient2->closeGlobalTransaction();
+    playbackComposerClient->closeGlobalTransaction();
 
     player2 = new MediaPlayer();
     mPlayerListener2 = new PlayerListener(player2);
@@ -585,7 +585,7 @@ int startPlayback3x3() {
     player6->setLooping(true);
 
 //playback 7
-    playbackSurfaceControl7 = playbackComposerClient7->createSurface(String8("jglSurface7"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl7 = playbackComposerClient->createSurface(String8("jglSurface7"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl7 != NULL);
     CHECK(playbackSurfaceControl7->isValid());
 	
@@ -708,11 +708,6 @@ int stopPlayback2() {
         playbackSurfaceControl.clear();
     }
 
-    if ( NULL != playbackComposerClient.get() ) {
-        playbackComposerClient->dispose();
-        playbackComposerClient.clear();
-    }
-
     player2->stop();
     player2->setListener(0);
     player2->disconnect();
@@ -728,9 +723,9 @@ int stopPlayback2() {
         playbackSurfaceControl2.clear();
     }
 
-    if ( NULL != playbackComposerClient2.get() ) {
-        playbackComposerClient2->dispose();
-        playbackComposerClient2.clear();
+    if ( NULL != playbackComposerClient.get() ) {
+        playbackComposerClient->dispose();
+        playbackComposerClient.clear();
     }
 
     return 0;
@@ -1544,8 +1539,6 @@ int test_Playback3x3() {
 int test_PlaybackAndRecord_sidebyside() {
     VTC_LOGI("\n\nRecorded Output is stored in %s\n\n", mRecordFileName);
     playbackComposerClient = new SurfaceComposerClient();
-    playbackComposerClient2 = new SurfaceComposerClient();
-    //CHECK_EQ(playbackComposerClient->initCheck(), (status_t)OK);
     if(playbackComposerClient->initCheck() != (status_t)OK)
 		VTC_LOGD(" initCheck error ");
 
