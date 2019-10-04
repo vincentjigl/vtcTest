@@ -1430,7 +1430,6 @@ int stopPlayback3x3() {
         //playbackSurfaceControl2->clear();
         playbackSurfaceControl2.clear();
     }
-	sleep(1);
 
 //stop play3 
     player3->stop();
@@ -1463,7 +1462,6 @@ int stopPlayback3x3() {
         //playbackSurfaceControl4->clear();
         playbackSurfaceControl4.clear();
     }
-	sleep(1);
 
 //stop play5 
     player5->stop();
