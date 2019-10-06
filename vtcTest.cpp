@@ -149,12 +149,10 @@ CameraParameters params;
 sp<MediaRecorder> recorder;
 
 sp<MediaPlayer> player;
-sp<SurfaceComposerClient> playbackComposerClient;
 sp<SurfaceControl> playbackSurfaceControl;
 sp<Surface> playbackSurface;
 
 sp<MediaPlayer> player2;
-sp<SurfaceComposerClient> playbackComposerClient2;
 sp<SurfaceControl> playbackSurfaceControl2;
 sp<Surface> playbackSurface2;
 
@@ -347,19 +345,19 @@ int my_pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t * mutex, int
 
 int startPlayback() {
 
-    playbackSurfaceControl = playbackComposerClient->createSurface(String8("jglSurface"), playbackSurfaceWidth, playbackSurfaceHeight, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl = client->createSurface(String8("jglSurface"), playbackSurfaceWidth, playbackSurfaceHeight, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl != NULL);
     CHECK(playbackSurfaceControl->isValid());
 
     playbackSurface = playbackSurfaceControl->getSurface();
     CHECK(playbackSurface != NULL);
 
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl->setLayer(0x7fffffff);
     playbackSurfaceControl->setPosition(playerWinX, playerWinY);
     playbackSurfaceControl->setSize(playbackSurfaceWidth, playbackSurfaceHeight);
     playbackSurfaceControl->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     player = new MediaPlayer();
     mPlayerListener = new PlayerListener(player);
@@ -378,18 +376,18 @@ int startPlayback() {
 int startPlayback2() {
 
 //playback 1
-    playbackSurfaceControl = playbackComposerClient->createSurface(String8("jglSurface"), 960, 540, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl = client->createSurface(String8("jglSurface"), 960, 540, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl != NULL);
     CHECK(playbackSurfaceControl->isValid());
     playbackSurface = playbackSurfaceControl->getSurface();
     CHECK(playbackSurface != NULL);
 
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl->setLayer(0x7fffffff);
     playbackSurfaceControl->setPosition(0, 0);
     playbackSurfaceControl->setSize(960, 540);
     playbackSurfaceControl->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 
 
@@ -406,18 +404,18 @@ int startPlayback2() {
 
 	printf("test playback 1+1 in one process \n");
 	//playback 2
-    playbackSurfaceControl2 = playbackComposerClient->createSurface(String8("jglSurface2"), 959, 540, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl2 = client->createSurface(String8("jglSurface2"), 959, 540, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl2 != NULL);
     CHECK(playbackSurfaceControl2->isValid());
 	
     playbackSurface2 = playbackSurfaceControl2->getSurface();
     CHECK(playbackSurface2 != NULL);
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl2->setLayer(0x7fffffff);
     playbackSurfaceControl2->setPosition(961, 0);
     playbackSurfaceControl2->setSize(959, 540);
     playbackSurfaceControl2->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     player2 = new MediaPlayer();
     mPlayerListener2 = new PlayerListener(player2);
@@ -435,25 +433,26 @@ int startPlayback2() {
 }
 
 int startPlayback2x2() {
-	printf("test startPlayback_layout1 \n");
-    playbackComposerClient = new SurfaceComposerClient();
-    //CHECK_EQ(playbackComposerClient->initCheck(), (status_t)OK);
-    if(playbackComposerClient->initCheck() != (status_t)OK)
-		VTC_LOGD(" initCheck error ");
-
+    printf("test startPlayback_layout1 \n");
+    if(client ==NULL){
+        client = new SurfaceComposerClient();
+        //CHECK_EQ(client->initCheck(), (status_t)OK);
+        if(client->initCheck() != (status_t)OK)
+        VTC_LOGD(" initCheck error ");
+    }
 //playback 1
-    playbackSurfaceControl = playbackComposerClient->createSurface(String8("jglSurface"), 960, 540, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl = client->createSurface(String8("jglSurface"), 960, 540, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl != NULL);
     CHECK(playbackSurfaceControl->isValid());
     playbackSurface = playbackSurfaceControl->getSurface();
     CHECK(playbackSurface != NULL);
 
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl->setLayer(0x7fffffff);
     playbackSurfaceControl->setPosition(0, 0);
     playbackSurfaceControl->setSize(960, 540);
     playbackSurfaceControl->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     player = new MediaPlayer();
     mPlayerListener = new PlayerListener(player);
@@ -467,18 +466,18 @@ int startPlayback2x2() {
     player->setLooping(true);
 
 //playback 2
-    playbackSurfaceControl2 = playbackComposerClient->createSurface(String8("jglSurface2"), 960, 540, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl2 = client->createSurface(String8("jglSurface2"), 960, 540, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl2 != NULL);
     CHECK(playbackSurfaceControl2->isValid());
 	
     playbackSurface2 = playbackSurfaceControl2->getSurface();
     CHECK(playbackSurface2 != NULL);
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl2->setLayer(0x7fffffff);
     playbackSurfaceControl2->setPosition(960, 0);
     playbackSurfaceControl2->setSize(960, 540);
     playbackSurfaceControl2->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     player2 = new MediaPlayer();
     mPlayerListener2 = new PlayerListener(player2);
@@ -492,18 +491,18 @@ int startPlayback2x2() {
     player2->setLooping(true);
 
 //playback 3
-    playbackSurfaceControl3 = playbackComposerClient->createSurface(String8("jglSurface3"), 960, 540, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl3 = client->createSurface(String8("jglSurface3"), 960, 540, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl3 != NULL);
     CHECK(playbackSurfaceControl3->isValid());
 	
     playbackSurface3 = playbackSurfaceControl3->getSurface();
     CHECK(playbackSurface3 != NULL);
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl3->setLayer(0x7fffffff);
     playbackSurfaceControl3->setPosition(960, 540);
     playbackSurfaceControl3->setSize(960, 540);
     playbackSurfaceControl3->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     player3 = new MediaPlayer();
     mPlayerListener3 = new PlayerListener(player3);
@@ -517,18 +516,18 @@ int startPlayback2x2() {
     player3->setLooping(true);
 
 //playback 4
-    playbackSurfaceControl4 = playbackComposerClient->createSurface(String8("jglSurface4"), 960, 540, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl4 = client->createSurface(String8("jglSurface4"), 960, 540, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl4 != NULL);
     CHECK(playbackSurfaceControl4->isValid());
 	
     playbackSurface4 = playbackSurfaceControl4->getSurface();
     CHECK(playbackSurface4 != NULL);
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl4->setLayer(0x7fffffff);
     playbackSurfaceControl4->setPosition(0, 540);
     playbackSurfaceControl4->setSize(960, 540);
     playbackSurfaceControl4->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     player4 = new MediaPlayer();
     mPlayerListener4 = new PlayerListener(player4);
@@ -550,36 +549,36 @@ int startPlayback2x2_layout2() {
 	printf("test startPlayback_layout2 \n");
 
 //playback 1
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl->setLayer(0x7fffffff);
     playbackSurfaceControl->setPosition(0, 0);
     playbackSurfaceControl->setSize(960, 540);
     playbackSurfaceControl->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 2
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl2->setLayer(0x7fffffff);
     playbackSurfaceControl2->setPosition(960, 0);
     playbackSurfaceControl2->setSize(960, 540);
     playbackSurfaceControl2->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 3
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl3->setLayer(0x7fffffff);
     playbackSurfaceControl3->setPosition(960, 540);
     playbackSurfaceControl3->setSize(960, 540);
     playbackSurfaceControl3->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 4
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl4->setLayer(0x7fffffff);
     playbackSurfaceControl4->setPosition(0, 540);
     playbackSurfaceControl4->setSize(960, 540);
     playbackSurfaceControl4->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     return 0;
 }
@@ -588,58 +587,59 @@ int startPlayback2x2_layout1() {
 	printf("test startPlayback_layout1 \n");
 
 //playback 1
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl->setLayer(0x7fffffff);
     playbackSurfaceControl->setPosition(240, 0);
     playbackSurfaceControl->setSize(1440, 810);
     playbackSurfaceControl->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 //playback 2
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl2->setLayer(0x7fffffff);
     playbackSurfaceControl2->setPosition(240, 810);
     playbackSurfaceControl2->setSize(480, 270);
     playbackSurfaceControl2->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 3
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl3->setLayer(0x7fffffff);
     playbackSurfaceControl3->setPosition(720, 810);
     playbackSurfaceControl3->setSize(480, 270);
     playbackSurfaceControl3->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 4
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl4->setLayer(0x7fffffff);
     playbackSurfaceControl4->setPosition(1200, 810);
     playbackSurfaceControl4->setSize(480, 270);
     playbackSurfaceControl4->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     return 0;
 }
 
 int startPlayback3x3() {
-    playbackComposerClient = new SurfaceComposerClient();
-    //CHECK_EQ(playbackComposerClient->initCheck(), (status_t)OK);
-    if(playbackComposerClient->initCheck() != (status_t)OK)
-		VTC_LOGD(" initCheck error ");
-
+    if(client ==NULL){
+        client = new SurfaceComposerClient();
+        //CHECK_EQ(client->initCheck(), (status_t)OK);
+        if(client->initCheck() != (status_t)OK)
+        VTC_LOGD(" initCheck error ");
+    }
 //playback 1
-    playbackSurfaceControl = playbackComposerClient->createSurface(String8("jglSurface"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl = client->createSurface(String8("jglSurface"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl != NULL);
     CHECK(playbackSurfaceControl->isValid());
     playbackSurface = playbackSurfaceControl->getSurface();
     CHECK(playbackSurface != NULL);
 
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl->setLayer(0x7fffffff);
     playbackSurfaceControl->setPosition(0, 0);
     playbackSurfaceControl->setSize(640, 360);
     playbackSurfaceControl->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     player = new MediaPlayer();
     mPlayerListener = new PlayerListener(player);
@@ -654,18 +654,18 @@ int startPlayback3x3() {
 
 	printf("test playback 3x3 in one process \n");
 //playback 2
-    playbackSurfaceControl2 = playbackComposerClient->createSurface(String8("jglSurface2"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl2 = client->createSurface(String8("jglSurface2"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl2 != NULL);
     CHECK(playbackSurfaceControl2->isValid());
 	
     playbackSurface2 = playbackSurfaceControl2->getSurface();
     CHECK(playbackSurface2 != NULL);
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl2->setLayer(0x7fffffff);
     playbackSurfaceControl2->setPosition(640, 0);
     playbackSurfaceControl2->setSize(640, 360);
     playbackSurfaceControl2->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     player2 = new MediaPlayer();
     mPlayerListener2 = new PlayerListener(player2);
@@ -679,18 +679,18 @@ int startPlayback3x3() {
     player2->setLooping(true);
 
 //playback 3
-    playbackSurfaceControl3 = playbackComposerClient->createSurface(String8("jglSurface3"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl3 = client->createSurface(String8("jglSurface3"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl3 != NULL);
     CHECK(playbackSurfaceControl3->isValid());
 	
     playbackSurface3 = playbackSurfaceControl3->getSurface();
     CHECK(playbackSurface3 != NULL);
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl3->setLayer(0x7fffffff);
     playbackSurfaceControl3->setPosition(1280, 0);
     playbackSurfaceControl3->setSize(640, 360);
     playbackSurfaceControl3->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     player3 = new MediaPlayer();
     mPlayerListener3 = new PlayerListener(player3);
@@ -704,18 +704,18 @@ int startPlayback3x3() {
     player3->setLooping(true);
 
 //playback 4
-    playbackSurfaceControl4 = playbackComposerClient->createSurface(String8("jglSurface4"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl4 = client->createSurface(String8("jglSurface4"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl4 != NULL);
     CHECK(playbackSurfaceControl4->isValid());
 	
     playbackSurface4 = playbackSurfaceControl4->getSurface();
     CHECK(playbackSurface4 != NULL);
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl4->setLayer(0x7fffffff);
     playbackSurfaceControl4->setPosition(0, 360);
     playbackSurfaceControl4->setSize(640, 360);
     playbackSurfaceControl4->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     player4 = new MediaPlayer();
     mPlayerListener4 = new PlayerListener(player4);
@@ -729,18 +729,18 @@ int startPlayback3x3() {
     player4->setLooping(true);
 
 //playback 5
-    playbackSurfaceControl5 = playbackComposerClient->createSurface(String8("jglSurface5"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl5 = client->createSurface(String8("jglSurface5"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl5 != NULL);
     CHECK(playbackSurfaceControl5->isValid());
 	
     playbackSurface5 = playbackSurfaceControl5->getSurface();
     CHECK(playbackSurface5 != NULL);
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl5->setLayer(0x7fffffff);
     playbackSurfaceControl5->setPosition(640, 360);
     playbackSurfaceControl5->setSize(640, 360);
     playbackSurfaceControl5->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     player5 = new MediaPlayer();
     mPlayerListener5 = new PlayerListener(player5);
@@ -754,18 +754,18 @@ int startPlayback3x3() {
     player5->setLooping(true);
 
 //playback 6
-    playbackSurfaceControl6 = playbackComposerClient->createSurface(String8("jglSurface6"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl6 = client->createSurface(String8("jglSurface6"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl6 != NULL);
     CHECK(playbackSurfaceControl6->isValid());
 	
     playbackSurface6 = playbackSurfaceControl6->getSurface();
     CHECK(playbackSurface6 != NULL);
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl6->setLayer(0x7fffffff);
     playbackSurfaceControl6->setPosition(1280, 360);
     playbackSurfaceControl6->setSize(640, 360);
     playbackSurfaceControl6->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     player6 = new MediaPlayer();
     mPlayerListener6 = new PlayerListener(player6);
@@ -779,18 +779,18 @@ int startPlayback3x3() {
     player6->setLooping(true);
 
 //playback 7
-    playbackSurfaceControl7 = playbackComposerClient->createSurface(String8("jglSurface7"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl7 = client->createSurface(String8("jglSurface7"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl7 != NULL);
     CHECK(playbackSurfaceControl7->isValid());
 	
     playbackSurface7 = playbackSurfaceControl7->getSurface();
     CHECK(playbackSurface7 != NULL);
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl7->setLayer(0x7fffffff);
     playbackSurfaceControl7->setPosition(0, 720);
     playbackSurfaceControl7->setSize(640, 360);
     playbackSurfaceControl7->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     player7 = new MediaPlayer();
     mPlayerListener7 = new PlayerListener(player7);
@@ -805,18 +805,18 @@ int startPlayback3x3() {
 
 
 //playback 8
-    playbackSurfaceControl8 = playbackComposerClient->createSurface(String8("jglSurface8"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl8 = client->createSurface(String8("jglSurface8"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl8 != NULL);
     CHECK(playbackSurfaceControl8->isValid());
 	
     playbackSurface8 = playbackSurfaceControl8->getSurface();
     CHECK(playbackSurface8 != NULL);
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl8->setLayer(0x7fffffff);
     playbackSurfaceControl8->setPosition(640, 720);
     playbackSurfaceControl8->setSize(640, 360);
     playbackSurfaceControl8->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     player8 = new MediaPlayer();
     mPlayerListener8 = new PlayerListener(player8);
@@ -830,18 +830,18 @@ int startPlayback3x3() {
     player8->setLooping(true);
 
 //playback 9
-    playbackSurfaceControl9 = playbackComposerClient->createSurface(String8("jglSurface9"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    playbackSurfaceControl9 = client->createSurface(String8("jglSurface9"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl9 != NULL);
     CHECK(playbackSurfaceControl9->isValid());
 	
     playbackSurface9 = playbackSurfaceControl9->getSurface();
     CHECK(playbackSurface9 != NULL);
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl9->setLayer(0x7fffffff);
     playbackSurfaceControl9->setPosition(1280, 720);
     playbackSurfaceControl9->setSize(640, 360);
     playbackSurfaceControl9->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     player9 = new MediaPlayer();
     mPlayerListener9 = new PlayerListener(player9);
@@ -861,76 +861,76 @@ int startPlayback3x3() {
 int startPlayback3x3_layout2() {
 
 //playback 1
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl->setLayer(0x7fffffff);
     playbackSurfaceControl->setPosition(0, 0);
     playbackSurfaceControl->setSize(640, 360);
     playbackSurfaceControl->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 2
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl2->setLayer(0x7fffffff);
     playbackSurfaceControl2->setPosition(640, 0);
     playbackSurfaceControl2->setSize(640, 360);
     playbackSurfaceControl2->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 3
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl3->setLayer(0x7fffffff);
     playbackSurfaceControl3->setPosition(1280, 0);
     playbackSurfaceControl3->setSize(640, 360);
     playbackSurfaceControl3->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 4
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl4->setLayer(0x7fffffff);
     playbackSurfaceControl4->setPosition(0, 360);
     playbackSurfaceControl4->setSize(640, 360);
     playbackSurfaceControl4->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 5
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl5->setLayer(0x7fffffff);
     playbackSurfaceControl5->setPosition(640, 360);
     playbackSurfaceControl5->setSize(640, 360);
     playbackSurfaceControl5->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 6
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl6->setLayer(0x7fffffff);
     playbackSurfaceControl6->setPosition(1280, 360);
     playbackSurfaceControl6->setSize(640, 360);
     playbackSurfaceControl6->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 7
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl7->setLayer(0x7fffffff);
     playbackSurfaceControl7->setPosition(0, 720);
     playbackSurfaceControl7->setSize(640, 360);
     playbackSurfaceControl7->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 8
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl8->setLayer(0x7fffffff);
     playbackSurfaceControl8->setPosition(640, 720);
     playbackSurfaceControl8->setSize(640, 360);
     playbackSurfaceControl8->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 9
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl9->setLayer(0x7fffffff);
     playbackSurfaceControl9->setPosition(1280, 720);
     playbackSurfaceControl9->setSize(640, 360);
     playbackSurfaceControl9->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     return 0;
 }
@@ -938,78 +938,78 @@ int startPlayback3x3_layout2() {
 int startPlayback3x3_layout1() {
 
 //playback 1
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl->setLayer(0x7fffffff);
     playbackSurfaceControl->setPosition(0, 0);
     playbackSurfaceControl->setSize(1440, 810);
     playbackSurfaceControl->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 
 //playback 2
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl2->setLayer(0x7fffffff);
     playbackSurfaceControl2->setPosition(1440, 0);
     playbackSurfaceControl2->setSize(480, 204);
     playbackSurfaceControl2->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 3
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl3->setLayer(0x7fffffff);
     playbackSurfaceControl3->setPosition(1440, 204);
     playbackSurfaceControl3->setSize(480, 202);
     playbackSurfaceControl3->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 4
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl4->setLayer(0x7fffffff);
     playbackSurfaceControl4->setPosition(1440, 406);
     playbackSurfaceControl4->setSize(480, 202);
     playbackSurfaceControl4->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 
 //playback 5
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl5->setLayer(0x7fffffff);
     playbackSurfaceControl5->setPosition(1440, 608);
     playbackSurfaceControl5->setSize(480, 202);
     playbackSurfaceControl5->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 6
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl6->setLayer(0x7fffffff);
     playbackSurfaceControl6->setPosition(1440, 810);
     playbackSurfaceControl6->setSize(480, 270);
     playbackSurfaceControl6->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 7
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl7->setLayer(0x7fffffff);
     playbackSurfaceControl7->setPosition(960, 810);
     playbackSurfaceControl7->setSize(480, 270);
     playbackSurfaceControl7->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 8
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl8->setLayer(0x7fffffff);
     playbackSurfaceControl8->setPosition(480, 810);
     playbackSurfaceControl8->setSize(480, 270);
     playbackSurfaceControl8->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
 //playback 9
-    playbackComposerClient->openGlobalTransaction();
+    client->openGlobalTransaction();
     playbackSurfaceControl9->setLayer(0x7fffffff);
     playbackSurfaceControl9->setPosition(0, 810);
     playbackSurfaceControl9->setSize(480, 270);
     playbackSurfaceControl9->show();
-    playbackComposerClient->closeGlobalTransaction();
+    client->closeGlobalTransaction();
 
     return 0;
 }
@@ -1032,9 +1032,9 @@ int stopPlayback() {
         playbackSurfaceControl.clear();
     }
 
-    if ( NULL != playbackComposerClient.get() ) {
-        playbackComposerClient->dispose();
-        playbackComposerClient.clear();
+    if ( NULL != client.get() ) {
+        client->dispose();
+        client.clear();
     }
 
     return 0;
@@ -1073,9 +1073,9 @@ int stopPlayback2() {
         playbackSurfaceControl2.clear();
     }
 
-    if ( NULL != playbackComposerClient.get() ) {
-        playbackComposerClient->dispose();
-        playbackComposerClient.clear();
+    if ( NULL != client.get() ) {
+        client->dispose();
+        client.clear();
     }
 
     return 0;
@@ -1144,9 +1144,9 @@ int stopPlayback2x2() {
             //playbackSurfaceControl4->clear();
             playbackSurfaceControl4.clear();
         }
-        if ( NULL != playbackComposerClient.get() ) {
-            playbackComposerClient->dispose();
-            playbackComposerClient.clear();
+        if ( NULL != client.get() ) {
+            client->dispose();
+            client.clear();
         }
         return 0;
 }
@@ -1296,9 +1296,9 @@ int stopPlayback3x3() {
         playbackSurfaceControl9.clear();
     }
 
-    if ( NULL != playbackComposerClient.get() ) {
-        playbackComposerClient->dispose();
-        playbackComposerClient.clear();
+    if ( NULL != client.get() ) {
+        client->dispose();
+        client.clear();
     }
 
     return 0;
@@ -1306,13 +1306,14 @@ int stopPlayback3x3() {
 
 int verfiyByPlayback() {
     VTC_LOGD(" ============= verfiyByPlayback ============= ");
-    playbackComposerClient = new SurfaceComposerClient();
-    //CHECK_EQ(playbackComposerClient->initCheck(), (status_t)OK);
-    if(playbackComposerClient->initCheck() != (status_t)OK)
-		VTC_LOGD(" initCheck error ");
-
-    playbackSurfaceWidth = WIDTH;//playbackComposerClient->getDisplayInfo(0);
-    playbackSurfaceHeight = HEIGHT;//playbackComposerClient->getDisplayHeight(0);
+    if(client ==NULL){
+        client = new SurfaceComposerClient();
+        //CHECK_EQ(client->initCheck(), (status_t)OK);
+        if(client->initCheck() != (status_t)OK)
+        VTC_LOGD(" initCheck error ");
+    }
+    playbackSurfaceWidth = WIDTH;//client->getDisplayInfo(0);
+    playbackSurfaceHeight = HEIGHT;//client->getDisplayHeight(0);
     VTC_LOGD("Panel WxH = %d x %d", playbackSurfaceWidth, playbackSurfaceHeight);
 
     startPlayback();
@@ -1326,12 +1327,12 @@ int verfiyByPlayback() {
 }
 
 int createPreviewSurface() {
-
-    client = new SurfaceComposerClient();
-    //CHECK_EQ(client->initCheck(), (status_t)OK);
-    if(client->initCheck() != (status_t)OK)
-		VTC_LOGD(" initCheck error ");
-
+    if(client == NULL){
+        client = new SurfaceComposerClient();
+        //CHECK_EQ(client->initCheck(), (status_t)OK);
+        if(client->initCheck() != (status_t)OK)
+        VTC_LOGD(" initCheck error ");
+    }
     VTC_LOGD("\n\n jgl prex %d, prey %d, prew %d , preh %d, \n\n\n", cameraWinX, cameraWinY, cameraSurfaceWidth, cameraSurfaceHeight);
     sp<IBinder> dtoken(SurfaceComposerClient::getBuiltInDisplay(
             ISurfaceComposer::eDisplayIdMain));
@@ -1979,12 +1980,13 @@ int test_Playback_change_3x3layout() {
 
 int test_PlaybackAndRecord_sidebyside() {
     VTC_LOGI("\n\nRecorded Output is stored in %s\n\n", mRecordFileName);
-    playbackComposerClient = new SurfaceComposerClient();
-    if(playbackComposerClient->initCheck() != (status_t)OK)
-		VTC_LOGD(" initCheck error ");
-
-    int panelwidth = 1920;//playbackComposerClient->getDisplayWidth(0);
-    int panelheight = 1080;//playbackComposerClient->getDisplayHeight(0);
+    if(client ==NULL){
+        client = new SurfaceComposerClient();
+        if(client->initCheck() != (status_t)OK)
+        VTC_LOGD(" initCheck error ");
+    }
+    int panelwidth = 1920;//client->getDisplayWidth(0);
+    int panelheight = 1080;//client->getDisplayHeight(0);
     VTC_LOGD("Panel WxH = %d x %d", panelwidth, panelheight);
     if (panelwidth < panelheight) {//Portrait Phone
         VTC_LOGD("\nPortrait Device\n");
@@ -2035,13 +2037,14 @@ int test_PlaybackAndRecord_sidebyside() {
 
 int test_PlaybackAndRecord_PIP() {
     VTC_LOGI("\n\nRecorded Output is stored in %s\n\n", mRecordFileName);
-    playbackComposerClient = new SurfaceComposerClient();
-    //CHECK_EQ(playbackComposerClient->initCheck(), (status_t)OK);
-    if(playbackComposerClient->initCheck() != (status_t)OK)
-		VTC_LOGD(" initCheck error ");
-
-    uint32_t panelwidth = WIDTH;//playbackComposerClient->getDisplayWidth(0);
-    uint32_t panelheight = HEIGHT;//playbackComposerClient->getDisplayHeight(0);
+    if(client ==NULL){
+        client = new SurfaceComposerClient();
+        //CHECK_EQ(client->initCheck(), (status_t)OK);
+        if(client->initCheck() != (status_t)OK)
+        VTC_LOGD(" initCheck error ");
+    }
+    uint32_t panelwidth = WIDTH;//client->getDisplayWidth(0);
+    uint32_t panelheight = HEIGHT;//client->getDisplayHeight(0);
     VTC_LOGD("Panel WxH = %d x %d", panelwidth, panelheight);
     if (panelwidth < panelheight) {//Portrait Phone
         VTC_LOGD("\nPortrait Device\n");
@@ -2113,13 +2116,14 @@ int test_PlaybackAndRecord_PIP() {
 
 int test_PlaybackOnly()
 {
-    playbackComposerClient = new SurfaceComposerClient();
-    //CHECK_EQ(playbackComposerClient->initCheck(), (status_t)OK);
-    if(playbackComposerClient->initCheck() != (status_t)OK)
-		VTC_LOGD(" initCheck error ");
-
-    int panelwidth = WIDTH;//playbackComposerClient->getDisplayWidth(0);
-    int panelheight = HEIGHT;//playbackComposerClient->getDisplayHeight(0);
+    if(client ==NULL){
+        client = new SurfaceComposerClient();
+        //CHECK_EQ(client->initCheck(), (status_t)OK);
+        if(client->initCheck() != (status_t)OK)
+        VTC_LOGD(" initCheck error ");
+    }
+    int panelwidth = WIDTH;//client->getDisplayWidth(0);
+    int panelheight = HEIGHT;//client->getDisplayHeight(0);
     VTC_LOGD("Panel WxH = %d x %d", panelwidth, panelheight);
     if (panelwidth < panelheight) {//Portrait Phone
         VTC_LOGD("\nPortrait Device\n");
