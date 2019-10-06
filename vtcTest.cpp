@@ -184,6 +184,10 @@ sp<MediaPlayer> player9;
 sp<SurfaceControl> playbackSurfaceControl9;
 sp<Surface> playbackSurface9;
 
+sp<MediaPlayer> player10;
+sp<SurfaceControl> playbackSurfaceControl10;
+sp<Surface> playbackSurface10;
+
 //To perform better
 static pthread_cond_t mCond;
 static pthread_mutex_t mMutex;
@@ -217,11 +221,11 @@ int test_Robust();
 int test_RecordPlayback();
 int test_CameraPreview();
 int test_SvcSpace();
-
+int test_9dec_1enc_1dec();
 
 
 typedef int (*pt2TestFunction)();
-pt2TestFunction TestFunctions[13] = {
+pt2TestFunction TestFunctions[14] = {
     test_Playback_change_3x3layout, // 0
     test_RecordDEFAULT, // 1
     //test_InsertIDRFrames, // 2
@@ -235,7 +239,8 @@ pt2TestFunction TestFunctions[13] = {
     test_Robust, // 9
     test_RecordPlayback, //10
     test_ALL, //11
-    test_SvcSpace //12
+    test_9dec_1enc_1dec, // 12
+    test_SvcSpace //13
 };
 
 class MyCameraListener: public CameraListener {
@@ -299,6 +304,7 @@ sp<PlayerListener> mPlayerListener6;
 sp<PlayerListener> mPlayerListener7;
 sp<PlayerListener> mPlayerListener8;
 sp<PlayerListener> mPlayerListener9;
+sp<PlayerListener> mPlayerListener10;
 
 
 int getMediaserverInfo(int *PID, int *VSIZE){
@@ -341,6 +347,423 @@ int my_pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t * mutex, int
     }
 
     return pthread_cond_timedwait(cond, mutex, &ts);
+}
+
+int createPreviewSurface() {
+    if(client == NULL){
+        client = new SurfaceComposerClient();
+        //CHECK_EQ(client->initCheck(), (status_t)OK);
+        if(client->initCheck() != (status_t)OK)
+        VTC_LOGD(" initCheck error ");
+    }
+    VTC_LOGD("\n\n jgl prex %d, prey %d, prew %d , preh %d, \n\n\n", cameraWinX, cameraWinY, cameraSurfaceWidth, cameraSurfaceHeight);
+    sp<IBinder> dtoken(SurfaceComposerClient::getBuiltInDisplay(
+            ISurfaceComposer::eDisplayIdMain));
+    DisplayInfo dinfo;
+    status_t status = SurfaceComposerClient::getDisplayInfo(dtoken, &dinfo);
+
+    printf("Display info %d %d\n", dinfo.w, dinfo.h);
+    /*
+    if ((cameraSurfaceWidth == 0) || (cameraSurfaceHeight == 0)){
+        cameraSurfaceWidth = WIDTH;//client->getDisplayWidth(0);
+        cameraSurfaceHeight = HEIGHT;//client->getDisplayHeight(0);
+    }
+    */
+
+    surfaceControl = client->createSurface(String8("previewSurface"),
+            cameraSurfaceWidth,
+            cameraSurfaceHeight,
+            HAL_PIXEL_FORMAT_RGB_565, 0);
+
+    previewSurface = surfaceControl->getSurface();
+
+    client->openGlobalTransaction();
+    surfaceControl->setLayer(0x7fffffff);
+    surfaceControl->setPosition(cameraWinX, cameraWinY);
+    surfaceControl->setSize(cameraSurfaceWidth, cameraSurfaceHeight);
+    surfaceControl->show();
+    client->closeGlobalTransaction();
+
+    return 0;
+}
+
+int destroyPreviewSurface() {
+
+    if ( NULL != previewSurface.get() ) {
+        previewSurface.clear();
+    }
+
+    if ( NULL != surfaceControl.get() ) {
+        surfaceControl->clear();
+        surfaceControl.clear();
+    }
+
+    if ( NULL != client.get() ) {
+        client->dispose();
+        client.clear();
+    }
+
+    return 0;
+}
+
+int startRecording() {
+
+    if (camera.get() == NULL) return -1;
+
+    recorder = new MediaRecorder(String16());
+
+    if ( NULL == recorder.get() ) {
+        VTC_LOGD("Error while creating MediaRecorder\n");
+        return -1;
+    }
+
+    camera->unlock();
+
+    if ( recorder->setCamera(camera->remote(), camera->getRecordingProxy()) < 0 ) {
+        VTC_LOGD("error while setting the camera\n");
+        return -1;
+    }
+
+    if ( recorder->setVideoSource(1 /*VIDEO_SOURCE_CAMERA*/) < 0 ) {
+        VTC_LOGD("error while configuring camera video source\n");
+        return -1;
+    }
+#if 0
+    if ( recorder->setAudioSource(AUDIO_SOURCE_DEFAULT) < 0 ) {
+        VTC_LOGD("error while configuring camera audio source\n");
+        return -1;
+    }
+#endif
+    if ( recorder->setOutputFormat(OUTPUT_FORMAT_MPEG_4) < 0 ) {
+        VTC_LOGD("error while configuring output format\n");
+        return -1;
+    }
+
+    //if(mkdir("/mnt/obb/vtc",0777) == -1)
+         //VTC_LOGD("\n Directory \'vtc\' was not created or maybe it was already created \n");
+
+    mOutputFd = open(mRecordFileName, O_CREAT | O_RDWR);
+
+    if(mOutputFd < 0){
+        VTC_LOGD("Error while creating video filename\n");
+        return -1;
+    }
+
+    if ( recorder->setOutputFile(mOutputFd, 0, 0) < 0 ) {
+        VTC_LOGD("error while configuring video filename\n");
+
+        return -1;
+    }
+
+    if ( recorder->setVideoFrameRate(mVideoFrameRate) < 0 ) {
+        VTC_LOGD("error while configuring video framerate\n");
+        return -1;
+    }
+
+    if ( recorder->setVideoSize(mPreviewWidth, mPreviewHeight) < 0 ) {
+        VTC_LOGD("error while configuring video size\n");
+        return -1;
+    }
+
+    if ( recorder->setVideoEncoder(mVideoCodec) < 0 ) {
+        VTC_LOGD("error while configuring video codec\n");
+        return -1;
+    }
+#if 0
+    if ( recorder->setAudioEncoder(AUDIO_ENCODER_AMR_NB) < 0 ) {
+        VTC_LOGD("error while configuring audio codec\n");
+        return -1;
+    }
+#endif
+    if ( recorder->setPreviewSurface(previewSurface->getIGraphicBufferProducer()) < 0 ) {
+        VTC_LOGD("error while configuring preview surface\n");
+        return -1;
+    }
+
+    sprintf(mParamValue,"video-param-encoding-bitrate=%u", mVideoBitRate);
+    String8 bit_rate(mParamValue);
+    if ( recorder->setParameters(bit_rate) < 0 ) {
+        VTC_LOGD("error while configuring bit rate\n");
+        return -1;
+    }
+
+	if(mVideoSvcLayer != 0){
+	    sprintf(mParamValue,"video-param-svc-layer=%u", mVideoSvcLayer);
+	    String8 svc_layer(mParamValue);
+	    printf("svc layer setting %s \n", mParamValue);
+	    if ( recorder->setParameters(svc_layer) < 0 ) {
+	        VTC_LOGD("error while configuring svc layer\n");
+	        return -1;
+	    }
+	}
+
+#if 0
+    sprintf(mParamValue,"time-lapse-enable=1");
+    String8 tl_enable(mParamValue);
+    if ( recorder->setParameters(tl_enable) < 0 ) {
+        VTC_LOGD("error while configuring bit rate\n");
+        return -1;
+    }
+
+    sprintf(mParamValue,"time-lapse-fps=%u", mVideoFrameRate);
+    String8 tl_fps(mParamValue);
+    if ( recorder->setParameters(tl_fps) < 0 ) {
+        VTC_LOGD("error while configuring time lapse fps\n");
+        return -1;
+    }
+#endif
+
+    sprintf(mParamValue,"video-param-i-frames-interval=%u", mIFramesIntervalSec);
+    String8 interval(mParamValue);
+    if ( recorder->setParameters(interval) < 0 ) {
+        VTC_LOGD("error while configuring i-frame interval\n");
+        return -1;
+    }
+
+    if ( recorder->prepare() < 0 ) {
+        VTC_LOGD("recorder prepare failed\n");
+        return -1;
+    }
+
+    if ( recorder->start() < 0 ) {
+        VTC_LOGD("recorder start failed\n");
+        return -1;
+    }
+
+    bRecording = true;
+    return 0;
+}
+
+int startRecording_svcSpace() {
+
+    if (camera.get() == NULL) return -1;
+
+    recorder = new MediaRecorder(String16());
+
+    if ( NULL == recorder.get() ) {
+        VTC_LOGD("Error while creating MediaRecorder\n");
+        return -1;
+    }
+
+    camera->unlock();
+
+    if ( recorder->setCamera(camera->remote(), camera->getRecordingProxy()) < 0 ) {
+        VTC_LOGD("error while setting the camera\n");
+        return -1;
+    }
+
+    if ( recorder->setVideoSource(1 /*VIDEO_SOURCE_CAMERA*/) < 0 ) {
+        VTC_LOGD("error while configuring camera video source\n");
+        return -1;
+    }
+#if 0
+    if ( recorder->setAudioSource(AUDIO_SOURCE_DEFAULT) < 0 ) {
+        VTC_LOGD("error while configuring camera audio source\n");
+        return -1;
+    }
+#endif
+    if ( recorder->setOutputFormat(OUTPUT_FORMAT_MPEG_4) < 0 ) {
+        VTC_LOGD("error while configuring output format\n");
+        return -1;
+    }
+
+    //if(mkdir("/mnt/obb/vtc",0777) == -1)
+         //VTC_LOGD("\n Directory \'vtc\' was not created or maybe it was already created \n");
+
+    mOutputFd = open(mRecordFileName, O_CREAT | O_RDWR |O_APPEND);
+
+    if(mOutputFd < 0){
+        VTC_LOGD("Error while creating video filename\n");
+        return -1;
+    }
+
+    if ( recorder->setOutputFile(mOutputFd, 0, 0) < 0 ) {
+        VTC_LOGD("error while configuring video filename\n");
+
+        return -1;
+    }
+
+    if ( recorder->setVideoFrameRate(mVideoFrameRate) < 0 ) {
+        VTC_LOGD("error while configuring video framerate\n");
+        return -1;
+    }
+
+    if ( recorder->setVideoSize(mPreviewWidth, mPreviewHeight) < 0 ) {
+        VTC_LOGD("error while configuring video size\n");
+        return -1;
+    }
+
+    if ( recorder->setVideoEncoder(mVideoCodec) < 0 ) {
+        VTC_LOGD("error while configuring video codec\n");
+        return -1;
+    }
+#if 0
+    if ( recorder->setAudioEncoder(AUDIO_ENCODER_AMR_NB) < 0 ) {
+        VTC_LOGD("error while configuring audio codec\n");
+        return -1;
+    }
+#endif
+    if ( recorder->setPreviewSurface(previewSurface->getIGraphicBufferProducer()) < 0 ) {
+        VTC_LOGD("error while configuring preview surface\n");
+        return -1;
+    }
+
+    sprintf(mParamValue,"video-param-encoding-bitrate=%u", mVideoBitRate);
+    String8 bit_rate(mParamValue);
+    if ( recorder->setParameters(bit_rate) < 0 ) {
+        VTC_LOGD("error while configuring bit rate\n");
+        return -1;
+    }
+
+    sprintf(mParamValue,"video-param-svc-layer=%u", 55);
+    String8 svc_layer(mParamValue);
+    printf("svc layer setting %s \n", mParamValue);
+    if ( recorder->setParameters(svc_layer) < 0 ) {
+        VTC_LOGD("error while configuring svc layer\n");
+        return -1;
+    }
+
+#if 0
+    sprintf(mParamValue,"time-lapse-enable=1");
+    String8 tl_enable(mParamValue);
+    if ( recorder->setParameters(tl_enable) < 0 ) {
+        VTC_LOGD("error while configuring bit rate\n");
+        return -1;
+    }
+
+    sprintf(mParamValue,"time-lapse-fps=%u", mVideoFrameRate);
+    String8 tl_fps(mParamValue);
+    if ( recorder->setParameters(tl_fps) < 0 ) {
+        VTC_LOGD("error while configuring time lapse fps\n");
+        return -1;
+    }
+#endif
+
+    sprintf(mParamValue,"video-param-i-frames-interval=%u", mIFramesIntervalSec);
+    String8 interval(mParamValue);
+    if ( recorder->setParameters(interval) < 0 ) {
+        VTC_LOGD("error while configuring i-frame interval\n");
+        return -1;
+    }
+
+    if ( recorder->prepare() < 0 ) {
+        VTC_LOGD("recorder prepare failed\n");
+        return -1;
+    }
+
+    if ( recorder->start() < 0 ) {
+        VTC_LOGD("recorder start failed\n");
+        return -1;
+    }
+
+    bRecording = true;
+    return 0;
+}
+
+int stopRecording() {
+
+    VTC_LOGD("stopRecording()");
+    if (camera.get() == NULL) return -1;
+
+    if ( NULL == recorder.get() ) {
+        VTC_LOGD("invalid recorder reference\n");
+        return -1;
+    }
+
+    if ( recorder->stop() < 0 ) {
+        VTC_LOGD("recorder failed to stop\n");
+        return -1;
+    }
+
+    recorder->release();
+    recorder.clear();
+
+    if ( 0 < mOutputFd ) {
+        close(mOutputFd);
+    }
+
+    return 0;
+}
+
+
+int startPreview() {
+    char value[PROPERTY_VALUE_MAX];
+    //property_get("disable.VSTAB.VNF", value, "0");
+    //int disable_VTAB_and_VNF = atoi(value);
+    mCameraThrewError = false;
+    bRecording = false;
+
+    createPreviewSurface();
+#if 1
+    camera = Camera::connect(camera_index, String16(), -1, -1 );
+#else
+    status_t status = Camera::connectLegacy(camera_index, 550, String16(),
+                Camera::USE_CALLING_UID, camera);
+    if (status != NO_ERROR) {
+        VTC_LOGE("camera connectLegacy failed");
+        //return status;
+    }
+#endif
+    if (camera.get() == NULL){
+        VTC_LOGE("camera.get() =================== NULL");
+        return -1;
+    }
+
+    VTC_LOGD("\n\n mPreviewWidth = %d, mPreviewHeight = %d, mVideoFrameRate = %d, mVideoBitRate = %d \n\n\n",
+        mPreviewWidth, mPreviewHeight, mVideoFrameRate, mVideoBitRate);
+
+    params.unflatten(camera->getParameters());
+    params.setPreviewSize(mPreviewWidth, mPreviewHeight);
+    params.setPreviewFrameRate(30/*mVideoFrameRate*/);
+    params.set(CameraParameters::KEY_RECORDING_HINT, CameraParameters::TRUE);// Set recording hint, otherwise it defaults to high-quality and there is not enough memory available to do playback and camera preview simultaneously!
+    //sprintf(mParamValue,"%u,%u", 30/*mVideoFrameRate*/*1000, 30/*mVideoFrameRate*/*1000);
+    //params.set("preview-fps-range", mParamValue);
+
+    //if(disable_VTAB_and_VNF){
+    //    VTC_LOGI("\n\n\nDisabling VSTAB & VNF (noise reduction)\n\n");
+    //    params.set("vstab" , 0);
+    //    params.set("vnf", 0);
+    //}
+    params.set("video-size", "1920x1080");
+    //params.set("antibanding", "off");
+    //params.setFocusMode(CameraParameters::FOCUS_MODE_CONTINUOUS_VIDEO);
+    //params.set("auto-exposure", "frame-average");
+    //params.set("zsl", "off");
+    //params.set("video-hdr", "off");
+    params.set("video-hfr", "off");
+    params.set("video-hsr", "30");
+    sprintf(mParamValue,"%u,%u", 30/*mVideoFrameRate*/*1000, 30/*mVideoFrameRate*/*1000);
+    //sprintf(mParamValue,"%u,%u", mVideoFrameRate*1000, mVideoFrameRate*1000);
+    params.set("preview-fps-range", mParamValue);
+    //camera->storeMetaDataInBuffers(true);
+    usleep(100*1000);
+    camera->setParameters(params.flatten());
+    camera->setPreviewTarget(previewSurface->getIGraphicBufferProducer());
+    mCameraListener = new MyCameraListener();
+    camera->setListener(mCameraListener);
+
+    params.unflatten(camera->getParameters());
+    VTC_LOGD("get(preview-fps-range) = %s\n", params.get("preview-fps-range"));
+    VTC_LOGD("get(preview-fps-range-values) = %s\n", params.get("preview-fps-range-values"));
+    VTC_LOGD("get(preview-size-values) = %s\n", params.get("preview-size-values"));
+    VTC_LOGD("get(preview-frame-rate-values) = %s\n", params.get("preview-frame-rate-values"));
+    VTC_LOGD("get(video-hfr-values) = %s\n", params.get("video-hfr-values"));
+    VTC_LOGD("get(video-hsr) = %s\n", params.get("video-hsr"));
+    VTC_LOGD("get(video-hfr) = %s\n", params.get("video-hfr"));
+
+    VTC_LOGD("Starting preview\n");
+    camera->startPreview();
+    sleep(SLEEP_AFTER_STARTING_PREVIEW);
+    return 0;
+}
+
+void stopPreview() {
+    if (camera.get() == NULL) return;
+    camera->stopPreview();
+    camera->disconnect();
+    camera.clear();
+    mCameraListener.clear();
+    destroyPreviewSurface();
 }
 
 int startPlayback() {
@@ -858,6 +1281,280 @@ int startPlayback3x3() {
     return 0;
 }
 
+int start9dec_1enc_1dec() {
+	cameraWinX=0;
+	cameraWinY=0;
+	cameraSurfaceWidth=1600;
+	cameraSurfaceHeight=900;
+//	mPreviewWidth=1920;
+//	mPreviewHeight=1080;
+
+	startPreview();
+	startRecording();
+
+    if(client ==NULL){
+        client = new SurfaceComposerClient();
+        //CHECK_EQ(client->initCheck(), (status_t)OK);
+        if(client->initCheck() != (status_t)OK)
+        VTC_LOGD(" initCheck error ");
+    }
+//playback 1
+    playbackSurfaceControl = client->createSurface(String8("jglSurface"), 320, 360, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl != NULL);
+    CHECK(playbackSurfaceControl->isValid());
+    playbackSurface = playbackSurfaceControl->getSurface();
+    CHECK(playbackSurface != NULL);
+
+    client->openGlobalTransaction();
+    playbackSurfaceControl->setLayer(0x7fffffff);
+    playbackSurfaceControl->setPosition(1600, 0);
+    playbackSurfaceControl->setSize(320, 360);
+    playbackSurfaceControl->show();
+    client->closeGlobalTransaction();
+
+    player = new MediaPlayer();
+    mPlayerListener = new PlayerListener(player);
+    mMediaPlayerThrewError = false;
+    player->setListener(mPlayerListener);
+    int fd = open("/data/1080.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize = lseek64(fd, 0, SEEK_END);
+    player->setDataSource(fd, 0, fileSize);
+    player->setVideoSurfaceTexture(playbackSurface->getIGraphicBufferProducer());
+    player->prepareAsync();
+    player->setLooping(true);
+
+	printf("test playback 3x3 in one process \n");
+//playback 2
+    playbackSurfaceControl2 = client->createSurface(String8("jglSurface2"), 320, 180, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl2 != NULL);
+    CHECK(playbackSurfaceControl2->isValid());
+	
+    playbackSurface2 = playbackSurfaceControl2->getSurface();
+    CHECK(playbackSurface2 != NULL);
+    client->openGlobalTransaction();
+    playbackSurfaceControl2->setLayer(0x7fffffff);
+    playbackSurfaceControl2->setPosition(1600, 360);
+    playbackSurfaceControl2->setSize(320, 180);
+    playbackSurfaceControl2->show();
+    client->closeGlobalTransaction();
+
+    player2 = new MediaPlayer();
+    mPlayerListener2 = new PlayerListener(player2);
+    mMediaPlayerThrewError = false;
+    player2->setListener(mPlayerListener2);
+    int fd2 = open("/data/jony360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize2 = lseek64(fd2, 0, SEEK_END);
+    player2->setDataSource(fd2, 0, fileSize2);
+    player2->setVideoSurfaceTexture(playbackSurface2->getIGraphicBufferProducer());
+    player2->prepareAsync();
+    player2->setLooping(true);
+
+//playback 3
+    playbackSurfaceControl3 = client->createSurface(String8("jglSurface3"), 320, 180, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl3 != NULL);
+    CHECK(playbackSurfaceControl3->isValid());
+	
+    playbackSurface3 = playbackSurfaceControl3->getSurface();
+    CHECK(playbackSurface3 != NULL);
+    client->openGlobalTransaction();
+    playbackSurfaceControl3->setLayer(0x7fffffff);
+    playbackSurfaceControl3->setPosition(1600, 540);
+    playbackSurfaceControl3->setSize(320, 180);
+    playbackSurfaceControl3->show();
+    client->closeGlobalTransaction();
+
+    player3 = new MediaPlayer();
+    mPlayerListener3 = new PlayerListener(player3);
+    mMediaPlayerThrewError = false;
+    player3->setListener(mPlayerListener3);
+    int fd3 = open("/data/city360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize3 = lseek64(fd3, 0, SEEK_END);
+    player3->setDataSource(fd3, 0, fileSize3);
+    player3->setVideoSurfaceTexture(playbackSurface3->getIGraphicBufferProducer());
+    player3->prepareAsync();
+    player3->setLooping(true);
+
+//playback 4
+    playbackSurfaceControl4 = client->createSurface(String8("jglSurface4"), 320, 180, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl4 != NULL);
+    CHECK(playbackSurfaceControl4->isValid());
+	
+    playbackSurface4 = playbackSurfaceControl4->getSurface();
+    CHECK(playbackSurface4 != NULL);
+    client->openGlobalTransaction();
+    playbackSurfaceControl4->setLayer(0x7fffffff);
+    playbackSurfaceControl4->setPosition(1600, 720);
+    playbackSurfaceControl4->setSize(320, 180);
+    playbackSurfaceControl4->show();
+    client->closeGlobalTransaction();
+
+    player4 = new MediaPlayer();
+    mPlayerListener4 = new PlayerListener(player4);
+    mMediaPlayerThrewError = false;
+    player4->setListener(mPlayerListener4);
+    int fd4 = open("/data/jony360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize4 = lseek64(fd4, 0, SEEK_END);
+    player4->setDataSource(fd4, 0, fileSize4);
+    player4->setVideoSurfaceTexture(playbackSurface4->getIGraphicBufferProducer());
+    player4->prepareAsync();
+    player4->setLooping(true);
+
+//playback 5
+    playbackSurfaceControl5 = client->createSurface(String8("jglSurface5"), 320, 180, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl5 != NULL);
+    CHECK(playbackSurfaceControl5->isValid());
+	
+    playbackSurface5 = playbackSurfaceControl5->getSurface();
+    CHECK(playbackSurface5 != NULL);
+    client->openGlobalTransaction();
+    playbackSurfaceControl5->setLayer(0x7fffffff);
+    playbackSurfaceControl5->setPosition(1600, 900);
+    playbackSurfaceControl5->setSize(320, 180);
+    playbackSurfaceControl5->show();
+    client->closeGlobalTransaction();
+
+    player5 = new MediaPlayer();
+    mPlayerListener5 = new PlayerListener(player5);
+    mMediaPlayerThrewError = false;
+    player5->setListener(mPlayerListener5);
+    int fd5 = open("/data/city360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize5 = lseek64(fd5, 0, SEEK_END);
+    player5->setDataSource(fd5, 0, fileSize5);
+    player5->setVideoSurfaceTexture(playbackSurface5->getIGraphicBufferProducer());
+    player5->prepareAsync();
+    player5->setLooping(true);
+
+//playback 6
+    playbackSurfaceControl6 = client->createSurface(String8("jglSurface6"), 320, 180, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl6 != NULL);
+    CHECK(playbackSurfaceControl6->isValid());
+	
+    playbackSurface6 = playbackSurfaceControl6->getSurface();
+    CHECK(playbackSurface6 != NULL);
+    client->openGlobalTransaction();
+    playbackSurfaceControl6->setLayer(0x7fffffff);
+    playbackSurfaceControl6->setPosition(1280, 900);
+    playbackSurfaceControl6->setSize(320, 180);
+    playbackSurfaceControl6->show();
+    client->closeGlobalTransaction();
+
+    player6 = new MediaPlayer();
+    mPlayerListener6 = new PlayerListener(player6);
+    mMediaPlayerThrewError = false;
+    player6->setListener(mPlayerListener6);
+    int fd6 = open("/data/jony360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize6 = lseek64(fd6, 0, SEEK_END);
+    player6->setDataSource(fd6, 0, fileSize6);
+    player6->setVideoSurfaceTexture(playbackSurface6->getIGraphicBufferProducer());
+    player6->prepareAsync();
+    player6->setLooping(true);
+
+//playback 7
+    playbackSurfaceControl7 = client->createSurface(String8("jglSurface7"), 320, 180, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl7 != NULL);
+    CHECK(playbackSurfaceControl7->isValid());
+	
+    playbackSurface7 = playbackSurfaceControl7->getSurface();
+    CHECK(playbackSurface7 != NULL);
+    client->openGlobalTransaction();
+    playbackSurfaceControl7->setLayer(0x7fffffff);
+    playbackSurfaceControl7->setPosition(960, 900);
+    playbackSurfaceControl7->setSize(320, 180);
+    playbackSurfaceControl7->show();
+    client->closeGlobalTransaction();
+
+    player7 = new MediaPlayer();
+    mPlayerListener7 = new PlayerListener(player7);
+    mMediaPlayerThrewError = false;
+    player7->setListener(mPlayerListener7);
+    int fd7 = open("/data/city360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize7 = lseek64(fd7, 0, SEEK_END);
+    player7->setDataSource(fd7, 0, fileSize7);
+    player7->setVideoSurfaceTexture(playbackSurface7->getIGraphicBufferProducer());
+    player7->prepareAsync();
+    player7->setLooping(true);
+
+
+//playback 8
+    playbackSurfaceControl8 = client->createSurface(String8("jglSurface8"), 320, 180, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl8 != NULL);
+    CHECK(playbackSurfaceControl8->isValid());
+	
+    playbackSurface8 = playbackSurfaceControl8->getSurface();
+    CHECK(playbackSurface8 != NULL);
+    client->openGlobalTransaction();
+    playbackSurfaceControl8->setLayer(0x7fffffff);
+    playbackSurfaceControl8->setPosition(640, 900);
+    playbackSurfaceControl8->setSize(320, 180);
+    playbackSurfaceControl8->show();
+    client->closeGlobalTransaction();
+
+    player8 = new MediaPlayer();
+    mPlayerListener8 = new PlayerListener(player8);
+    mMediaPlayerThrewError = false;
+    player8->setListener(mPlayerListener8);
+    int fd8 = open("/data/jony360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize8 = lseek64(fd8, 0, SEEK_END);
+    player8->setDataSource(fd8, 0, fileSize8);
+    player8->setVideoSurfaceTexture(playbackSurface8->getIGraphicBufferProducer());
+    player8->prepareAsync();
+    player8->setLooping(true);
+
+//playback 9
+    playbackSurfaceControl9 = client->createSurface(String8("jglSurface9"), 320, 180, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl9 != NULL);
+    CHECK(playbackSurfaceControl9->isValid());
+	
+    playbackSurface9 = playbackSurfaceControl9->getSurface();
+    CHECK(playbackSurface9 != NULL);
+    client->openGlobalTransaction();
+    playbackSurfaceControl9->setLayer(0x7fffffff);
+    playbackSurfaceControl9->setPosition(320, 900);
+    playbackSurfaceControl9->setSize(320, 180);
+    playbackSurfaceControl9->show();
+    client->closeGlobalTransaction();
+
+    player9 = new MediaPlayer();
+    mPlayerListener9 = new PlayerListener(player9);
+    mMediaPlayerThrewError = false;
+    player9->setListener(mPlayerListener9);
+    int fd9 = open("/data/city360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize9 = lseek64(fd9, 0, SEEK_END);
+    player9->setDataSource(fd9, 0, fileSize9);
+    player9->setVideoSurfaceTexture(playbackSurface9->getIGraphicBufferProducer());
+    player9->prepareAsync();
+    player9->setLooping(true);
+	
+//	printf("test 10st pic \n");
+//	//playback 10
+//		playbackSurfaceControl10 = client->createSurface(String8("jglSurface10"), 320, 180, PIXEL_FORMAT_RGB_565, 0);
+//		CHECK(playbackSurfaceControl10 != NULL);
+//		CHECK(playbackSurfaceControl10->isValid());
+//		
+//		playbackSurface10 = playbackSurfaceControl10->getSurface();
+//		CHECK(playbackSurface10 != NULL);
+//		client->openGlobalTransaction();
+//		playbackSurfaceControl10->setLayer(0x7fffffff+1);
+//		playbackSurfaceControl10->setPosition(960, 540);
+//		playbackSurfaceControl10->setSize(300, 180);
+//		playbackSurfaceControl10->show();
+//		client->closeGlobalTransaction();
+//	
+//		player10 = new MediaPlayer();
+//		mPlayerListener10 = new PlayerListener(player10);
+//		mMediaPlayerThrewError = false;
+//		player10->setListener(mPlayerListener10);
+//		int fd10 = open("/data/jony.mp4", O_RDONLY | O_LARGEFILE);
+//		uint64_t fileSize10 = lseek64(fd10, 0, SEEK_END);
+//		player10->setDataSource(fd10, 0, fileSize10);
+//		player10->setVideoSurfaceTexture(playbackSurface10->getIGraphicBufferProducer());
+//		player10->prepareAsync();
+//		player10->setLooping(true);
+//	
+    bPlaying = true;
+    return 0;
+}
+
 int startPlayback3x3_layout2() {
 
 //playback 1
@@ -1168,6 +1865,162 @@ int stopPlayback3x3() {
         //playbackSurfaceControl->clear();
         playbackSurfaceControl.clear();
     }
+
+//stop play2 
+    player2->stop();
+    player2->setListener(0);
+    player2->disconnect();
+    player2.clear();
+    mPlayerListener2.clear();
+
+    if ( NULL != playbackSurface2.get() ) {
+        playbackSurface2.clear();
+    }
+	
+    if ( NULL != playbackSurfaceControl2.get() ) {
+        //playbackSurfaceControl2->disconnect();
+        playbackSurfaceControl2.clear();
+    }
+
+//stop play3 
+    player3->stop();
+    player3->setListener(0);
+    player3->disconnect();
+    player3.clear();
+    mPlayerListener3.clear();
+
+    if ( NULL != playbackSurface3.get() ) {
+        playbackSurface3.clear();
+    }
+	
+    if ( NULL != playbackSurfaceControl3.get() ) {
+        //playbackSurfaceControl3->clear();
+        playbackSurfaceControl3.clear();
+    }
+
+//stop play4 
+    player4->stop();
+    player4->setListener(0);
+    player4->disconnect();
+    player4.clear();
+    mPlayerListener4.clear();
+
+    if ( NULL != playbackSurface4.get() ) {
+        playbackSurface4.clear();
+    }
+	
+    if ( NULL != playbackSurfaceControl4.get() ) {
+        //playbackSurfaceControl4->clear();
+        playbackSurfaceControl4.clear();
+    }
+
+//stop play5 
+    player5->stop();
+    player5->setListener(0);
+    player5->disconnect();
+    player5.clear();
+    mPlayerListener5.clear();
+
+    if ( NULL != playbackSurface5.get() ) {
+        playbackSurface5.clear();
+    }
+	
+    if ( NULL != playbackSurfaceControl5.get() ) {
+        //playbackSurfaceControl5->clear();
+        playbackSurfaceControl5.clear();
+    }
+
+//stop play6 
+    player6->stop();
+    player6->setListener(0);
+    player6->disconnect();
+    player6.clear();
+    mPlayerListener6.clear();
+
+    if ( NULL != playbackSurface6.get() ) {
+        playbackSurface6.clear();
+    }
+	
+    if ( NULL != playbackSurfaceControl6.get() ) {
+        //playbackSurfaceControl6->clear();
+        playbackSurfaceControl6.clear();
+    }
+
+//stop play7 
+    player7->stop();
+    player7->setListener(0);
+    player7->disconnect();
+    player7.clear();
+    mPlayerListener7.clear();
+
+    if ( NULL != playbackSurface7.get() ) {
+        playbackSurface7.clear();
+    }
+	
+    if ( NULL != playbackSurfaceControl7.get() ) {
+        //playbackSurfaceControl7->clear();
+        playbackSurfaceControl7.clear();
+    }
+
+//stop play8 
+    player8->stop();
+    player8->setListener(0);
+    player8->disconnect();
+    player8.clear();
+    mPlayerListener8.clear();
+
+    if ( NULL != playbackSurface8.get() ) {
+        playbackSurface8.clear();
+    }
+	
+    if ( NULL != playbackSurfaceControl8.get() ) {
+        //playbackSurfaceControl8->clear();
+        playbackSurfaceControl8.clear();
+    }
+
+//stop play9 
+    player9->stop();
+    player9->setListener(0);
+    player9->disconnect();
+    player9.clear();
+    mPlayerListener9.clear();
+
+    if ( NULL != playbackSurface9.get() ) {
+        playbackSurface9.clear();
+    }
+	
+    if ( NULL != playbackSurfaceControl9.get() ) {
+        //playbackSurfaceControl9->clear();
+        playbackSurfaceControl9.clear();
+    }
+
+    if ( NULL != client.get() ) {
+        client->dispose();
+        client.clear();
+    }
+
+    return 0;
+}
+
+int stop9dec_1enc_1dec() {
+
+    VTC_LOGD("%d: %s", __LINE__, __FUNCTION__);
+    stopRecording();
+    stopPreview();
+    player->stop();
+    player->setListener(0);
+    player->disconnect();
+    player.clear();
+    mPlayerListener.clear();
+
+    if ( NULL != playbackSurface.get() ) {
+        playbackSurface.clear();
+    }
+
+    if ( NULL != playbackSurfaceControl.get() ) {
+        //playbackSurfaceControl->clear();
+        playbackSurfaceControl.clear();
+    }
 //stop play2 
     player2->stop();
     player2->setListener(0);
@@ -1324,423 +2177,6 @@ int verfiyByPlayback() {
     pthread_mutex_unlock(&mMutex);
     stopPlayback();
     return 0;
-}
-
-int createPreviewSurface() {
-    if(client == NULL){
-        client = new SurfaceComposerClient();
-        //CHECK_EQ(client->initCheck(), (status_t)OK);
-        if(client->initCheck() != (status_t)OK)
-        VTC_LOGD(" initCheck error ");
-    }
-    VTC_LOGD("\n\n jgl prex %d, prey %d, prew %d , preh %d, \n\n\n", cameraWinX, cameraWinY, cameraSurfaceWidth, cameraSurfaceHeight);
-    sp<IBinder> dtoken(SurfaceComposerClient::getBuiltInDisplay(
-            ISurfaceComposer::eDisplayIdMain));
-    DisplayInfo dinfo;
-    status_t status = SurfaceComposerClient::getDisplayInfo(dtoken, &dinfo);
-
-    printf("Display info %d %d\n", dinfo.w, dinfo.h);
-    /*
-    if ((cameraSurfaceWidth == 0) || (cameraSurfaceHeight == 0)){
-        cameraSurfaceWidth = WIDTH;//client->getDisplayWidth(0);
-        cameraSurfaceHeight = HEIGHT;//client->getDisplayHeight(0);
-    }
-    */
-
-    surfaceControl = client->createSurface(String8("previewSurface"),
-            cameraSurfaceWidth,
-            cameraSurfaceHeight,
-            HAL_PIXEL_FORMAT_RGB_565, 0);
-
-    previewSurface = surfaceControl->getSurface();
-
-    client->openGlobalTransaction();
-    surfaceControl->setLayer(0x7fffffff);
-    surfaceControl->setPosition(cameraWinX, cameraWinY);
-    surfaceControl->setSize(cameraSurfaceWidth, cameraSurfaceHeight);
-    surfaceControl->show();
-    client->closeGlobalTransaction();
-
-    return 0;
-}
-
-int destroyPreviewSurface() {
-
-    if ( NULL != previewSurface.get() ) {
-        previewSurface.clear();
-    }
-
-    if ( NULL != surfaceControl.get() ) {
-        surfaceControl->clear();
-        surfaceControl.clear();
-    }
-
-    if ( NULL != client.get() ) {
-        client->dispose();
-        client.clear();
-    }
-
-    return 0;
-}
-
-int startRecording() {
-
-    if (camera.get() == NULL) return -1;
-
-    recorder = new MediaRecorder(String16());
-
-    if ( NULL == recorder.get() ) {
-        VTC_LOGD("Error while creating MediaRecorder\n");
-        return -1;
-    }
-
-    camera->unlock();
-
-    if ( recorder->setCamera(camera->remote(), camera->getRecordingProxy()) < 0 ) {
-        VTC_LOGD("error while setting the camera\n");
-        return -1;
-    }
-
-    if ( recorder->setVideoSource(1 /*VIDEO_SOURCE_CAMERA*/) < 0 ) {
-        VTC_LOGD("error while configuring camera video source\n");
-        return -1;
-    }
-#if 0
-    if ( recorder->setAudioSource(AUDIO_SOURCE_DEFAULT) < 0 ) {
-        VTC_LOGD("error while configuring camera audio source\n");
-        return -1;
-    }
-#endif
-    if ( recorder->setOutputFormat(OUTPUT_FORMAT_MPEG_4) < 0 ) {
-        VTC_LOGD("error while configuring output format\n");
-        return -1;
-    }
-
-    //if(mkdir("/mnt/obb/vtc",0777) == -1)
-         //VTC_LOGD("\n Directory \'vtc\' was not created or maybe it was already created \n");
-
-    mOutputFd = open(mRecordFileName, O_CREAT | O_RDWR);
-
-    if(mOutputFd < 0){
-        VTC_LOGD("Error while creating video filename\n");
-        return -1;
-    }
-
-    if ( recorder->setOutputFile(mOutputFd, 0, 0) < 0 ) {
-        VTC_LOGD("error while configuring video filename\n");
-
-        return -1;
-    }
-
-    if ( recorder->setVideoFrameRate(mVideoFrameRate) < 0 ) {
-        VTC_LOGD("error while configuring video framerate\n");
-        return -1;
-    }
-
-    if ( recorder->setVideoSize(mPreviewWidth, mPreviewHeight) < 0 ) {
-        VTC_LOGD("error while configuring video size\n");
-        return -1;
-    }
-
-    if ( recorder->setVideoEncoder(mVideoCodec) < 0 ) {
-        VTC_LOGD("error while configuring video codec\n");
-        return -1;
-    }
-#if 0
-    if ( recorder->setAudioEncoder(AUDIO_ENCODER_AMR_NB) < 0 ) {
-        VTC_LOGD("error while configuring audio codec\n");
-        return -1;
-    }
-#endif
-    if ( recorder->setPreviewSurface(previewSurface->getIGraphicBufferProducer()) < 0 ) {
-        VTC_LOGD("error while configuring preview surface\n");
-        return -1;
-    }
-
-    sprintf(mParamValue,"video-param-encoding-bitrate=%u", mVideoBitRate);
-    String8 bit_rate(mParamValue);
-    if ( recorder->setParameters(bit_rate) < 0 ) {
-        VTC_LOGD("error while configuring bit rate\n");
-        return -1;
-    }
-
-	if(mVideoSvcLayer != 0){
-	    sprintf(mParamValue,"video-param-svc-layer=%u", mVideoSvcLayer);
-	    String8 svc_layer(mParamValue);
-	    printf("svc layer setting %s \n", mParamValue);
-	    if ( recorder->setParameters(svc_layer) < 0 ) {
-	        VTC_LOGD("error while configuring svc layer\n");
-	        return -1;
-	    }
-	}
-
-#if 0
-    sprintf(mParamValue,"time-lapse-enable=1");
-    String8 tl_enable(mParamValue);
-    if ( recorder->setParameters(tl_enable) < 0 ) {
-        VTC_LOGD("error while configuring bit rate\n");
-        return -1;
-    }
-
-    sprintf(mParamValue,"time-lapse-fps=%u", mVideoFrameRate);
-    String8 tl_fps(mParamValue);
-    if ( recorder->setParameters(tl_fps) < 0 ) {
-        VTC_LOGD("error while configuring time lapse fps\n");
-        return -1;
-    }
-#endif
-
-    sprintf(mParamValue,"video-param-i-frames-interval=%u", mIFramesIntervalSec);
-    String8 interval(mParamValue);
-    if ( recorder->setParameters(interval) < 0 ) {
-        VTC_LOGD("error while configuring i-frame interval\n");
-        return -1;
-    }
-
-    if ( recorder->prepare() < 0 ) {
-        VTC_LOGD("recorder prepare failed\n");
-        return -1;
-    }
-
-    if ( recorder->start() < 0 ) {
-        VTC_LOGD("recorder start failed\n");
-        return -1;
-    }
-
-    bRecording = true;
-    return 0;
-}
-
-int startRecording_svcSpace() {
-
-    if (camera.get() == NULL) return -1;
-
-    recorder = new MediaRecorder(String16());
-
-    if ( NULL == recorder.get() ) {
-        VTC_LOGD("Error while creating MediaRecorder\n");
-        return -1;
-    }
-
-    camera->unlock();
-
-    if ( recorder->setCamera(camera->remote(), camera->getRecordingProxy()) < 0 ) {
-        VTC_LOGD("error while setting the camera\n");
-        return -1;
-    }
-
-    if ( recorder->setVideoSource(1 /*VIDEO_SOURCE_CAMERA*/) < 0 ) {
-        VTC_LOGD("error while configuring camera video source\n");
-        return -1;
-    }
-#if 0
-    if ( recorder->setAudioSource(AUDIO_SOURCE_DEFAULT) < 0 ) {
-        VTC_LOGD("error while configuring camera audio source\n");
-        return -1;
-    }
-#endif
-    if ( recorder->setOutputFormat(OUTPUT_FORMAT_MPEG_4) < 0 ) {
-        VTC_LOGD("error while configuring output format\n");
-        return -1;
-    }
-
-    //if(mkdir("/mnt/obb/vtc",0777) == -1)
-         //VTC_LOGD("\n Directory \'vtc\' was not created or maybe it was already created \n");
-
-    mOutputFd = open(mRecordFileName, O_CREAT | O_RDWR |O_APPEND);
-
-    if(mOutputFd < 0){
-        VTC_LOGD("Error while creating video filename\n");
-        return -1;
-    }
-
-    if ( recorder->setOutputFile(mOutputFd, 0, 0) < 0 ) {
-        VTC_LOGD("error while configuring video filename\n");
-
-        return -1;
-    }
-
-    if ( recorder->setVideoFrameRate(mVideoFrameRate) < 0 ) {
-        VTC_LOGD("error while configuring video framerate\n");
-        return -1;
-    }
-
-    if ( recorder->setVideoSize(mPreviewWidth, mPreviewHeight) < 0 ) {
-        VTC_LOGD("error while configuring video size\n");
-        return -1;
-    }
-
-    if ( recorder->setVideoEncoder(mVideoCodec) < 0 ) {
-        VTC_LOGD("error while configuring video codec\n");
-        return -1;
-    }
-#if 0
-    if ( recorder->setAudioEncoder(AUDIO_ENCODER_AMR_NB) < 0 ) {
-        VTC_LOGD("error while configuring audio codec\n");
-        return -1;
-    }
-#endif
-    if ( recorder->setPreviewSurface(previewSurface->getIGraphicBufferProducer()) < 0 ) {
-        VTC_LOGD("error while configuring preview surface\n");
-        return -1;
-    }
-
-    sprintf(mParamValue,"video-param-encoding-bitrate=%u", mVideoBitRate);
-    String8 bit_rate(mParamValue);
-    if ( recorder->setParameters(bit_rate) < 0 ) {
-        VTC_LOGD("error while configuring bit rate\n");
-        return -1;
-    }
-
-    sprintf(mParamValue,"video-param-svc-layer=%u", 55);
-    String8 svc_layer(mParamValue);
-    printf("svc layer setting %s \n", mParamValue);
-    if ( recorder->setParameters(svc_layer) < 0 ) {
-        VTC_LOGD("error while configuring svc layer\n");
-        return -1;
-    }
-
-#if 0
-    sprintf(mParamValue,"time-lapse-enable=1");
-    String8 tl_enable(mParamValue);
-    if ( recorder->setParameters(tl_enable) < 0 ) {
-        VTC_LOGD("error while configuring bit rate\n");
-        return -1;
-    }
-
-    sprintf(mParamValue,"time-lapse-fps=%u", mVideoFrameRate);
-    String8 tl_fps(mParamValue);
-    if ( recorder->setParameters(tl_fps) < 0 ) {
-        VTC_LOGD("error while configuring time lapse fps\n");
-        return -1;
-    }
-#endif
-
-    sprintf(mParamValue,"video-param-i-frames-interval=%u", mIFramesIntervalSec);
-    String8 interval(mParamValue);
-    if ( recorder->setParameters(interval) < 0 ) {
-        VTC_LOGD("error while configuring i-frame interval\n");
-        return -1;
-    }
-
-    if ( recorder->prepare() < 0 ) {
-        VTC_LOGD("recorder prepare failed\n");
-        return -1;
-    }
-
-    if ( recorder->start() < 0 ) {
-        VTC_LOGD("recorder start failed\n");
-        return -1;
-    }
-
-    bRecording = true;
-    return 0;
-}
-
-int stopRecording() {
-
-    VTC_LOGD("stopRecording()");
-    if (camera.get() == NULL) return -1;
-
-    if ( NULL == recorder.get() ) {
-        VTC_LOGD("invalid recorder reference\n");
-        return -1;
-    }
-
-    if ( recorder->stop() < 0 ) {
-        VTC_LOGD("recorder failed to stop\n");
-        return -1;
-    }
-
-    recorder->release();
-    recorder.clear();
-
-    if ( 0 < mOutputFd ) {
-        close(mOutputFd);
-    }
-
-    return 0;
-}
-
-
-int startPreview() {
-    char value[PROPERTY_VALUE_MAX];
-    //property_get("disable.VSTAB.VNF", value, "0");
-    //int disable_VTAB_and_VNF = atoi(value);
-    mCameraThrewError = false;
-    bRecording = false;
-
-    createPreviewSurface();
-#if 1
-    camera = Camera::connect(camera_index, String16(), -1, -1 );
-#else
-    status_t status = Camera::connectLegacy(camera_index, 550, String16(),
-                Camera::USE_CALLING_UID, camera);
-    if (status != NO_ERROR) {
-        VTC_LOGE("camera connectLegacy failed");
-        //return status;
-    }
-#endif
-    if (camera.get() == NULL){
-        VTC_LOGE("camera.get() =================== NULL");
-        return -1;
-    }
-
-    VTC_LOGD("\n\n mPreviewWidth = %d, mPreviewHeight = %d, mVideoFrameRate = %d, mVideoBitRate = %d \n\n\n",
-        mPreviewWidth, mPreviewHeight, mVideoFrameRate, mVideoBitRate);
-
-    params.unflatten(camera->getParameters());
-    params.setPreviewSize(mPreviewWidth, mPreviewHeight);
-    params.setPreviewFrameRate(30/*mVideoFrameRate*/);
-    params.set(CameraParameters::KEY_RECORDING_HINT, CameraParameters::TRUE);// Set recording hint, otherwise it defaults to high-quality and there is not enough memory available to do playback and camera preview simultaneously!
-    //sprintf(mParamValue,"%u,%u", 30/*mVideoFrameRate*/*1000, 30/*mVideoFrameRate*/*1000);
-    //params.set("preview-fps-range", mParamValue);
-
-    //if(disable_VTAB_and_VNF){
-    //    VTC_LOGI("\n\n\nDisabling VSTAB & VNF (noise reduction)\n\n");
-    //    params.set("vstab" , 0);
-    //    params.set("vnf", 0);
-    //}
-    params.set("video-size", "1920x1080");
-    //params.set("antibanding", "off");
-    //params.setFocusMode(CameraParameters::FOCUS_MODE_CONTINUOUS_VIDEO);
-    //params.set("auto-exposure", "frame-average");
-    //params.set("zsl", "off");
-    //params.set("video-hdr", "off");
-    params.set("video-hfr", "off");
-    params.set("video-hsr", "30");
-    sprintf(mParamValue,"%u,%u", 30/*mVideoFrameRate*/*1000, 30/*mVideoFrameRate*/*1000);
-    //sprintf(mParamValue,"%u,%u", mVideoFrameRate*1000, mVideoFrameRate*1000);
-    params.set("preview-fps-range", mParamValue);
-    //camera->storeMetaDataInBuffers(true);
-    usleep(100*1000);
-    camera->setParameters(params.flatten());
-    camera->setPreviewTarget(previewSurface->getIGraphicBufferProducer());
-    mCameraListener = new MyCameraListener();
-    camera->setListener(mCameraListener);
-
-    params.unflatten(camera->getParameters());
-    VTC_LOGD("get(preview-fps-range) = %s\n", params.get("preview-fps-range"));
-    VTC_LOGD("get(preview-fps-range-values) = %s\n", params.get("preview-fps-range-values"));
-    VTC_LOGD("get(preview-size-values) = %s\n", params.get("preview-size-values"));
-    VTC_LOGD("get(preview-frame-rate-values) = %s\n", params.get("preview-frame-rate-values"));
-    VTC_LOGD("get(video-hfr-values) = %s\n", params.get("video-hfr-values"));
-    VTC_LOGD("get(video-hsr) = %s\n", params.get("video-hsr"));
-    VTC_LOGD("get(video-hfr) = %s\n", params.get("video-hfr"));
-
-    VTC_LOGD("Starting preview\n");
-    camera->startPreview();
-    sleep(SLEEP_AFTER_STARTING_PREVIEW);
-    return 0;
-}
-
-void stopPreview() {
-    if (camera.get() == NULL) return;
-    camera->stopPreview();
-    camera->disconnect();
-    camera.clear();
-    mCameraListener.clear();
-    destroyPreviewSurface();
 }
 
 int test_CameraPreview() {
@@ -1975,6 +2411,19 @@ int test_Playback_change_3x3layout() {
 			sleep(3);
 	    }
 	    stopPlayback3x3();
+    return 0;
+}
+
+int test_9dec_1enc_1dec() {
+    VTC_LOGI("\n\playback change layout \n\n");
+
+		start9dec_1enc_1dec();
+		pthread_mutex_lock(&mMutex);
+		if (bPlaying && bRecording && !mMediaPlayerThrewError){
+			my_pthread_cond_timedwait(&mCond, &mMutex, mPlaybackDuration);
+		}
+		pthread_mutex_unlock(&mMutex);
+		stop9dec_1enc_1dec();
     return 0;
 }
 
