@@ -222,14 +222,15 @@ int test_RecordPlayback();
 int test_CameraPreview();
 int test_SvcSpace();
 int test_9dec_1enc_1dec();
-
+int test_4dec_1rec();
+int test_2dec_1rec();
 
 typedef int (*pt2TestFunction)();
-pt2TestFunction TestFunctions[14] = {
+pt2TestFunction TestFunctions[15] = {
     test_Playback_change_3x3layout, // 0
     test_RecordDEFAULT, // 1
     //test_InsertIDRFrames, // 2
-    test_Playback_change_2x2layout, //
+    test_Playback_change_2x2layout, // 2
     test_Playback3x3, // 3
     test_ChangeBitRate, // 4
     test_ChangeFrameRate, // 5
@@ -240,7 +241,8 @@ pt2TestFunction TestFunctions[14] = {
     test_RecordPlayback, //10
     test_ALL, //11
     test_9dec_1enc_1dec, // 12
-    test_SvcSpace //13
+    test_4dec_1rec, //13
+    test_SvcSpace //14
 };
 
 class MyCameraListener: public CameraListener {
@@ -949,6 +951,128 @@ int startPlayback2x2() {
     playbackSurfaceControl4->setLayer(0x7fffffff);
     playbackSurfaceControl4->setPosition(0, 540);
     playbackSurfaceControl4->setSize(960, 540);
+    playbackSurfaceControl4->show();
+    client->closeGlobalTransaction();
+
+    player4 = new MediaPlayer();
+    mPlayerListener4 = new PlayerListener(player4);
+    mMediaPlayerThrewError = false;
+    player4->setListener(mPlayerListener4);
+    int fd4 = open("/data/jony360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize4 = lseek64(fd4, 0, SEEK_END);
+    player4->setDataSource(fd4, 0, fileSize4);
+    player4->setVideoSurfaceTexture(playbackSurface4->getIGraphicBufferProducer());
+    player4->prepareAsync();
+    player4->setLooping(true);
+
+
+    bPlaying = true;
+    return 0;
+}
+
+int startPlayback4dec_1rec() {
+	cameraWinX=1280;
+	cameraWinY=720;
+	cameraSurfaceWidth=640;
+	cameraSurfaceHeight=360;
+	mPreviewWidth=1920;
+	mPreviewHeight=1080;
+	
+	startPreview();
+	startRecording();
+    printf("test startPlayback_layout1 \n");
+    if(client ==NULL){
+        client = new SurfaceComposerClient();
+        //CHECK_EQ(client->initCheck(), (status_t)OK);
+        if(client->initCheck() != (status_t)OK)
+        VTC_LOGD(" initCheck error ");
+    }
+//playback 1
+    playbackSurfaceControl = client->createSurface(String8("jglSurface"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl != NULL);
+    CHECK(playbackSurfaceControl->isValid());
+    playbackSurface = playbackSurfaceControl->getSurface();
+    CHECK(playbackSurface != NULL);
+
+    client->openGlobalTransaction();
+    playbackSurfaceControl->setLayer(0x7fffffff);
+    playbackSurfaceControl->setPosition(0, 0);
+    playbackSurfaceControl->setSize(640, 360);
+    playbackSurfaceControl->show();
+    client->closeGlobalTransaction();
+
+    player = new MediaPlayer();
+    mPlayerListener = new PlayerListener(player);
+    mMediaPlayerThrewError = false;
+    player->setListener(mPlayerListener);
+    int fd = open("/data/city360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize = lseek64(fd, 0, SEEK_END);
+    player->setDataSource(fd, 0, fileSize);
+    player->setVideoSurfaceTexture(playbackSurface->getIGraphicBufferProducer());
+    player->prepareAsync();
+    player->setLooping(true);
+
+//playback 2
+    playbackSurfaceControl2 = client->createSurface(String8("jglSurface2"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl2 != NULL);
+    CHECK(playbackSurfaceControl2->isValid());
+	
+    playbackSurface2 = playbackSurfaceControl2->getSurface();
+    CHECK(playbackSurface2 != NULL);
+    client->openGlobalTransaction();
+    playbackSurfaceControl2->setLayer(0x7fffffff);
+    playbackSurfaceControl2->setPosition(640, 0);
+    playbackSurfaceControl2->setSize(640, 360);
+    playbackSurfaceControl2->show();
+    client->closeGlobalTransaction();
+
+    player2 = new MediaPlayer();
+    mPlayerListener2 = new PlayerListener(player2);
+    mMediaPlayerThrewError = false;
+    player2->setListener(mPlayerListener2);
+    int fd2 = open("/data/jony360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize2 = lseek64(fd2, 0, SEEK_END);
+    player2->setDataSource(fd2, 0, fileSize2);
+    player2->setVideoSurfaceTexture(playbackSurface2->getIGraphicBufferProducer());
+    player2->prepareAsync();
+    player2->setLooping(true);
+
+//playback 3
+    playbackSurfaceControl3 = client->createSurface(String8("jglSurface3"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl3 != NULL);
+    CHECK(playbackSurfaceControl3->isValid());
+	
+    playbackSurface3 = playbackSurfaceControl3->getSurface();
+    CHECK(playbackSurface3 != NULL);
+    client->openGlobalTransaction();
+    playbackSurfaceControl3->setLayer(0x7fffffff);
+    playbackSurfaceControl3->setPosition(640, 360);
+    playbackSurfaceControl3->setSize(640, 360);
+    playbackSurfaceControl3->show();
+    client->closeGlobalTransaction();
+
+    player3 = new MediaPlayer();
+    mPlayerListener3 = new PlayerListener(player3);
+    mMediaPlayerThrewError = false;
+    player3->setListener(mPlayerListener3);
+    int fd3 = open("/data/city360.mp4", O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize3 = lseek64(fd3, 0, SEEK_END);
+    player3->setDataSource(fd3, 0, fileSize3);
+    player3->setVideoSurfaceTexture(playbackSurface3->getIGraphicBufferProducer());
+    player3->prepareAsync();
+    player3->setLooping(true);
+
+//playback 4
+    playbackSurfaceControl4 = client->createSurface(String8("jglSurface4"), 640, 360, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(playbackSurfaceControl4 != NULL);
+    CHECK(playbackSurfaceControl4->isValid());
+	
+    playbackSurface4 = playbackSurfaceControl4->getSurface();
+    CHECK(playbackSurface4 != NULL);
+    client->openGlobalTransaction();
+    playbackSurfaceControl4->setLayer(0x7fffffff);
+    playbackSurfaceControl4->setPosition(0, 360);
+    playbackSurfaceControl4->setSize(640, 360);
     playbackSurfaceControl4->show();
     client->closeGlobalTransaction();
 
@@ -1848,6 +1972,78 @@ int stopPlayback2x2() {
         return 0;
 }
 
+int stopPlayback4dec_1rec() {
+    VTC_LOGD("%d: %s \n", __LINE__, __FUNCTION__);
+    stopRecording();
+    stopPreview();
+    player->stop();
+    player->setListener(0);
+    player->disconnect();
+    player.clear();
+    mPlayerListener.clear();
+
+    if ( NULL != playbackSurface.get() ) {
+        playbackSurface.clear();
+    }
+
+    if ( NULL != playbackSurfaceControl.get() ) {
+        //playbackSurfaceControl->clear();
+        playbackSurfaceControl.clear();
+    }
+    //stop play2 
+    player2->stop();
+    player2->setListener(0);
+    player2->disconnect();
+    player2.clear();
+    mPlayerListener2.clear();
+
+    if ( NULL != playbackSurface2.get() ) {
+        playbackSurface2.clear();
+    }
+
+    if ( NULL != playbackSurfaceControl2.get() ) {
+        //playbackSurfaceControl2->clear();
+        playbackSurfaceControl2.clear();
+    }
+
+    //stop play3 
+    player3->stop();
+    player3->setListener(0);
+    player3->disconnect();
+    player3.clear();
+    mPlayerListener3.clear();
+
+    if ( NULL != playbackSurface3.get() ) {
+        playbackSurface3.clear();
+    }
+
+    if ( NULL != playbackSurfaceControl3.get() ) {
+        //playbackSurfaceControl3->clear();
+        playbackSurfaceControl3.clear();
+    }
+
+    //stop play4 
+    player4->stop();
+    player4->setListener(0);
+    player4->disconnect();
+    player4.clear();
+    mPlayerListener4.clear();
+
+    if ( NULL != playbackSurface4.get() ) {
+    playbackSurface4.clear();
+    }
+
+    if ( NULL != playbackSurfaceControl4.get() ) {
+    //playbackSurfaceControl4->clear();
+    playbackSurfaceControl4.clear();
+    }
+    if ( NULL != client.get() ) {
+    client->dispose();
+    client.clear();
+    }
+    return 0;
+}
+
 int stopPlayback3x3() {
 
     VTC_LOGD("%d: %s", __LINE__, __FUNCTION__);
@@ -2427,6 +2623,19 @@ int test_9dec_1enc_1dec() {
     return 0;
 }
 
+int test_4dec_1rec() {
+    VTC_LOGI("\n\playback change layout \n\n");
+
+    startPlayback4dec_1rec();
+    pthread_mutex_lock(&mMutex);
+    if (bPlaying && bRecording && !mMediaPlayerThrewError){
+        my_pthread_cond_timedwait(&mCond, &mMutex, mPlaybackDuration);
+    }
+    pthread_mutex_unlock(&mMutex);
+    stopPlayback4dec_1rec();
+    return 0;
+}
+
 int test_PlaybackAndRecord_sidebyside() {
     VTC_LOGI("\n\nRecorded Output is stored in %s\n\n", mRecordFileName);
     if(client ==NULL){
@@ -3003,9 +3212,11 @@ void printUsage() {
     printf("\n\nApplication for testing VTC requirements");
     printf("\nUsage: /system/bin/VTCTestApp test_case_id");
     printf("\n\n\nTest Case ID can be any of the following");
-    printf("\n0 - Runs all the tests listed in the UTR. Pass/Fail must be determined by the tester after examining the recorded clips.");
+    printf("\n11 - Runs all the tests listed in the UTR. Pass/Fail must be determined by the tester after examining the recorded clips.");
+    printf("\n0 - 3x3 layout switch, Note must have /data/city360.mp4 /data/jony360.mp4.");
     printf("\n1 - Default test case. Does not require any parameters to be set.");
-    printf("\n2 - Tests the ability to request I-Frame generation real time. Option: -I");
+    //printf("\n2 - Tests the ability to request I-Frame generation real time. Option: -I");
+    printf("\n2 - 2x2 layout switch, Note must have /data/city360.mp4 /data/jony360.mp4");
     printf("\n3 - Tests the ability to specify the maximum allowed frame size. Option: -s");
     printf("\n4 - Tests the ability to change the bitrate at runtime. Option: -B");
     printf("\n5 - Tests the ability to change the framerate at runtime. Option: -F");
@@ -3014,6 +3225,9 @@ void printUsage() {
     printf("\n8 - Test Video playback Only. Option: -p");
     printf("\n9 - Robustness. Default: play and record the predefined resolutions (VGA & 720p). Option: -c, -v");
     printf("\n10 - record and playback the /sdcard/output.mp4 default ");
+    printf("\n11 - test camera preview ");
+    printf("\n11 - test camera preview ");
+    printf("\n13 - test 360P4dec+1080P1rec case, .e.g ./vtcTest 13 -t 30000(ms)  ");
     printf("\n11 - test camera preview ");
 
     printf("\n\n\nAvailable Options:");
