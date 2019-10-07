@@ -1907,6 +1907,58 @@ int startPlayback3x3_layout1() {
     return 0;
 }
 
+int startPlayback3x3_hide() {
+
+//playback 1
+    client->openGlobalTransaction();
+    playbackSurfaceControl->hide();
+    client->closeGlobalTransaction();
+
+
+//playback 2
+    client->openGlobalTransaction();
+    playbackSurfaceControl2->hide();
+    client->closeGlobalTransaction();
+
+//playback 3
+    client->openGlobalTransaction();
+    playbackSurfaceControl3->hide();
+    client->closeGlobalTransaction();
+
+//playback 4
+    client->openGlobalTransaction();
+    playbackSurfaceControl4->hide();
+    client->closeGlobalTransaction();
+
+
+//playback 5
+    client->openGlobalTransaction();
+    playbackSurfaceControl5->hide();
+    client->closeGlobalTransaction();
+
+//playback 6
+    client->openGlobalTransaction();
+    playbackSurfaceControl6->hide();
+    client->closeGlobalTransaction();
+
+//playback 7
+    client->openGlobalTransaction();
+    playbackSurfaceControl7->hide();
+    client->closeGlobalTransaction();
+
+//playback 8
+    client->openGlobalTransaction();
+    playbackSurfaceControl8->hide();
+    client->closeGlobalTransaction();
+
+//playback 9
+    client->openGlobalTransaction();
+    playbackSurfaceControl9->hide();
+    client->closeGlobalTransaction();
+
+    return 0;
+}
+
 int stopPlayback() {
 
     VTC_LOGD("%d: %s", __LINE__, __FUNCTION__);
@@ -2157,6 +2209,7 @@ int stop2dec_1rec() {
 }
 
 int stopPlayback3x3() {
+    startPlayback3x3_hide();
 
     VTC_LOGD("%d: %s", __LINE__, __FUNCTION__);
     player->stop();
