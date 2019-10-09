@@ -1093,6 +1093,52 @@ int startPlayback4dec_1rec() {
     return 0;
 }
 
+int startPlayback2x2_layout3() {
+	
+    printf("test startPlayback2x2_layout3 \n");
+//playback 1
+    client->openGlobalTransaction();
+    playbackSurfaceControl->setLayer(0x7fffffff);
+    playbackSurfaceControl->setPosition(0, 0);
+    playbackSurfaceControl->setSize(640, 360);
+    playbackSurfaceControl->show();
+    client->closeGlobalTransaction();
+
+//playback 2
+    client->openGlobalTransaction();
+    playbackSurfaceControl2->setLayer(0x7fffffff);
+    playbackSurfaceControl2->setPosition(640, 0);
+    playbackSurfaceControl2->setSize(640, 360);
+    playbackSurfaceControl2->show();
+    client->closeGlobalTransaction();
+
+//playback 3
+    client->openGlobalTransaction();
+    playbackSurfaceControl3->setLayer(0x7fffffff);
+    playbackSurfaceControl3->setPosition(640, 360);
+    playbackSurfaceControl3->setSize(640, 360);
+    playbackSurfaceControl3->show();
+    client->closeGlobalTransaction();
+
+//playback 4
+    client->openGlobalTransaction();
+    playbackSurfaceControl4->setLayer(0x7fffffff);
+    playbackSurfaceControl4->setPosition(0, 360);
+    playbackSurfaceControl4->setSize(640, 360);
+    playbackSurfaceControl4->show();
+    client->closeGlobalTransaction();
+    if(surfaceControl != NULL){
+	    client->openGlobalTransaction();
+	    surfaceControl->setLayer(0x7fffffff);
+	    surfaceControl->setPosition(cameraWinX, cameraWinY);
+	    surfaceControl->setSize(cameraSurfaceWidth, cameraSurfaceHeight);
+	    surfaceControl->show();
+	    client->closeGlobalTransaction();
+    }
+
+    return 0;
+}
+
 int start2dec_1rec() {
 	cameraWinX=1280;
 	cameraWinY=720;
@@ -1198,6 +1244,14 @@ int startPlayback2x2_layout2() {
     playbackSurfaceControl4->setSize(960, 540);
     playbackSurfaceControl4->show();
     client->closeGlobalTransaction();
+    if(surfaceControl != NULL){
+	    client->openGlobalTransaction();
+	    surfaceControl->setLayer(0x8fffffff);
+	    surfaceControl->setPosition(cameraWinX, cameraWinY);
+	    surfaceControl->setSize(cameraSurfaceWidth, cameraSurfaceHeight);
+	    surfaceControl->show();
+	    client->closeGlobalTransaction();
+    }
 
     return 0;
 }
@@ -1236,6 +1290,14 @@ int startPlayback2x2_layout1() {
     playbackSurfaceControl4->show();
     client->closeGlobalTransaction();
 
+    if(surfaceControl != NULL){
+	    client->openGlobalTransaction();
+	    surfaceControl->setLayer(0x8fffffff);
+	    surfaceControl->setPosition(cameraWinX, cameraWinY);
+	    surfaceControl->setSize(cameraSurfaceWidth, cameraSurfaceHeight);
+	    surfaceControl->show();
+	    client->closeGlobalTransaction();
+    }
     return 0;
 }
 
@@ -2792,6 +2854,14 @@ int test_4dec_1rec() {
     VTC_LOGI("\n\playback change layout \n\n");
 
     startPlayback4dec_1rec();
+	sleep(3);
+    for(int i=0; i<10*60*24*2;i++){
+        startPlayback2x2_layout1() ;
+        sleep(3);
+        startPlayback2x2_layout2();
+        sleep(3);
+    }
+    startPlayback2x2_layout3();
     pthread_mutex_lock(&mMutex);
     if (bPlaying && bRecording && !mMediaPlayerThrewError){
         my_pthread_cond_timedwait(&mCond, &mMutex, mPlaybackDuration);
