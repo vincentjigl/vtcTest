@@ -222,11 +222,12 @@ int test_RecordPlayback();
 int test_CameraPreview();
 int test_SvcSpace();
 int test_9dec_1enc_1dec();
+int test_9dec_1rec();
 int test_4dec_1rec();
 int test_2dec_1rec();
 
 typedef int (*pt2TestFunction)();
-pt2TestFunction TestFunctions[16] = {
+pt2TestFunction TestFunctions[17] = {
     test_Playback_change_3x3layout, // 0
     test_RecordDEFAULT, // 1
     //test_InsertIDRFrames, // 2
@@ -243,7 +244,8 @@ pt2TestFunction TestFunctions[16] = {
     test_9dec_1enc_1dec, // 12
     test_4dec_1rec, //13
     test_2dec_1rec, //14
-    test_SvcSpace //15
+    test_9dec_1rec, //15
+    test_SvcSpace //16
 };
 
 class MyCameraListener: public CameraListener {
@@ -2850,8 +2852,40 @@ int test_9dec_1enc_1dec() {
     return 0;
 }
 
+int test_9dec_1rec() {
+    VTC_LOGI("\n\playback 9dec + 1rec \n\n");
+		cameraWinX=960;
+		cameraWinY=540;
+		cameraSurfaceWidth=640;
+		cameraSurfaceHeight=360;
+		mPreviewWidth=1920;
+		mPreviewHeight=1080;
+	
+
+    startPlayback3x3();
+    startPreview();
+    startRecording();
+	sleep(3);
+    for(int i=0; i<10;i++){
+        startPlayback3x3_layout1() ;
+        sleep(3);
+        startPlayback3x3_layout2();
+        sleep(3);
+    }
+    startPlayback2x2_layout3();
+    pthread_mutex_lock(&mMutex);
+    if (bPlaying && bRecording && !mMediaPlayerThrewError){
+        my_pthread_cond_timedwait(&mCond, &mMutex, mPlaybackDuration);
+    }
+    pthread_mutex_unlock(&mMutex);
+    stopRecording();
+    stopPreview();
+    stopPlayback3x3();
+    return 0;
+}
+
 int test_4dec_1rec() {
-    VTC_LOGI("\n\playback change layout \n\n");
+    VTC_LOGI("\n\playback 4dec+1rec \n\n");
 
     startPlayback4dec_1rec();
 	sleep(3);
