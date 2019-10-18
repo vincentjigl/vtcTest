@@ -3959,12 +3959,12 @@ void printUsage() {
     printf("\n9 - Robustness. Default: play and record the predefined resolutions (VGA & 720p). Option: -c, -v");
     printf("\n10 - record and playback the /sdcard/output.mp4 default ");
     printf("\n11 - test camera preview ");
-    printf("\n12 - test camera preview ");
-    printf("\n13 - test 360P4dec+1080P1rec case, .e.g ./vtcTest 13 -t 30000(ms)  ;Note must have /data/city360.mp4 /data/jony360.mp4");
-    printf("\n14 - test 1080P2dec+1080P1rec case, .e.g ./vtcTest 14 -t 30000(ms) ; Note must have /data/1080.mp4 /data/720.mp4 ");
-    printf("\n15 - test 360P9dec+1080P1rec case, .e.g ./vtcTest 15 -t 30000(ms)  ;Note must have /data/city360.mp4 /data/jony360.mp4");
-    printf("\n0 - test 3x3 layout switch case , .e.g ./vtcTest 0 -t 30000(ms) ; Note must have /data/city360.mp4 /data/jony360.mp4.");
-    printf("\n2 - test 2x2 layout switch case , e.g ./vtcTest 2 -t 30000(ms)  ;Note must have /data/city360.mp4 /data/jony360.mp4");
+    printf("\n12 - test 360P9dec+1080P1rec + 1080Pdec, .e.g ./vtcTest 15 -t 30000(ms); Note must have /data/city360.mp4 /data/jony360.mp4  /data/1080.mp4");
+    printf("\n13 - test 360P4dec+1080P1rec case, .e.g ./vtcTest 13 -t 30000(ms); Note must have /data/city360.mp4 /data/jony360.mp4");
+    printf("\n14 - test 1080P2dec+1080P1rec case, .e.g ./vtcTest 14 -t 30000(ms); Note must have /data/1080.mp4 /data/720.mp4 ");
+    printf("\n15 - test 360P9dec+1080P1rec case, .e.g ./vtcTest 15 -t 30000(ms); Note must have /data/city360.mp4 /data/jony360.mp4");
+    printf("\n0 - test 3x3 layout switch case , .e.g ./vtcTest 0 -t 30000(ms); Note must have /data/city360.mp4 /data/jony360.mp4.");
+    printf("\n2 - test 2x2 layout switch case , e.g ./vtcTest 2 -t 30000(ms); Note must have /data/city360.mp4 /data/jony360.mp4");
     printf("\n11 - test camera preview ");
 
     printf("\n\n\nAvailable Options:");
