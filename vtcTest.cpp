@@ -36,7 +36,6 @@
 #include <semaphore.h>
 #include <pthread.h>
 
-
 #include <binder/IPCThreadState.h>
 #include <binder/ProcessState.h>
 #include <binder/IServiceManager.h>
@@ -90,7 +89,6 @@
 #define SLEEP_AFTER_STARTING_PLAYBACK 1
 #define WIDTH 1920
 #define HEIGHT 1080
-#define VTC_LOGD printf
 
 using namespace android;
 
@@ -117,7 +115,7 @@ bool mCameraThrewError = false;
 bool mMediaPlayerThrewError = false;
 char mParamValue[100];
 char mRecordFileName[256];
-char mPlaybackFileName[256];
+char mPlaybackFileName[256]={0,};
 char mPlaybackFileName2[256];
 char mPlaybackFileName3[256];
 char mPlaybackFileName4[256];
@@ -142,15 +140,21 @@ uint32_t mVideoCodec=0;
 
 
 sp<Camera> camera;
-sp<SurfaceComposerClient> client;
+sp<SurfaceComposerClient> client = NULL;
 sp<SurfaceControl> surfaceControl;
 sp<Surface> previewSurface;
 CameraParameters params;
 sp<MediaRecorder> recorder;
+int fd[16];
+int fdjgl;
+sp<MediaPlayer> mPlayer[16];
+sp<SurfaceControl> mPlaybackSurfaceControl[16];
+sp<Surface> mPlaybackSurface[16];
+int clipNum=0;
 
-sp<MediaPlayer> player;
-sp<SurfaceControl> playbackSurfaceControl;
-sp<Surface> playbackSurface;
+sp<MediaPlayer> player = NULL;
+sp<SurfaceControl> playbackSurfaceControl = NULL;
+sp<Surface> playbackSurface = NULL;
 
 sp<MediaPlayer> player2;
 sp<SurfaceControl> playbackSurfaceControl2;
@@ -223,11 +227,12 @@ int test_CameraPreview();
 int test_SvcSpace();
 int test_9dec_1enc_1dec();
 int test_9dec_1rec();
+int test_16dec();
 int test_4dec_1rec();
 int test_2dec_1rec();
 
 typedef int (*pt2TestFunction)();
-pt2TestFunction TestFunctions[17] = {
+pt2TestFunction TestFunctions[18] = {
     test_Playback_change_3x3layout, // 0
     test_RecordDEFAULT, // 1
     //test_InsertIDRFrames, // 2
@@ -245,7 +250,8 @@ pt2TestFunction TestFunctions[17] = {
     test_4dec_1rec, //13
     test_2dec_1rec, //14
     test_9dec_1rec, //15
-    test_SvcSpace //16
+    test_16dec, //16
+    test_SvcSpace //17
 };
 
 class MyCameraListener: public CameraListener {
@@ -299,8 +305,9 @@ public:
     }
     sp<MediaPlayer> mPlayer;
 };
+sp<PlayerListener> jglPlayerListener[16];
 
-sp<PlayerListener> mPlayerListener;
+sp<PlayerListener> mPlayerListener = NULL;
 sp<PlayerListener> mPlayerListener2;
 sp<PlayerListener> mPlayerListener3;
 sp<PlayerListener> mPlayerListener4;
@@ -771,8 +778,50 @@ void stopPreview() {
     destroyPreviewSurface();
 }
 
-int startPlayback() {
+void startPlayback(sp<SurfaceControl> surfaceControl, sp<MediaPlayer> player_t, 
+							sp<PlayerListener> playerListener, int fd,
+							sp<Surface> surface,
+							int xpos, int ypos, int width, int height)
+{
+	printf("test playback 4x4  startPlayback\n");
+	VTC_LOGD("----- %d ----------",  __LINE__);
+    surfaceControl = client->createSurface(String8("jglSurface"), width, height, PIXEL_FORMAT_RGB_565, 0);
+    CHECK(surfaceControl != NULL);
+    CHECK(surfaceControl->isValid());
+    surface = surfaceControl->getSurface();
+    CHECK(surface != NULL);
+	VTC_LOGD("----- %d ----------",  __LINE__);
+    client->openGlobalTransaction();
+    surfaceControl->setLayer(0x7fffffff);
+    surfaceControl->setPosition(xpos, ypos);
+    surfaceControl->setSize(width, height);
+    surfaceControl->show();
+    client->closeGlobalTransaction();
+	VTC_LOGD("----- %d ----------",  __LINE__);
 
+    player_t = new MediaPlayer();
+	VTC_LOGD("----- %d ----------",  __LINE__);
+    playerListener = new PlayerListener(player_t);
+    mMediaPlayerThrewError = false;
+	VTC_LOGD("----- %d ----------",  __LINE__);
+    player_t->setListener(playerListener);
+	if(clipNum%2==0)
+    	fd = open("/data/city360.mp4", O_RDONLY | O_LARGEFILE);
+	else
+		fd = open("/data/jony360.mp4", O_RDONLY | O_LARGEFILE);
+	VTC_LOGD("----- %d ----------",  __LINE__);
+    uint64_t fileSize = lseek64(fd, 0, SEEK_END);
+    player_t->setDataSource(fd, 0, fileSize);
+	VTC_LOGD("----- %d ----------",  __LINE__);
+    player_t->setVideoSurfaceTexture(surface->getIGraphicBufferProducer());
+	VTC_LOGD("----- %d ----------",  __LINE__);
+    player_t->prepareAsync();
+	VTC_LOGD("----- %d ----------",  __LINE__);
+    player_t->setLooping(true);
+	clipNum++;
+}
+
+int startPlayback() {
     playbackSurfaceControl = client->createSurface(String8("jglSurface"), playbackSurfaceWidth, playbackSurfaceHeight, PIXEL_FORMAT_RGB_565, 0);
     CHECK(playbackSurfaceControl != NULL);
     CHECK(playbackSurfaceControl->isValid());
@@ -791,9 +840,9 @@ int startPlayback() {
     mPlayerListener = new PlayerListener(player);
     mMediaPlayerThrewError = false;
     player->setListener(mPlayerListener);
-    int fd = open(mPlaybackFileName, O_RDONLY | O_LARGEFILE);
-    uint64_t fileSize = lseek64(fd, 0, SEEK_END);
-    player->setDataSource(fd, 0, fileSize);
+    fdjgl = open(mPlaybackFileName, O_RDONLY | O_LARGEFILE);
+    uint64_t fileSize = lseek64(fdjgl, 0, SEEK_END);
+    player->setDataSource(fdjgl, 0, fileSize);
     player->setVideoSurfaceTexture(playbackSurface->getIGraphicBufferProducer());
     player->prepareAsync();
     player->setLooping(true);
@@ -1537,6 +1586,39 @@ int startPlayback3x3() {
     player9->prepareAsync();
     player9->setLooping(true);
 
+    bPlaying = true;
+    return 0;
+}
+
+int startPlayback4x4() {
+    if(client ==NULL){
+        client = new SurfaceComposerClient();
+        //CHECK_EQ(client->initCheck(), (status_t)OK);
+        if(client->initCheck() != (status_t)OK)
+        VTC_LOGD(" initCheck error ");
+    }
+	printf("test playback 4x4 in one process \n");
+//playback 1
+	startPlayback(mPlaybackSurfaceControl[0], mPlayer[0], jglPlayerListener[0], fd[0], mPlaybackSurface[0], 0, 0, 480, 270);
+	//startPlayback(mPlaybackSurfaceControl[1], mPlayer[1], jglPlayerListener[1], fd[1], mPlaybackSurface[1], 480, 0, 480, 270);
+	//startPlayback(mPlaybackSurfaceControl[2], mPlayer[2], jglPlayerListener[2], fd[2], mPlaybackSurface[2], 960, 0, 480, 270);
+	//startPlayback(mPlaybackSurfaceControl[3], mPlayer[3], jglPlayerListener[3], fd[3], mPlaybackSurface[3], 1440, 0, 480, 270);
+
+	//startPlayback(mPlaybackSurfaceControl[4], mPlayer[4], jglPlayerListener[4], fd[4], mPlaybackSurface[4], 0, 270, 480, 270);
+	//startPlayback(mPlaybackSurfaceControl[5], mPlayer[5], jglPlayerListener[5], fd[5], mPlaybackSurface[5], 480, 270, 480, 270);
+	//startPlayback(mPlaybackSurfaceControl[6], mPlayer[6], jglPlayerListener[6], fd[6], mPlaybackSurface[6], 960, 270, 480, 270);
+	//startPlayback(mPlaybackSurfaceControl[7], mPlayer[7], jglPlayerListener[7], fd[7], mPlaybackSurface[7], 1440, 270, 480, 270);
+
+	//startPlayback(mPlaybackSurfaceControl[8], mPlayer[8], jglPlayerListener[8], fd[8], mPlaybackSurface[8], 0, 540, 480, 270);
+	//startPlayback(mPlaybackSurfaceControl[9], mPlayer[9], jglPlayerListener[9], fd[9], mPlaybackSurface[9], 480, 540, 480, 270);
+	//startPlayback(mPlaybackSurfaceControl[10], mPlayer[10], jglPlayerListener[10], fd[10], mPlaybackSurface[10], 960, 540, 480, 270);
+	//startPlayback(mPlaybackSurfaceControl[11], mPlayer[11], jglPlayerListener[11], fd[11], mPlaybackSurface[11], 1440, 540, 480, 270);
+
+	//startPlayback(mPlaybackSurfaceControl[12], mPlayer[12], jglPlayerListener[12], fd[12], mPlaybackSurface[12], 0, 810, 480, 270);
+	//startPlayback(mPlaybackSurfaceControl[13], mPlayer[13], jglPlayerListener[13], fd[13], mPlaybackSurface[13], 480, 810, 480, 270);
+	//startPlayback(mPlaybackSurfaceControl[14], mPlayer[14], jglPlayerListener[14], fd[14], mPlaybackSurface[14], 960, 810, 480, 270);
+	//startPlayback(mPlaybackSurfaceControl[15], mPlayer[15], jglPlayerListener[15], fd[15], mPlaybackSurface[15], 1440, 810, 480, 270);
+	
     bPlaying = true;
     return 0;
 }
@@ -2308,6 +2390,12 @@ int stopPlayback() {
         client->dispose();
         client.clear();
     }
+	client = NULL;
+	player = NULL;
+	playbackSurface = NULL;
+	playbackSurfaceControl = NULL;
+	mPlayerListener = NULL;
+	close(fdjgl);
 
     return 0;
 }
@@ -2686,6 +2774,40 @@ int stopPlayback3x3() {
         client->dispose();
         client.clear();
     }
+
+    return 0;
+}
+void stopPlayback(sp<SurfaceControl> surfaceControl, sp<MediaPlayer> player_t, 
+							sp<PlayerListener> playerListener, int fd,
+							sp<Surface> surface)
+{
+    player_t->stop();
+    player_t->setListener(0);
+    player_t->disconnect();
+    player_t.clear();
+    playerListener.clear();
+
+    if ( NULL != surface.get() ) {
+        surface.clear();
+    }
+
+    if ( NULL != surfaceControl.get() ) {
+        //surfaceControl->clear();
+        surfaceControl.clear();
+    }
+	close(fd);
+
+}
+
+int stopPlayback4x4() {
+    VTC_LOGD("%d: %s ", __LINE__, __FUNCTION__);
+	for(int i=0; i<1; i++)
+		stopPlayback(mPlaybackSurfaceControl[i], mPlayer[i], jglPlayerListener[i], fd[i], mPlaybackSurface[i]);
+
+	if ( NULL != client.get() ) {
+		client->dispose();
+		client.clear();
+	}
 
     return 0;
 }
@@ -3302,6 +3424,19 @@ int test_9dec_1enc_1dec() {
     stopRecording();
     stopPreview();
     stopPlayback3x3_1dec();
+    return 0;
+}
+
+int test_16dec() {
+    VTC_LOGI("\n\playback 16dec + 1rec \n\n");
+
+    startPlayback4x4();
+    pthread_mutex_lock(&mMutex);
+    if (bPlaying && bRecording && !mMediaPlayerThrewError){
+        my_pthread_cond_timedwait(&mCond, &mMutex, mPlaybackDuration);
+    }
+    pthread_mutex_unlock(&mMutex);
+    stopPlayback4x4();
     return 0;
 }
 
@@ -4132,6 +4267,7 @@ int main (int argc, char* argv[]) {
                 InsertIDRFrameEveryXSecs = atoi(optarg);
                 break;
             case 'p':
+				memset(mPlaybackFileName, 0, sizeof(mPlaybackFileName));
                 strcpy(mPlaybackFileName, optarg);
                 VTC_LOGD("Playback clip %s", mPlaybackFileName);
                 break;
