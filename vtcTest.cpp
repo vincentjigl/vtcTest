@@ -154,10 +154,6 @@ sp<MediaPlayer> player = NULL;
 sp<SurfaceControl> playbackSurfaceControl = NULL;
 sp<Surface> playbackSurface = NULL;
 
-sp<MediaPlayer> player10;
-sp<SurfaceControl> playbackSurfaceControl10;
-sp<Surface> playbackSurface10;
-
 //To perform better
 static pthread_cond_t mCond;
 static pthread_mutex_t mMutex;
@@ -274,7 +270,6 @@ public:
 sp<PlayerListener> jglPlayerListener[16];
 
 sp<PlayerListener> mPlayerListener = NULL;
-sp<PlayerListener> mPlayerListener10 = NULL;
 
 
 int getMediaserverInfo(int *PID, int *VSIZE){
@@ -833,12 +828,11 @@ int startPlayback3x3_1dec() {
     client->closeGlobalTransaction();
 
     mPlayer[9] = new MediaPlayer();
-    mPlayerListener = new PlayerListener(mPlayer[9]);
-    mMediaPlayerThrewError = false;
-    mPlayer[9]->setListener(mPlayerListener);
+    jglPlayerListener[9] = new PlayerListener(mPlayer[9]);
+    mPlayer[9]->setListener(jglPlayerListener[9]);
     fd[9] = open("/data/1080.mp4", O_RDONLY | O_LARGEFILE);
     uint64_t fileSize10 = lseek64(fd[9], 0, SEEK_END);
-    mPlayer[9]->setDataSource(fd[10], 0, fileSize10);
+    mPlayer[9]->setDataSource(fd[9], 0, fileSize10);
     mPlayer[9]->setVideoSurfaceTexture(mPlaybackSurface[9]->getIGraphicBufferProducer());
     mPlayer[9]->prepareAsync();
     mPlayer[9]->setLooping(true);
@@ -846,21 +840,6 @@ int startPlayback3x3_1dec() {
 
     bPlaying = true;
     return 0;
-}
-
-void startPlayback3x3_layout2() {
-	int sid=0;
-	for(int i=0; i< 3 ; i++){
-		for(int j=0; j< 3 ; j++){
-			client->openGlobalTransaction();
-			mPlaybackSurfaceControl[sid]->setLayer(0x7fffffff);
-			mPlaybackSurfaceControl[sid]->setPosition(i*640, j*360);
-			mPlaybackSurfaceControl[sid]->setSize(640, 360);
-			mPlaybackSurfaceControl[sid]->show();
-			client->closeGlobalTransaction();
-			sid++;
-		}		
-	}
 }
 
 void startPlayback_layout2(int width, int height, int row, int col) {
