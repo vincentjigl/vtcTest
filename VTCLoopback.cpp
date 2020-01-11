@@ -81,8 +81,12 @@ int test_Frame_Robustness();
 int test_Slice_Robustness();
 
 typedef int (*pt2TestFunction)();
-pt2TestFunction TestFunctions[10] = {0, test_DEFAULT_Frame, test_DEFAULT_Slice, 
-								test_Frame_Robustness, test_Slice_Robustness, 0, 0, 0, 0, 0};
+pt2TestFunction TestFunctions[10] = {0, 
+								test_DEFAULT_Frame, 
+								test_DEFAULT_Slice, 
+								test_Frame_Robustness, 
+								test_Slice_Robustness, 
+								0, 0, 0, 0, 0};
 
 
 static void PrintCameraFPS() {
@@ -485,7 +489,7 @@ int test_DEFAULT_Frame() {
     sp<IOMX> omx = omxclient.interface();
     IOMX::node_id node = 0;
     sp<OMXEncoderObserver> observer = new OMXEncoderObserver();
-    err = omx->allocateNode("OMX.rk.video_encoder.avc", observer, NULL, &node);
+    err = omx->allocateNode("OMX.allwinner.video.encoder.avc", observer, NULL, &node);
 	
 	VTC_LOGD("\n allocate OMX node success 0x%x \n", node);
     if (err != OK) {
@@ -668,7 +672,7 @@ int test_Robustness() {
     sp<IOMX> omx = omxclient.interface();
     IOMX::node_id node = 0;
     sp<OMXEncoderObserver> observer = new OMXEncoderObserver();
-    err = omx->allocateNode("OMX.rk.video_encoder.avc", observer, NULL, &node);
+    err = omx->allocateNode("OMX.allwinner.video.encoder.avc", observer, NULL, &node);
     if (err != OK) {
         VTC_LOGD("Failed to allocate OMX node!!");
         return -1;
@@ -728,9 +732,9 @@ int test_Frame_Robustness() {
     for (int i = 0, j = 0; i < 4000; i++) {
         gPreviewWidth = configdata[j].width;
         gPreviewHeight = configdata[j].height;
-        VTC_LOGD("##################################################################");
-        VTC_LOGD("#####################  ITERATION %d : %d x %d ###################", i, gPreviewWidth, gPreviewHeight);
-        VTC_LOGD("##################################################################");
+        VTC_LOGD("##################################################################\n");
+        VTC_LOGD("#####################  ITERATION %d : %d x %d ###################\n", i, gPreviewWidth, gPreviewHeight);
+        VTC_LOGD("##################################################################\n");
         sleep(1);
 
         test_DEFAULT_Frame();

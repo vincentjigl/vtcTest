@@ -65,7 +65,7 @@ LOCAL_CFLAGS +=-Wall -fno-short-enums -O0 -g $(ANDROID_API_CFLAGS)
 
 LOCAL_PRELINK_MODULE := false
 LOCAL_MODULE_TAGS:= optional
-LOCAL_MODULE := vtcLoopbackTest
+LOCAL_MODULE := vtcloopback
 include $(BUILD_EXECUTABLE)
 
 ###############################################################################

@@ -174,7 +174,7 @@ status_t OMXDecoder::configure(OMX_VIDEO_AVCPROFILETYPE profile, OMX_VIDEO_AVCLE
     mOMX = mOMXClient.interface();
     mNode = 0;
     mObserver = new OMXDecoderObserver();
-    err = mOMX->allocateNode("OMX.rk.video_decoder.avc", mObserver, NULL, &mNode);
+    err = mOMX->allocateNode("OMX.allwinner.video.decoder.avc", mObserver, NULL, &mNode);
     if (err != OK) {
         VTC_LOGD("Failed to allocate OMX node!!");
         return -1;
@@ -226,32 +226,12 @@ status_t OMXDecoder::configure(OMX_VIDEO_AVCPROFILETYPE profile, OMX_VIDEO_AVCLE
 
     OMX_VIDEO_PARAM_PORTFORMATTYPE format;
     INIT_OMX_STRUCT(&format, OMX_VIDEO_PARAM_PORTFORMATTYPE);
-    bool found = false;
     OMX_U32 index = 0;
     format.nPortIndex = OUTPUT_PORT;
     format.nIndex = 0;
-    for (;;) {
-        format.nIndex = index;
-        err = mOMX->getParameter(mNode, OMX_IndexParamVideoPortFormat, &format, sizeof(format));
-        if (err != OK) {
-            VTC_LOGD( "get OMX_IndexParamVideoPortFormat OutPort Error:%d", err);
-            return -1;
-        }
+	format.eCompressionFormat = OMX_VIDEO_CodingUnused;
+	format.eColorFormat = OMX_COLOR_FormatYUV420SemiPlanar;
 
-        if (format.eCompressionFormat == OMX_VIDEO_CodingUnused
-                && format.eColorFormat == (OMX_TI_COLOR_FormatYUV420PackedSemiPlanar)) {
-            found = true;
-            break;
-        }
-        ++index;
-    }
-
-    if (!found) {
-        VTC_LOGE("Did not find a match.");
-        return -1;
-    }
-
-    VTC_LOGV("found a match.");
     err = mOMX->setParameter(mNode, OMX_IndexParamVideoPortFormat, &format, sizeof(format));
     if (err != OK) {
         VTC_LOGD( "set OMX_IndexParamVideoPortFormat OutPort Error:%d", err);
@@ -412,7 +392,7 @@ status_t OMXDecoder::prepare() {
 
     err = allocateOutputBuffersFromNativeWindow();
     if (err != OK) {
-        VTC_LOGD("allocateOutputBuffersFromNativeWindow failed. err:%d", err);
+        VTC_LOGD("allocateOutputBuffersFromNativeWindow failed. err:%d \n", err);
         return -1;
     }
 
@@ -837,14 +817,14 @@ status_t OMXDecoder::createPlaybackSurface() {
 		printf("mSurfaceComposerClient->initCheck()!=OK");
 
     mSurfaceControl = mSurfaceComposerClient->createSurface(String8("playbackSurface"),
-                                           320, 320, HAL_PIXEL_FORMAT_RGB_565, 0);
+                                           640, 360, HAL_PIXEL_FORMAT_RGB_565, 0);
 
     mNativeWindow = mSurfaceControl->getSurface();
 
     mSurfaceComposerClient->openGlobalTransaction();
     mSurfaceControl->setLayer(0x7fffffff);
-    mSurfaceControl->setPosition(10, 10);
-    mSurfaceControl->setSize(300, 300);
+    mSurfaceControl->setPosition(11280, 720);
+    mSurfaceControl->setSize(640, 360);
     mSurfaceControl->show();
     mSurfaceComposerClient->closeGlobalTransaction();
 
@@ -875,7 +855,7 @@ status_t OMXDecoder::allocateOutputBuffersFromNativeWindow() {
     status_t err;
     err = mOMX->getParameter(mNode, OMX_IndexParamPortDefinition, &tOutPortDef, sizeof(tOutPortDef));
     if (err != OK) {
-        VTC_LOGD("get OMX_IndexParamPortDefinition OutPort Error:%d", err);
+        VTC_LOGD("get OMX_IndexParamPortDefinition OutPort Error:%d\n", err);
         return -1;
     }
 
@@ -949,12 +929,12 @@ status_t OMXDecoder::allocateOutputBuffersFromNativeWindow() {
     OMX_U32 usage = 0;
     err = mOMX->getGraphicBufferUsage(mNode, OUTPUT_PORT, &usage);
     if (err != 0) {
-        VTC_LOGW("querying usage flags from OMX IL component failed: %d", err);
+        VTC_LOGW("querying usage flags from OMX IL component failed: %d  \n", err);
         // XXX: Currently this error is logged, but not fatal.
         usage = 0;
     }
 
-    VTC_LOGV("native_window_set_usage usage=0x%lx", usage);
+    VTC_LOGV("native_window_set_usage usage=0x%lx   \n", usage);
     err = native_window_set_usage(
             mNativeWindow.get(), usage | GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_EXTERNAL_DISP);
     if (err != 0) {
@@ -967,11 +947,11 @@ status_t OMXDecoder::allocateOutputBuffersFromNativeWindow() {
     if ((mPortReconfigInProgress == false)|| bufferRqmtsChanged ) {
         err = native_window_set_buffer_count(mNativeWindow.get(), nBufferCnt);
         if (err != 0) {
-            VTC_LOGE("native_window_set_buffer_count failed: %s (%d)", strerror(-err),
+            VTC_LOGE("native_window_set_buffer_count failed: %s (%d) \n", strerror(-err),
                     -err);
             return err;
         }
-        VTC_LOGI("allocating %lu buffers from a native window", nBufferCnt);
+        VTC_LOGI("allocating %lu buffers from a native window \n", nBufferCnt);
     }
     else VTC_LOGI("---RECONFIGURING: skip native_window_set_buffer_count()\n\n");
 #else
@@ -984,7 +964,7 @@ status_t OMXDecoder::allocateOutputBuffersFromNativeWindow() {
     }
 
     VTC_LOGI("allocating %lu buffers from a native window of size %lu on "
-            "output port", tOutPortDef.nBufferCountActual, tOutPortDef.nBufferSize);
+            "output port \n", tOutPortDef.nBufferCountActual, tOutPortDef.nBufferSize);
 
 #endif
 
@@ -995,7 +975,7 @@ status_t OMXDecoder::allocateOutputBuffersFromNativeWindow() {
 		int fence = -1;
         err = mNativeWindow->dequeueBuffer(mNativeWindow.get(), &buf, &fence);
         if (err != 0) {
-            VTC_LOGE("dequeueBuffer failed: %s (%d)", strerror(-err), -err);
+            VTC_LOGE("dequeueBuffer failed: %s (%d)\n", strerror(-err), -err);
             break;
         }
 
@@ -1018,7 +998,7 @@ status_t OMXDecoder::allocateOutputBuffersFromNativeWindow() {
         pbi.mStatus = OWNED_BY_US;
         mOutputBuffers.push(pbi);
 
-        VTC_LOGI("registered graphic buffer with ID %p (pointer = %p)",
+        VTC_LOGI("registered graphic buffer with ID %p (pointer = %p)\n",
                 bufferId, graphicBuffer.get());
     }
 
