@@ -729,18 +729,15 @@ int test_Frame_Robustness() {
         { 1280, 720 },
     };
 
-    for (int i = 0, j = 0; i < 4000; i++) {
-        gPreviewWidth = configdata[j].width;
-        gPreviewHeight = configdata[j].height;
-        VTC_LOGD("##################################################################\n");
-        VTC_LOGD("#####################  ITERATION %d : %d x %d ###################\n", i, gPreviewWidth, gPreviewHeight);
-        VTC_LOGD("##################################################################\n");
-        sleep(1);
+    //for (int i = 0, j = 0; i < 4000; i++) {
+        gPreviewWidth = 640;//configdata[j].width;
+        gPreviewHeight = 480;//configdata[j].height;
+        //VTC_LOGD("##################################################################\n");
+        VTC_LOGD("#####################  size %d x %d ###################\n", gPreviewWidth, gPreviewHeight);
+        //VTC_LOGD("##################################################################\n");
 
         test_DEFAULT_Frame();
-        j++;
-        j = j % (sizeof(configdata)/sizeof(Configuration));
-    }
+    //}
     return 0;
 
 }

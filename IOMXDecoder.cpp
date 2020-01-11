@@ -146,6 +146,7 @@ OMXDecoder::~OMXDecoder() {
 }
 
 void OMXDecoder::on_message(const omx_message &msg) {
+	VTC_LOGD("omx_message type  = %d", msg.type);
     switch (msg.type) {
         case omx_message::EVENT:
             EventHandler(msg.u.event_data.event, msg.u.event_data.data1, msg.u.event_data.data2);
@@ -168,6 +169,15 @@ status_t OMXDecoder::configure(OMX_VIDEO_AVCPROFILETYPE profile, OMX_VIDEO_AVCLE
     LOG_FUNCTION_NAME_ENTRY
 
     createPlaybackSurface();
+    int res = 0;
+
+    // use graphicBuffer only!
+
+    res = native_window_api_connect(mNativeWindow.get(), NATIVE_WINDOW_API_MEDIA);
+    if (res != NO_ERROR) {
+        VTC_LOGD("native_window_api_connect failed: %s (%d)", strerror(-res), res);
+        return res;
+    }
 
     if(mOMXClient.connect()!=OK)
 		printf("mOMXClient.connect()!=OK");
@@ -229,8 +239,8 @@ status_t OMXDecoder::configure(OMX_VIDEO_AVCPROFILETYPE profile, OMX_VIDEO_AVCLE
     OMX_U32 index = 0;
     format.nPortIndex = OUTPUT_PORT;
     format.nIndex = 0;
-	format.eCompressionFormat = OMX_VIDEO_CodingUnused;
-	format.eColorFormat = OMX_COLOR_FormatYUV420SemiPlanar;
+	format.eCompressionFormat = OMX_VIDEO_CodingAVC;
+	format.eColorFormat = OMX_COLOR_FormatUnused;
 
     err = mOMX->setParameter(mNode, OMX_IndexParamVideoPortFormat, &format, sizeof(format));
     if (err != OK) {
@@ -253,7 +263,7 @@ status_t OMXDecoder::configure(OMX_VIDEO_AVCPROFILETYPE profile, OMX_VIDEO_AVCLE
     tInPortDef.format.video.nFrameWidth = mWidth;
     tInPortDef.format.video.nFrameHeight = mHeight;
     tInPortDef.format.video.eCompressionFormat = OMX_VIDEO_CodingAVC;
-    tInPortDef.nBufferCountActual = 4; // better to match this with the number of encoder output buffers
+    tInPortDef.nBufferCountActual = 8; // better to match this with the number of encoder output buffers
     tInPortDef.nBufferSize = (mWidth * mHeight);
     err = mOMX->setParameter(mNode, OMX_IndexParamPortDefinition, &tInPortDef, sizeof(tInPortDef));
     if (err != OK) {
@@ -282,8 +292,8 @@ status_t OMXDecoder::configure(OMX_VIDEO_AVCPROFILETYPE profile, OMX_VIDEO_AVCLE
     tOutPortDef.format.video.nFrameHeight = mHeight;
     tOutPortDef.format.video.nStride = 4096;
     tOutPortDef.format.video.xFramerate = (mFrameRate << 16);
-    tOutPortDef.format.video.eColorFormat = OMX_COLOR_FormatYUV420PackedSemiPlanar;
-//    tOutPortDef.nBufferCountActual += 2; // 2 for surface flinger.
+    tOutPortDef.format.video.eColorFormat = OMX_COLOR_FormatYUV420SemiPlanar;
+    tOutPortDef.nBufferCountActual += 3; // 2 for surface flinger.
     //set buffer count such that port reconfig can be avoided..
     //is that possible? in any case add 2 for surface flinger.
 
@@ -784,7 +794,7 @@ status_t OMXDecoder::setCurrentState(OMX_STATETYPE newState) {
 }
 
 status_t OMXDecoder::waitForStateSet(OMX_STATETYPE newState) {
-    VTC_LOGD("ENTER waitForStateSet: Waiting to move to state %s .....", OMXStateName(newState));
+    VTC_LOGD("ENTER waitForStateSet: Waiting to move to state %s .....\n", OMXStateName(newState));
 
     if (newState == mState) {
         VTC_LOGD("New State [%s] already set!", OMXStateName(newState));
@@ -823,7 +833,7 @@ status_t OMXDecoder::createPlaybackSurface() {
 
     mSurfaceComposerClient->openGlobalTransaction();
     mSurfaceControl->setLayer(0x7fffffff);
-    mSurfaceControl->setPosition(11280, 720);
+    mSurfaceControl->setPosition(1280, 720);
     mSurfaceControl->setSize(640, 360);
     mSurfaceControl->show();
     mSurfaceComposerClient->closeGlobalTransaction();
@@ -876,29 +886,20 @@ status_t OMXDecoder::allocateOutputBuffersFromNativeWindow() {
             tOutPortDef.format.video.nFrameHeight *
             3 / 2;
     bool bufferRqmtsChanged = (mSizeOfAllAllocatedOutputBuffers < newBufferRqmt) ? true : false;
-    nBufferCnt = (MAX_OUTPUT_BUF_NUM > tOutPortDef.nBufferCountActual) ? MAX_OUTPUT_BUF_NUM : tOutPortDef.nBufferCountActual;
+    nBufferCnt = tOutPortDef.nBufferCountActual;
 
     if ((mPortReconfigInProgress == false)|| bufferRqmtsChanged ) {
         int framewidth = 0;
         int frameheight = 0;
 
-        if (tOutPortDef.format.video.nFrameWidth > MAX_FRAME_WIDTH_720P) {
-            framewidth = (tOutPortDef.format.video.nFrameWidth > MAX_FRAME_WIDTH)? tOutPortDef.format.video.nFrameWidth : MAX_FRAME_WIDTH;
-        } else {
-            framewidth = MAX_FRAME_WIDTH_720P;
-        }
-
-        if (tOutPortDef.format.video.nFrameHeight > MAX_FRAME_HEIGHT_720P) {
-            frameheight = (tOutPortDef.format.video.nFrameHeight > MAX_FRAME_HEIGHT)? tOutPortDef.format.video.nFrameHeight : MAX_FRAME_HEIGHT;
-        } else {
-            frameheight = MAX_FRAME_HEIGHT_720P;
-        }
+            framewidth = tOutPortDef.format.video.nFrameWidth;
+            frameheight = tOutPortDef.format.video.nFrameHeight;
 
         err = native_window_set_buffers_geometry(
                 mNativeWindow.get(),
                 framewidth,
                 frameheight,
-                tOutPortDef.format.video.eColorFormat);
+                HAL_PIXEL_FORMAT_YV12);
 
         if (err != 0) {
             VTC_LOGE("native_window_set_buffers_geometry failed: %s (%d)",
@@ -915,7 +916,7 @@ status_t OMXDecoder::allocateOutputBuffersFromNativeWindow() {
             mNativeWindow.get(),
             tOutPortDef.format.video.nFrameWidth,
             tOutPortDef.format.video.nFrameHeight,
-            tOutPortDef.format.video.eColorFormat);
+            HAL_PIXEL_FORMAT_YV12);
 
     if (err != 0) {
         VTC_LOGE("native_window_set_buffers_geometry failed: %s (%d)",
@@ -1011,7 +1012,7 @@ status_t OMXDecoder::allocateOutputBuffersFromNativeWindow() {
         cancelEnd = i;
     } else {
         // Return the last two buffers to the native window.
-        cancelStart = tOutPortDef.nBufferCountActual - 2;
+        cancelStart = tOutPortDef.nBufferCountActual - 3;
         cancelEnd = tOutPortDef.nBufferCountActual;
     }
 

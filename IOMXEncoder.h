@@ -199,7 +199,7 @@ struct OMXEncoderObserver : public BnOMXObserver {
 			std::list<omx_message>::const_iterator itr = messages.begin();
 			while(itr != messages.end())
 			{
-				Mutex::Autolock autoLock(codec->mLock);
+				//Mutex::Autolock autoLock(codec->mLock);
 				codec->on_message(*itr);
 				itr++;
 			}

@@ -254,15 +254,15 @@ struct OMXDecoderObserver : public BnOMXObserver {
         }
     }
     virtual void onMessages(const std::list<omx_message> &messages) {
-        //LOGD("=================omx_msg.type = %x, temp_omx_msg.type = %x",omx_msg.type, ptemp_omx_msg->type);
 
         sp<OMXDecoder> codec = mTarget.promote();
 		
         if (codec.get() != NULL) {
 			std::list<omx_message>::const_iterator itr = messages.begin();
+			VTC_LOGD("=================omx_msg.type = %x \n",itr->type);
 			while(itr != messages.end())
 			{
-				Mutex::Autolock autoLock(codec->mLock);
+				//Mutex::Autolock autoLock(codec->mLock);
 				codec->on_message(*itr);
 				itr++;
 			}
