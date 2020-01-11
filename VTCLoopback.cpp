@@ -28,6 +28,7 @@
 #define LOG_TAG "VTC"
 
 using namespace android;
+//using namespace android::hardware;
 
 
 int gFilename = 0;
@@ -59,8 +60,8 @@ char gRecordFileName[256];
 sp<SurfaceComposerClient> gSurfaceComposerClient;
 sp<SurfaceControl> gSurfaceControl;
 sp<Surface> gPreviewSurface;
-sp<ICameraService> gCameraService;
-sp<ICamera> gICamera;
+sp<android::hardware::ICameraService> gCameraService;
+sp<android::hardware::ICamera> gICamera;
 sp<MyCameraClient> gCameraClient;
 sp<MyCameraListener> gCameraListener;
 sp<OMXDecoder> mOMXDecoder;
@@ -270,7 +271,7 @@ int destroyPreviewSurface() {
 
 #if 1
 int configureCamera() {
-	int ret = 0;
+	android::binder::Status ret;
     createPreviewSurface();
 
     sp<IServiceManager> sm = defaultServiceManager();
@@ -279,13 +280,13 @@ int configureCamera() {
     sp<IBinder> binder = sm->getService(String16("media.camera"));
     CHECK(binder.get() != NULL);
 
-    gCameraService = interface_cast<ICameraService>(binder);
+    gCameraService = interface_cast<android::hardware::ICameraService>(binder);
     CHECK(gCameraService.get() != NULL);
 
     gCameraClient = new MyCameraClient();
     int i = 0;
     do {
-        ret = gCameraService->connect(gCameraClient, gCameraIndex, String16(), -1, gICamera);
+        ret = gCameraService->connect(gCameraClient, gCameraIndex, String16(), -1, -1, &gICamera);
         if (gICamera.get() != NULL) break;
         VTC_LOGD("\n\n\n========= Camera Busy. So relax and retry. ===========\n\n\n");
         sleep(1);
@@ -484,7 +485,7 @@ int test_DEFAULT_Frame() {
     sp<IOMX> omx = omxclient.interface();
     IOMX::node_id node = 0;
     sp<OMXEncoderObserver> observer = new OMXEncoderObserver();
-    err = omx->allocateNode("OMX.rk.video_encoder.avc", observer, &node);
+    err = omx->allocateNode("OMX.rk.video_encoder.avc", observer, NULL, &node);
 	
 	VTC_LOGD("\n allocate OMX node success 0x%x \n", node);
     if (err != OK) {
@@ -667,7 +668,7 @@ int test_Robustness() {
     sp<IOMX> omx = omxclient.interface();
     IOMX::node_id node = 0;
     sp<OMXEncoderObserver> observer = new OMXEncoderObserver();
-    err = omx->allocateNode("OMX.rk.video_encoder.avc", observer, &node);
+    err = omx->allocateNode("OMX.rk.video_encoder.avc", observer, NULL, &node);
     if (err != OK) {
         VTC_LOGD("Failed to allocate OMX node!!");
         return -1;

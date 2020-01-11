@@ -45,9 +45,12 @@
 #include <cutils/log.h>
 #include <OMX_Component.h>
 #include <camera/Camera.h>
-#include <camera/ICamera.h>
-#include <camera/ICameraClient.h>
-#include <camera/ICameraService.h>
+#include <camera/android/hardware/ICamera.h>
+//#include <camera/android/hardware/ICameraClient.h>
+
+//#include <camera/ICamera.h>
+//#include <camera/ICameraClient.h>
+//#include <camera/ICameraService.h>
 #include <media/mediaplayer.h>
 #include <media/mediarecorder.h>
 #include <media/stagefright/OMXClient.h>
@@ -75,6 +78,7 @@ struct OMXEncoder : public MediaSource {
         OMX_BUFFERHEADERTYPE* mBufferHdr;
         sp<IMemory> mEncMem;
         sp<IMemory> mCamMem;
+		IOMX::buffer_id bufferId;
     };
 
     friend class OMXEncoderObserver;
@@ -184,6 +188,22 @@ struct OMXEncoderObserver : public BnOMXObserver {
             Mutex::Autolock autoLock(codec->mLock);
             codec->on_message(omx_msg);
             codec.clear();
+        }
+    }
+    virtual void onMessages(const std::list<omx_message> &messages) {
+        //LOGD("=================omx_msg.type = %x, temp_omx_msg.type = %x",omx_msg.type, ptemp_omx_msg->type);
+
+        sp<OMXEncoder> codec = mTarget.promote();
+		
+        if (codec.get() != NULL) {
+			std::list<omx_message>::const_iterator itr = messages.begin();
+			while(itr != messages.end())
+			{
+				Mutex::Autolock autoLock(codec->mLock);
+				codec->on_message(*itr);
+				itr++;
+			}
+			codec.clear();
         }
     }
 

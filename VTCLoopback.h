@@ -44,9 +44,12 @@
 #include <cutils/log.h>
 #include <OMX_Component.h>
 #include <camera/Camera.h>
-#include <camera/ICamera.h>
-#include <camera/ICameraClient.h>
-#include <camera/ICameraService.h>
+#include <camera/android/hardware/ICamera.h>
+#include <camera/android/hardware/ICameraClient.h>
+
+//#include <camera/ICamera.h>
+//#include <camera/ICameraClient.h>
+//#include <camera/ICameraService.h>
 #include <media/mediaplayer.h>
 #include <media/mediarecorder.h>
 #include <media/stagefright/OMXClient.h>
@@ -104,7 +107,7 @@
 #define ENCODER_LATENCY 0x200
 #define DECODER_LATENCY 0x400
 
-#define ENCODER_MAX_BUFFER_COUNT 10
+#define ENCODER_MAX_BUFFER_COUNT 16
 #define NUM_PORTS 2
 
 #define INIT_OMX_STRUCT(_s_, _name_)   \
@@ -132,15 +135,18 @@ class MyCameraListener: public CameraListener {
                               camera_frame_metadata_t * /* metadata */){}
 
         virtual void postDataTimestamp(nsecs_t /* timestamp */, int32_t /* msgType */, const sp<IMemory>& /* dataPtr */){}
+		virtual void postRecordingFrameHandleTimestamp(nsecs_t timestamp, native_handle_t* handle) {}
 };
 
 
-class MyCameraClient : public BnCameraClient {
+class MyCameraClient : public android::hardware::BnCameraClient {
 public:
     virtual void notifyCallback(int32_t msgType, int32_t ext1, int32_t ext2) {}
     virtual void dataCallback(int32_t msgType, const sp<IMemory>& data,
             camera_frame_metadata_t *metadata){}
     virtual void dataCallbackTimestamp(nsecs_t timestamp, int32_t msgType, const sp<IMemory>& data);
+    virtual void recordingFrameHandleCallbackTimestamp(nsecs_t timestamp,
+                                         native_handle_t* handle){}
 
     MyCameraClient();
     ~MyCameraClient() {}
@@ -149,7 +155,7 @@ public:
     void encoderNotReady() { encoder_is_ready = 0; }
     void releaseBuffer(sp<IMemory> data)
          { if (mReleaser != NULL) { mReleaser->releaseRecordingFrame(data); } }
-    void setReleaser(ICamera *releaser) {
+    void setReleaser(android::hardware::ICamera *releaser) {
         mReleaser = releaser;
     }
 
@@ -157,7 +163,7 @@ private:
 
     void putCameraPayload(sp<IMemory> payload, int64_t frameTime);
     int encoder_is_ready;
-    ICamera *mReleaser;
+    android::hardware::ICamera *mReleaser;
     List<sp<IMemory> > cameraPayloadQueue;
     List<int64_t> frameTimeQueue;
     Mutex cameraPayloadQueueMutex;

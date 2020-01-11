@@ -43,6 +43,7 @@ LOCAL_C_INCLUDES += \
 LOCAL_C_INCLUDES += \
     $(TOP)/frameworks/native/include \
     $(TOP)/frameworks/native/include/media/openmax \
+    $(TOP)/frameworks/native/include/media/hardware\
     $(TOP)/frameworks/av/include\
     $(TOP)/frameworks/base/include
 
@@ -65,7 +66,7 @@ LOCAL_CFLAGS +=-Wall -fno-short-enums -O0 -g $(ANDROID_API_CFLAGS)
 LOCAL_PRELINK_MODULE := false
 LOCAL_MODULE_TAGS:= optional
 LOCAL_MODULE := vtcLoopbackTest
-#include $(BUILD_EXECUTABLE)
+include $(BUILD_EXECUTABLE)
 
 ###############################################################################
 

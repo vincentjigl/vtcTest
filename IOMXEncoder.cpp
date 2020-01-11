@@ -473,7 +473,7 @@ status_t OMXEncoder::prepare() {
         for (OMX_U32 i = 0; i < tInPortDef.nBufferCountActual; ++i) {
             mBufferInfo[INPUT_PORT][i].mEncMem= mDealer[INPUT_PORT]->allocate(tInPortDef.nBufferSize);
             CHECK(mBufferInfo[INPUT_PORT][i].mEncMem.get() != NULL);
-            err = mOMX->allocateBufferWithBackup(mNode, INPUT_PORT, mBufferInfo[INPUT_PORT][i].mEncMem, (void**)(&(mBufferInfo[INPUT_PORT][i].mBufferHdr)));
+            err = mOMX->allocateBufferWithBackup(mNode, INPUT_PORT, mBufferInfo[INPUT_PORT][i].mEncMem, &(mBufferInfo[INPUT_PORT][i].bufferId), tInPortDef.nBufferSize);
             if (err != OK) {
                 VTC_LOGE("OMX_AllocateBuffer for input port index:%d failed:%d",(int)i,err);
                 mBufferInfo[INPUT_PORT][i].mBufferHdr = NULL;
@@ -498,7 +498,7 @@ status_t OMXEncoder::prepare() {
     mDealer[OUTPUT_PORT] = new MemoryDealer((tOutPortDef.nBufferCountActual*tOutPortDef.nBufferSize), "RECORD_OUTPUT");
     for (OMX_U32 i = 0; i < tOutPortDef.nBufferCountActual; ++i) {
         mBufferInfo[OUTPUT_PORT][i].mEncMem = mDealer[OUTPUT_PORT]->allocate(tOutPortDef.nBufferSize);
-        err = mOMX->allocateBufferWithBackup(mNode, OUTPUT_PORT, mBufferInfo[OUTPUT_PORT][i].mEncMem, (void**)(&(mBufferInfo[OUTPUT_PORT][i].mBufferHdr)));
+        err = mOMX->allocateBufferWithBackup(mNode, OUTPUT_PORT, mBufferInfo[OUTPUT_PORT][i].mEncMem, &(mBufferInfo[OUTPUT_PORT][i].bufferId), tOutPortDef.nBufferSize);
         if (err != OK) {
             VTC_LOGD("OMX_UseBuffer for output port index:%d failed:%d",(int)i,err);
             mBufferInfo[OUTPUT_PORT][i].mBufferHdr = NULL;
@@ -560,7 +560,7 @@ status_t OMXEncoder::start(MetaData *params) {
 
     // give output buffers to the OMX
     for (int i=0; i<(int)tOutPortDef.nBufferCountActual; i++) {
-        err = mOMX->fillBuffer(mNode, mBufferInfo[OUTPUT_PORT][i].mBufferHdr);
+        err = mOMX->fillBuffer(mNode, mBufferInfo[OUTPUT_PORT][i].bufferId);
         if (err != OK) {
             VTC_LOGD("OMX_FillThisBuffer failed:%d \n", err);
         } else {
@@ -592,7 +592,7 @@ status_t OMXEncoder::start(MetaData *params) {
     for (int i=0; i<3; i++) {
         mBufferInfo[INPUT_PORT][i].mCamMem = payload[i];
         memcpy((uint8_t *)mBufferInfo[INPUT_PORT][i].mEncMem->pointer(),  payload[i]->pointer(), payload[i]->size());
-        err = mOMX->emptyBuffer(mNode, mBufferInfo[INPUT_PORT][i].mBufferHdr, 0, payload[i]->size(),  OMX_BUFFERFLAG_ENDOFFRAME, (OMX_TICKS)time);
+        err = mOMX->emptyBuffer(mNode, mBufferInfo[INPUT_PORT][i].bufferId, 0, payload[i]->size(),  OMX_BUFFERFLAG_ENDOFFRAME, (OMX_TICKS)time);
         if (err != OK) {
             VTC_LOGD("OMX_EmptyThisBuffer failed:%d \n", err);
         } else {
@@ -663,7 +663,7 @@ status_t OMXEncoder::deinit() {
         // free input buffers
         for (int i=0; i<(int)tInPortDef.nBufferCountActual; i++) {
             if (mBufferInfo[INPUT_PORT][i].mBufferHdr) {
-                err = mOMX->freeBuffer(mNode, INPUT_PORT, mBufferInfo[INPUT_PORT][i].mBufferHdr);
+                err = mOMX->freeBuffer(mNode, INPUT_PORT, mBufferInfo[INPUT_PORT][i].bufferId);
                 if( (err != OK)) {
                     VTC_LOGD("Free Buffer for Input Port buffer:%d failed:%d",i,err);
                 }
@@ -674,7 +674,7 @@ status_t OMXEncoder::deinit() {
     // free output buffers
     for (int i=0; i <(int)tOutPortDef.nBufferCountActual; i++) {
         if (mBufferInfo[OUTPUT_PORT][i].mBufferHdr) {
-            err = mOMX->freeBuffer(mNode,OUTPUT_PORT,mBufferInfo[OUTPUT_PORT][i].mBufferHdr);
+            err = mOMX->freeBuffer(mNode,OUTPUT_PORT,mBufferInfo[OUTPUT_PORT][i].bufferId);
             if( (err != OK)) {
                 VTC_LOGD("Free Buffer for Output Port buffer:%d failed:%d",i,err);
             }
@@ -793,10 +793,10 @@ status_t OMXEncoder::FillBufferDone(OMX_BUFFERHEADERTYPE* pBufferHdr, OMX_U32 nO
     if (mDebugFlags & ENCODER_EFFECTIVE_BITRATE) PrintEffectiveBitrate(nFilledLen);
 
     if (mCallbackSet) {
-        mEncodedBufferCallback((mBufferInfo[OUTPUT_PORT][i].mEncMem->pointer() + nOffset), nFilledLen, nTimeStamp);
+        mEncodedBufferCallback((void*)((OMX_U32)(mBufferInfo[OUTPUT_PORT][i].mEncMem->pointer()) + nOffset), nFilledLen, nTimeStamp);
     } else {
         if (mOutputFD != NULL) {
-            i = fwrite((unsigned char *)(mBufferInfo[OUTPUT_PORT][i].mEncMem->pointer() + nOffset), 1, nFilledLen, mOutputFD);
+            i = fwrite((unsigned char *)((OMX_U32)(mBufferInfo[OUTPUT_PORT][i].mEncMem->pointer()) + nOffset), 1, nFilledLen, mOutputFD);
             if (i != nFilledLen) {
                 VTC_LOGD("fwrite failed:%d should have been:%d\n", i, nFilledLen);
                 return -1;
@@ -805,7 +805,7 @@ status_t OMXEncoder::FillBufferDone(OMX_BUFFERHEADERTYPE* pBufferHdr, OMX_U32 nO
         }
     }
 
-    err = mOMX->fillBuffer(mNode, pBufferHdr);
+    err = mOMX->fillBuffer(mNode, mBufferInfo[OUTPUT_PORT][i].bufferId);
     if (err != OK) {
         VTC_LOGE("OMX_FillThisBuffer failed:%d", err);
     }
@@ -849,7 +849,7 @@ status_t OMXEncoder::EmptyBufferDone(OMX_BUFFERHEADERTYPE* pBufferHdr)
         if (payload != NULL) {
             mBufferInfo[INPUT_PORT][i].mCamMem = payload;
             memcpy((uint8_t *)mBufferInfo[INPUT_PORT][i].mEncMem->pointer(),  payload->pointer(), payload->size());
-            err = mOMX->emptyBuffer(mNode, mBufferInfo[INPUT_PORT][i].mBufferHdr, 0, payload->size(),  OMX_BUFFERFLAG_ENDOFFRAME, time);
+            err = mOMX->emptyBuffer(mNode, mBufferInfo[INPUT_PORT][i].bufferId, 0, payload->size(),  OMX_BUFFERFLAG_ENDOFFRAME, time);
             if (err != OK) {
                 VTC_LOGE("OMX_EmptyThisBuffer failed:%d", err);
             }

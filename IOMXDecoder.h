@@ -197,8 +197,8 @@ private:
     sp<OMXCallbackHandler> mOMXCallbackHandler;
 
     OMX_ERRORTYPE EventHandler(OMX_EVENTTYPE eEvent, OMX_U32 nData1,OMX_U32 nData2);
-    status_t FillBufferDone(OMX_BUFFERHEADERTYPE* pBufferHdr);
-    status_t EmptyBufferDone(OMX_BUFFERHEADERTYPE* pBufferHdr);
+    status_t FillBufferDone(IOMX::buffer_id pBufferHdr);
+    status_t EmptyBufferDone(IOMX::buffer_id pBufferHdr);
     status_t setCurrentState(OMX_STATETYPE newState);
     status_t waitForStateSet(OMX_STATETYPE newState);
     status_t createPlaybackSurface();
@@ -253,7 +253,23 @@ struct OMXDecoderObserver : public BnOMXObserver {
             codec.clear();
         }
     }
+    virtual void onMessages(const std::list<omx_message> &messages) {
+        //LOGD("=================omx_msg.type = %x, temp_omx_msg.type = %x",omx_msg.type, ptemp_omx_msg->type);
 
+        sp<OMXDecoder> codec = mTarget.promote();
+		
+        if (codec.get() != NULL) {
+			std::list<omx_message>::const_iterator itr = messages.begin();
+			while(itr != messages.end())
+			{
+				Mutex::Autolock autoLock(codec->mLock);
+				codec->on_message(*itr);
+				itr++;
+			}
+			codec.clear();
+        }
+    }
+	
 protected:
     virtual ~OMXDecoderObserver() {}
 

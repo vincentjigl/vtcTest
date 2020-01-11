@@ -151,11 +151,11 @@ void OMXDecoder::on_message(const omx_message &msg) {
             EventHandler(msg.u.event_data.event, msg.u.event_data.data1, msg.u.event_data.data2);
             break;
         case omx_message::EMPTY_BUFFER_DONE:
-            EmptyBufferDone((OMX_BUFFERHEADERTYPE*)msg.u.extended_buffer_data.buffer);
+            EmptyBufferDone(msg.u.extended_buffer_data.buffer);
             break;
         case omx_message::FILL_BUFFER_DONE:
             PrintVTCLatency(msg.u.extended_buffer_data.timestamp);
-            FillBufferDone((OMX_BUFFERHEADERTYPE*)msg.u.extended_buffer_data.buffer);
+            FillBufferDone(msg.u.extended_buffer_data.buffer);
             break;
         default:
             CHECK(!"############ Corrupted Message !!! #############");
@@ -174,7 +174,7 @@ status_t OMXDecoder::configure(OMX_VIDEO_AVCPROFILETYPE profile, OMX_VIDEO_AVCLE
     mOMX = mOMXClient.interface();
     mNode = 0;
     mObserver = new OMXDecoderObserver();
-    err = mOMX->allocateNode("OMX.rk.video_decoder.avc", mObserver, &mNode);
+    err = mOMX->allocateNode("OMX.rk.video_decoder.avc", mObserver, NULL, &mNode);
     if (err != OK) {
         VTC_LOGD("Failed to allocate OMX node!!");
         return -1;
@@ -343,7 +343,8 @@ status_t OMXDecoder::configure(OMX_VIDEO_AVCPROFILETYPE profile, OMX_VIDEO_AVCLE
     }
 
     // Native Window related calls
-    err = mOMX->enableGraphicBuffers(mNode, OUTPUT_PORT, OMX_TRUE);
+    //err = mOMX->enableGraphicBuffers(mNode, OUTPUT_PORT, OMX_TRUE);
+	err = mOMX->enableNativeBuffers(mNode, OUTPUT_PORT, OMX_TRUE, OMX_TRUE);
     if (err != 0) {
         return err;
     }
@@ -387,7 +388,7 @@ status_t OMXDecoder::prepare() {
         sp<IMemory> mMem = mDealer->allocate(tInPortDef.nBufferSize);
         CHECK(mMem.get() != NULL);
         IOMX::buffer_id buffer;
-        err = mOMX->allocateBufferWithBackup(mNode, INPUT_PORT, mMem, &buffer);
+        err = mOMX->allocateBufferWithBackup(mNode, INPUT_PORT, mMem, &buffer, tInPortDef.nBufferSize);
         if (err != OK) {
             VTC_LOGD("OMX_AllocateBuffer for input port index:%d failed:%d",(int)i,err);
         }
@@ -684,7 +685,7 @@ OMX_ERRORTYPE OMXDecoder::EventHandler(OMX_EVENTTYPE eEvent, OMX_U32 nData1,OMX_
     return OMX_ErrorNone;
 }
 
-status_t OMXDecoder::FillBufferDone(OMX_BUFFERHEADERTYPE* pBufferHdr) {
+status_t OMXDecoder::FillBufferDone(IOMX::buffer_id pBufferHdr) {
     status_t err;
 
     OMX_U32 i=0;
@@ -760,7 +761,7 @@ status_t OMXDecoder::FillBufferDone(OMX_BUFFERHEADERTYPE* pBufferHdr) {
     return OMX_ErrorNone;
 }
 
-status_t OMXDecoder::EmptyBufferDone(OMX_BUFFERHEADERTYPE* pBufferHdr) {
+status_t OMXDecoder::EmptyBufferDone(IOMX::buffer_id pBufferHdr) {
     status_t err;
     OMX_U32 i=0;
     //LOG_FUNCTION_NAME_ENTRY
