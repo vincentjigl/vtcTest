@@ -131,6 +131,7 @@ FILE *mResultsFP = NULL;
 // If seconds >  0, it is the time spacing (seconds) between 2 neighboring I frames
 int32_t mIFramesIntervalSec = 1;
 uint32_t mVideoBitRate      = 10000000;
+uint32_t mVideoSliceHeight      = 180;
 uint32_t mVideoSvcLayer     = 0;
 uint32_t mVideoFrameRate    = 60;
 uint32_t mNewVideoBitRate   = 1000000;
@@ -175,6 +176,7 @@ int test_ALL();
 int test_RecordDEFAULT();
 int test_InsertIDRFrames();
 int test_MaxNALSize();
+int test_ChangeSliceHeight();
 int test_ChangeBitRate();
 int test_ChangeFrameRate();
 int test_PlaybackAndRecord_sidebyside();
@@ -200,7 +202,8 @@ pt2TestFunction TestFunctions[18] = {
     //test_InsertIDRFrames, // 2
     test_Playback_change_2x2layout, // 2
     test_Playback3x3, // 3
-    test_ChangeBitRate, // 4
+    test_ChangeSliceHeight, //tmp 4
+    //test_ChangeBitRate, // 4
     test_ChangeFrameRate, // 5
     test_PlaybackAndRecord_sidebyside, // 6
     test_PlaybackAndRecord_PIP, // 7
@@ -451,6 +454,15 @@ int startRecording() {
         VTC_LOGD("error while configuring bit rate\n");
         return -1;
     }
+
+    //sprintf(mParamValue,"video-param-slice-height=%u", mVideoSliceHeight);
+    sprintf(mParamValue,"video-param-slice-height=%u", 32);
+    String8 slice_height(mParamValue);
+    if ( recorder->setParameters(slice_height) < 0 ) {
+        VTC_LOGD("error while configuring slice height\n");
+        return -1;
+    }
+
 
 	if(mVideoSvcLayer != 0){
 	    sprintf(mParamValue,"video-param-svc-layer=%u", mVideoSvcLayer);
@@ -1122,6 +1134,25 @@ int test_MaxNALSize() {
     mIFramesIntervalSec = 1;
     return 0;
 }
+
+int test_ChangeSliceHeight() {
+    startPreview();
+    startRecording();
+    sleep(mDuration/2);
+
+    sprintf(mParamValue,"video-param-slice-height=%u", mVideoSliceHeight);
+    String8 slice_height(mParamValue);
+    if ( recorder->setParameters(slice_height) < 0 ) {
+        VTC_LOGD("error while configuring slice height\n");
+        return -1;
+    }
+
+    sleep(mDuration/2);
+    stopRecording();
+    stopPreview();
+    return 0;
+}
+
 
 
 int test_ChangeBitRate() {
@@ -2032,7 +2063,8 @@ int main (int argc, char* argv[]) {
                 mDuration = atoi(optarg);
                 break;
             case 's':
-                mSliceSizeBytes = atoi(optarg);
+                //mSliceSizeBytes = atoi(optarg);
+                mVideoSliceHeight = atoi(optarg);
                 mIsSizeInBytes = true;
                 break;
             case 'b':
