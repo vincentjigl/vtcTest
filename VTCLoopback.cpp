@@ -150,7 +150,7 @@ MyCameraClient::MyCameraClient() {
 }
 
 void MyCameraClient::dataCallbackTimestamp(nsecs_t timestamp, int32_t msgType, const sp<IMemory>& data) {
-    VTC_LOGV("=============================================dataCallbackTimestamp \n");
+    VTC_LOGV("=======================================dataCallbackTimestamp \n");
     CHECK(data != NULL && data->size() > 0);
     if (msgType == CAMERA_MSG_VIDEO_FRAME) {
         if ((gSliceHeight == 0) && (encoder_is_ready)) { // non tunnel mode
@@ -218,7 +218,7 @@ sp<IMemory> MyCameraClient::getCameraPayload(int64_t& frameTime) {
     }
 
     frameTime = time;
-    VTC_LOGV("%s$$$$$$$$$: pointer[%p], size[%d]", __FUNCTION__, payload->pointer(), payload->size());
+    VTC_LOGV("%s$$$$$$$$$: pointer[%p], size[%d]\n", __FUNCTION__, payload->pointer(), payload->size());
     return payload;
 }
 

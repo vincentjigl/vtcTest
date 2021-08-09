@@ -131,7 +131,7 @@ FILE *mResultsFP = NULL;
 // If seconds >  0, it is the time spacing (seconds) between 2 neighboring I frames
 int32_t mIFramesIntervalSec = 1;
 uint32_t mVideoBitRate      = 10000000;
-uint32_t mVideoSliceHeight      = 180;
+uint32_t mVideoSliceHeight  = 180;
 uint32_t mVideoSvcLayer     = 0;
 uint32_t mVideoFrameRate    = 60;
 uint32_t mNewVideoBitRate   = 1000000;
@@ -236,6 +236,7 @@ class MyCameraListener: public CameraListener {
 
         virtual void postDataTimestamp(nsecs_t /* timestamp */, int32_t /* msgType */, const sp<IMemory>& /* dataPtr */){}
 	virtual void postRecordingFrameHandleTimestamp(nsecs_t timestamp, native_handle_t* handle) {}
+    virtual void postRecordingFrameHandleTimestampBatch(const std::vector<nsecs_t>& timestamps, const std::vector<native_handle_t*>& handles) {};
 };
 
 sp<MyCameraListener> mCameraListener;
@@ -325,12 +326,7 @@ int createPreviewSurface() {
         VTC_LOGD(" initCheck error ");
     }
     VTC_LOGD("\n\n jgl prex %d, prey %d, prew %d , preh %d, \n\n\n", cameraWinX, cameraWinY, cameraSurfaceWidth, cameraSurfaceHeight);
-    sp<IBinder> dtoken(SurfaceComposerClient::getBuiltInDisplay(
-            ISurfaceComposer::eDisplayIdMain));
-    DisplayInfo dinfo;
-    status_t status = SurfaceComposerClient::getDisplayInfo(dtoken, &dinfo);
 
-    printf("Display info %d %d\n", dinfo.w, dinfo.h);
     /*
     if ((cameraSurfaceWidth == 0) || (cameraSurfaceHeight == 0)){
         cameraSurfaceWidth = WIDTH;//client->getDisplayWidth(0);
@@ -343,14 +339,20 @@ int createPreviewSurface() {
             cameraSurfaceHeight,
             HAL_PIXEL_FORMAT_RGB_565, 0);
 
+    SurfaceComposerClient::Transaction{}
+        .setLayer(surfaceControl, 0x7fffffff)
+        .setPosition(surfaceControl, cameraWinX, cameraWinY)
+        .show(surfaceControl)
+        .apply();
+
     previewSurface = surfaceControl->getSurface();
 
-    client->openGlobalTransaction();
-    surfaceControl->setLayer(0x7fffffff);
-    surfaceControl->setPosition(cameraWinX, cameraWinY);
-    surfaceControl->setSize(cameraSurfaceWidth, cameraSurfaceHeight);
-    surfaceControl->show();
-    client->closeGlobalTransaction();
+    //client->openGlobalTransaction();
+    //surfaceControl->setLayer(0x7fffffff);
+    //surfaceControl->setPosition(cameraWinX, cameraWinY);
+    //surfaceControl->setSize(cameraSurfaceWidth, cameraSurfaceHeight);
+    //surfaceControl->show();
+    //client->closeGlobalTransaction();
 
     return 0;
 }
@@ -362,7 +364,6 @@ int destroyPreviewSurface() {
     }
 
     if ( NULL != surfaceControl.get() ) {
-        surfaceControl->clear();
         surfaceControl.clear();
     }
 
@@ -410,14 +411,14 @@ int startRecording() {
     //if(mkdir("/mnt/obb/vtc",0777) == -1)
          //VTC_LOGD("\n Directory \'vtc\' was not created or maybe it was already created \n");
 
-    mOutputFd = open(mRecordFileName, O_CREAT | O_RDWR);
+    mOutputFd = open(mRecordFileName, O_CREAT | O_RDWR, S_IRWXU|S_IRUSR|S_IXUSR|S_IROTH|S_IXOTH);
 
     if(mOutputFd < 0){
         VTC_LOGD("Error while creating video filename\n");
         return -1;
     }
 
-    if ( recorder->setOutputFile(mOutputFd, 0, 0) < 0 ) {
+    if ( recorder->setOutputFile(mOutputFd) < 0 ) {
         VTC_LOGD("error while configuring video filename\n");
 
         return -1;
@@ -455,8 +456,7 @@ int startRecording() {
         return -1;
     }
 
-    //sprintf(mParamValue,"video-param-slice-height=%u", mVideoSliceHeight);
-    sprintf(mParamValue,"video-param-slice-height=%u", 32);
+    sprintf(mParamValue,"video-param-slice-height=%u", mVideoSliceHeight);
     String8 slice_height(mParamValue);
     if ( recorder->setParameters(slice_height) < 0 ) {
         VTC_LOGD("error while configuring slice height\n");
@@ -547,14 +547,14 @@ int startRecording_svcSpace() {
     //if(mkdir("/mnt/obb/vtc",0777) == -1)
          //VTC_LOGD("\n Directory \'vtc\' was not created or maybe it was already created \n");
 
-    mOutputFd = open(mRecordFileName, O_CREAT | O_RDWR |O_APPEND);
+    mOutputFd = open(mRecordFileName, O_CREAT | O_RDWR |O_APPEND, S_IRWXU|S_IRUSR|S_IXUSR|S_IROTH|S_IXOTH);
 
     if(mOutputFd < 0){
         VTC_LOGD("Error while creating video filename\n");
         return -1;
     }
 
-    if ( recorder->setOutputFile(mOutputFd, 0, 0) < 0 ) {
+    if ( recorder->setOutputFile(mOutputFd) < 0 ) {
         VTC_LOGD("error while configuring video filename\n");
 
         return -1;
@@ -748,15 +748,23 @@ int startPlayback() {
     CHECK(playbackSurfaceControl != NULL);
     CHECK(playbackSurfaceControl->isValid());
 
+    SurfaceComposerClient::Transaction{}
+        .setLayer(playbackSurfaceControl, 0x7fffffff)
+        .setPosition(playbackSurfaceControl,playerWinX, playerWinY)
+        .setSize(playbackSurfaceControl, playbackSurfaceWidth, playbackSurfaceHeight)
+        .show(playbackSurfaceControl )
+        .apply();
+
+
     playbackSurface = playbackSurfaceControl->getSurface();
     CHECK(playbackSurface != NULL);
 
-    client->openGlobalTransaction();
-    playbackSurfaceControl->setLayer(0x7fffffff);
-    playbackSurfaceControl->setPosition(playerWinX, playerWinY);
-    playbackSurfaceControl->setSize(playbackSurfaceWidth, playbackSurfaceHeight);
-    playbackSurfaceControl->show();
-    client->closeGlobalTransaction();
+//    client->openGlobalTransaction();
+//    playbackSurfaceControl->setLayer(0x7fffffff);
+//    playbackSurfaceControl->setPosition(playerWinX, playerWinY);
+//    playbackSurfaceControl->setSize(playbackSurfaceWidth, playbackSurfaceHeight);
+//    playbackSurfaceControl->show();
+//    client->closeGlobalTransaction();
 
     player = new MediaPlayer();
     mPlayerListener = new PlayerListener(player);
@@ -790,13 +798,21 @@ int startPlayback(int width, int height, int row, int col) {
 	}
 	int sid=0;
 	for(int i=0; i< row ; i++){
-		for(int j=0; j< col ; j++){
-			client->openGlobalTransaction();
-			mPlaybackSurfaceControl[sid]->setLayer(0x7fffffff);
-			mPlaybackSurfaceControl[sid]->setPosition(i*width, j*height);
-			mPlaybackSurfaceControl[sid]->setSize(width, height);
-			mPlaybackSurfaceControl[sid]->show();
-			client->closeGlobalTransaction();
+        for(int j=0; j< col ; j++){
+            SurfaceComposerClient::Transaction{}
+            .setLayer(mPlaybackSurfaceControl[sid], 0x7fffffff)
+                .setPosition(mPlaybackSurfaceControl[sid], i*width, i*height)
+                .setSize(mPlaybackSurfaceControl[sid], width, height)
+                .show(mPlaybackSurfaceControl[sid])
+                .apply();
+
+
+            //client->openGlobalTransaction();
+			//mPlaybackSurfaceControl[sid]->setLayer(0x7fffffff);
+			//mPlaybackSurfaceControl[sid]->setPosition(i*width, j*height);
+			//mPlaybackSurfaceControl[sid]->setSize(width, height);
+			//mPlaybackSurfaceControl[sid]->show();
+			//client->closeGlobalTransaction();
 			sid++;
 		}		
 	}
@@ -830,14 +846,23 @@ int startPlayback3x3_1dec() {
     CHECK(mPlaybackSurfaceControl[9] != NULL);
     CHECK(mPlaybackSurfaceControl[9]->isValid());
 
+    SurfaceComposerClient::Transaction{}
+        .setLayer(mPlaybackSurfaceControl[9], 0x7fffffff)
+        .setPosition(mPlaybackSurfaceControl[9], 320, 180)
+        .setSize(mPlaybackSurfaceControl[9], 640, 360)
+        .show(mPlaybackSurfaceControl[9])
+        .apply();
+
+
     mPlaybackSurface[9] = mPlaybackSurfaceControl[9]->getSurface();
     CHECK(mPlaybackSurface[9] != NULL);
-    client->openGlobalTransaction();
-    mPlaybackSurfaceControl[9]->setLayer(0x7fffffff);
-    mPlaybackSurfaceControl[9]->setPosition(320, 180);
-    mPlaybackSurfaceControl[9]->setSize(640, 360);
-    mPlaybackSurfaceControl[9]->show();
-    client->closeGlobalTransaction();
+
+//    client->openGlobalTransaction();
+//    mPlaybackSurfaceControl[9]->setLayer(0x7fffffff);
+//    mPlaybackSurfaceControl[9]->setPosition(320, 180);
+//    mPlaybackSurfaceControl[9]->setSize(640, 360);
+//    mPlaybackSurfaceControl[9]->show();
+//    client->closeGlobalTransaction();
 
     mPlayer[9] = new MediaPlayer();
     jglPlayerListener[9] = new PlayerListener(mPlayer[9]);
@@ -857,51 +882,84 @@ int startPlayback3x3_1dec() {
 void startPlayback_layout2(int width, int height, int row, int col) {
 	int sid=0;
 	for(int i=0; i< row ; i++){
-		for(int j=0; j< col ; j++){
-			client->openGlobalTransaction();
-			mPlaybackSurfaceControl[sid]->setLayer(0x7fffffff);
-			mPlaybackSurfaceControl[sid]->setPosition(i*width, j*height);
-			mPlaybackSurfaceControl[sid]->setSize(width, height);
-			mPlaybackSurfaceControl[sid]->show();
-			client->closeGlobalTransaction();
+        for(int j=0; j< col ; j++){
+            SurfaceComposerClient::Transaction{}
+                .setLayer(mPlaybackSurfaceControl[sid], 0x7fffffff)
+                .setPosition(mPlaybackSurfaceControl[sid], i*width, j*height)
+                .setSize(mPlaybackSurfaceControl[sid], width, height)
+                .show(mPlaybackSurfaceControl[sid])
+                .apply();
+
+            //client->openGlobalTransaction();
+            //mPlaybackSurfaceControl[sid]->setLayer(0x7fffffff);
+            //mPlaybackSurfaceControl[sid]->setPosition(i*width, j*height);
+            //mPlaybackSurfaceControl[sid]->setSize(width, height);
+            //mPlaybackSurfaceControl[sid]->show();
+            //client->closeGlobalTransaction();
 			sid++;
 		}		
 	}
 }
 
 void startPlayback3x3_layout1() {
-    client->openGlobalTransaction();
-    mPlaybackSurfaceControl[0]->setLayer(0x7fffffff);
-    mPlaybackSurfaceControl[0]->setPosition(0, 0);
-    mPlaybackSurfaceControl[0]->setSize(1440, 810);
-    mPlaybackSurfaceControl[0]->show();
-    client->closeGlobalTransaction();
+    SurfaceComposerClient::Transaction{}
+        .setLayer(mPlaybackSurfaceControl[0], 0x7fffffff)
+        .setPosition(mPlaybackSurfaceControl[0], 0, 0)
+        .setSize(mPlaybackSurfaceControl[0], 1440, 810)
+        .show(mPlaybackSurfaceControl[0])
+        .apply();
+
+//    client->openGlobalTransaction();
+//    mPlaybackSurfaceControl[0]->setLayer(0x7fffffff);
+//    mPlaybackSurfaceControl[0]->setPosition(0, 0);
+//    mPlaybackSurfaceControl[0]->setSize(1440, 810);
+//    mPlaybackSurfaceControl[0]->show();
+//    client->closeGlobalTransaction();
+
+        for(int i=0; i< 4 ; i++){
+            SurfaceComposerClient::Transaction{}
+            .setLayer(mPlaybackSurfaceControl[i+1], 0x7fffffff)
+                .setPosition(mPlaybackSurfaceControl[i+1], 1440, i*270)
+                .setSize(mPlaybackSurfaceControl[i+1], 480, 270)
+                .show(mPlaybackSurfaceControl[i+1])
+                .apply();
+
+
+            //client->openGlobalTransaction();
+            //mPlaybackSurfaceControl[i+1]->setLayer(0x7fffffff);
+            //mPlaybackSurfaceControl[i+1]->setPosition(1440, i*270);
+            //mPlaybackSurfaceControl[i+1]->setSize(480, 270);
+            //mPlaybackSurfaceControl[i+1]->show();
+            //client->closeGlobalTransaction();
+        }
 
 	for(int i=0; i< 4 ; i++){
-			client->openGlobalTransaction();
-			mPlaybackSurfaceControl[i+1]->setLayer(0x7fffffff);
-			mPlaybackSurfaceControl[i+1]->setPosition(1440, i*270);
-			mPlaybackSurfaceControl[i+1]->setSize(480, 270);
-			mPlaybackSurfaceControl[i+1]->show();
-			client->closeGlobalTransaction();
-	}
+            SurfaceComposerClient::Transaction{}
+            .setLayer(mPlaybackSurfaceControl[i+5], 0x7fffffff)
+                .setPosition(mPlaybackSurfaceControl[i+5], i*360, 810)
+                .setSize(mPlaybackSurfaceControl[i+5], 360, 270)
+                .show(mPlaybackSurfaceControl[i+5])
+                .apply();
 
-	for(int i=0; i< 4 ; i++){
-			client->openGlobalTransaction();
-			mPlaybackSurfaceControl[i+5]->setLayer(0x7fffffff);
-			mPlaybackSurfaceControl[i+5]->setPosition(i*360, 810);
-			mPlaybackSurfaceControl[i+5]->setSize(360, 270);
-			mPlaybackSurfaceControl[i+5]->show();
-			client->closeGlobalTransaction();
+			//client->openGlobalTransaction();
+			//mPlaybackSurfaceControl[i+5]->setLayer(0x7fffffff);
+			//mPlaybackSurfaceControl[i+5]->setPosition(i*360, 810);
+			//mPlaybackSurfaceControl[i+5]->setSize(360, 270);
+			//mPlaybackSurfaceControl[i+5]->show();
+			//client->closeGlobalTransaction();
 	}
 
 }
 
 void startPlayback3x3_hide() {
 	for(int i=0; i<9; i++){
-	    client->openGlobalTransaction();
-	    mPlaybackSurfaceControl[i]->hide();
-	    client->closeGlobalTransaction();
+        SurfaceComposerClient::Transaction{}
+            .hide(mPlaybackSurfaceControl[i])
+            .apply();
+
+	    //client->openGlobalTransaction();
+	    //mPlaybackSurfaceControl[i]->hide();
+	    //client->closeGlobalTransaction();
 	}
 }
 
@@ -919,7 +977,6 @@ int stopPlayback() {
     }
 
     if ( NULL != playbackSurfaceControl.get() ) {
-        playbackSurfaceControl->clear();
         playbackSurfaceControl.clear();
     }
 
@@ -1450,18 +1507,31 @@ int test_PlaybackAndRecord_PIP() {
         /* Move preview */
         cameraWinY +=2;
         if ((cameraWinY+ cameraSurfaceHeight) > panelheight) cameraWinY = 0;
-        client->openGlobalTransaction();
-        surfaceControl->setPosition(cameraWinX, cameraWinY);
-        client->closeGlobalTransaction();
+
+        SurfaceComposerClient::Transaction{}
+            .setPosition(surfaceControl, cameraWinX, cameraWinY)
+            .apply();
+
+        //client->openGlobalTransaction();
+        //surfaceControl->setPosition(cameraWinX, cameraWinY);
+        //client->closeGlobalTransaction();
 
         if (cameraWinY >  cameraSurfaceHeight/2){
-            client->openGlobalTransaction();
-            surfaceControl->hide();
-            client->closeGlobalTransaction();
+            SurfaceComposerClient::Transaction{}
+                .hide(surfaceControl)
+                .apply();
+
+            //client->openGlobalTransaction();
+            //surfaceControl->hide();
+            //client->closeGlobalTransaction();
         } else {
-            client->openGlobalTransaction();
-            surfaceControl->show();
-            client->closeGlobalTransaction();
+            SurfaceComposerClient::Transaction{}
+                .show(surfaceControl)
+                .apply();
+
+            //client->openGlobalTransaction();
+            //surfaceControl->show();
+            //client->closeGlobalTransaction();
         }
     };
 

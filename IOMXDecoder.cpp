@@ -170,9 +170,6 @@ status_t OMXDecoder::configure(OMX_VIDEO_AVCPROFILETYPE profile, OMX_VIDEO_AVCLE
 
     createPlaybackSurface();
     int res = 0;
-
-    // use graphicBuffer only!
-
     res = native_window_api_connect(mNativeWindow.get(), NATIVE_WINDOW_API_MEDIA);
     if (res != NO_ERROR) {
         VTC_LOGD("native_window_api_connect failed: %s (%d)", strerror(-res), res);

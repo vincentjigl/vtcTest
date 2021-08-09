@@ -252,7 +252,7 @@ status_t OMXEncoder::configure(OMX_VIDEO_AVCPROFILETYPE profile, OMX_VIDEO_AVCLE
     tInPortDef.format.video.nSliceHeight = mHeight;
     tInPortDef.format.video.xFramerate = (mFrameRate << 16);
     tInPortDef.format.video.eCompressionFormat = OMX_VIDEO_CodingUnused;
-    tInPortDef.format.video.eColorFormat = (OMX_COLOR_FORMATTYPE)OMX_TI_COLOR_FormatYUV420PackedSemiPlanar;
+    tInPortDef.format.video.eColorFormat = (OMX_COLOR_FORMATTYPE)OMX_COLOR_FormatYUV420SemiPlanar;
     tInPortDef.nBufferSize = (mWidth * mHeight *3)/2;
     err = mOMX->setParameter(mNode, OMX_IndexParamPortDefinition, &tInPortDef, sizeof(tInPortDef));
     if (err != OK) {

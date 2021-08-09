@@ -17,6 +17,7 @@ LOCAL_SHARED_LIBRARIES := \
     libbinder \
     libcutils \
     libutils \
+    libui \
     liblog \
     libgui
 
@@ -25,11 +26,18 @@ LOCAL_SHARED_LIBRARIES += \
     libstagefright_foundation
 
 LOCAL_CFLAGS +=-Wall -fno-short-enums -O0 -g -D___ANDROID___ $(ANDROID_API_CFLAGS)
+LOCAL_CFLAGS += -Wno-unused-parameter \
+                -Wno-unused-variable \
+                -Wno-unknown-escape-sequence \
+                -Wno-unused-comparison
+#                -Wno-
+LOCAL_LDFLAGS := -Wl #--unresolved-symbols=ignore-all
 
 LOCAL_PRELINK_MODULE := false
 LOCAL_MODULE_TAGS:= optional
 LOCAL_MODULE := vtcTest
 include $(BUILD_EXECUTABLE)
+#include $(BUILD_STATIC_LIBRARY)
 
 ###############################################################################
 
@@ -66,7 +74,7 @@ LOCAL_CFLAGS +=-Wall -fno-short-enums -O0 -g $(ANDROID_API_CFLAGS)
 LOCAL_PRELINK_MODULE := false
 LOCAL_MODULE_TAGS:= optional
 LOCAL_MODULE := vtcloopback
-include $(BUILD_EXECUTABLE)
+#include $(BUILD_EXECUTABLE)
 
 ###############################################################################
 
@@ -85,7 +93,6 @@ endif
 
 LOCAL_SHARED_LIBRARIES:= \
     libdl \
-    libui \
     libutils \
     libcutils \
     libbinder \
