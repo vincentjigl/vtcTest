@@ -763,12 +763,37 @@ int startPlayback(int width, int height, int row, int col) {
 	
 	printf("test playback 4x4 in one process \n");
 	for(int i=0; i< row*col ; i++){
-		mPlaybackSurfaceControl[i] = client->createSurface(String8("jglSurface"), width, height, PIXEL_FORMAT_RGB_565, 0);
+        char surf[32] = {0};
+        sprintf(surf, "jglSurface%d", i);
+		mPlaybackSurfaceControl[i] = client->createSurface(String8(surf), width, height, PIXEL_FORMAT_RGB_565, 0);
 		CHECK(mPlaybackSurfaceControl[i] != NULL);
 		CHECK(mPlaybackSurfaceControl[i]->isValid());
+        int r = i/col;
+        int c = i%col;
+        SurfaceComposerClient::Transaction{}
+                    .setLayer(mPlaybackSurfaceControl[i], 0x7fffffff)
+                        .setPosition(mPlaybackSurfaceControl[i], r*width, c*height)
+                        .setSize(mPlaybackSurfaceControl[i], width, height)
+                        .show(mPlaybackSurfaceControl[i])
+                        .apply();
 		mPlaybackSurface[i] = mPlaybackSurfaceControl[i]->getSurface();
 		CHECK(mPlaybackSurface[i] != NULL);
+
+        mPlayer[i] = new MediaPlayer();
+		jglPlayerListener[i] = new PlayerListener(mPlayer[i]);
+		mPlayer[i]->setListener(jglPlayerListener[i]);
+		if(i%2==0)
+			fd[i] = open(mPlaybackFileName, O_RDONLY | O_LARGEFILE);
+		else
+			fd[i] = open(mPlaybackFileName2, O_RDONLY | O_LARGEFILE);
+		uint64_t fileSize = lseek64(fd[i], 0, SEEK_END);
+		mPlayer[i]->setDataSource(fd[i], 0, fileSize);
+		mPlayer[i]->setVideoSurfaceTexture(mPlaybackSurface[i]->getIGraphicBufferProducer());
+		mPlayer[i]->prepareAsync();
+		mPlayer[i]->setLooping(true);
+		mPlayer[i]->start();
 	}
+    /*
 	int sid=0;
 	for(int i=0; i< row ; i++){
         for(int j=0; j< col ; j++){
@@ -797,7 +822,7 @@ int startPlayback(int width, int height, int row, int col) {
 		mPlayer[i]->prepareAsync();
 		mPlayer[i]->setLooping(true);
 		mPlayer[i]->start();
-	}
+	}*/
 	
     bPlaying = true;
     return 0;
@@ -1291,7 +1316,6 @@ int test_9dec_1rec() {
 	startPlayback(640, 360, 3, 3);
     startPreview();
     startRecording();
-	sleep(3);
     for(int i=0; i<10;i++){
         startPlayback3x3_layout1() ;
         sleep(3);
@@ -1303,9 +1327,11 @@ int test_9dec_1rec() {
         my_pthread_cond_timedwait(&mCond, &mMutex, mPlaybackDuration);
     }
     pthread_mutex_unlock(&mMutex);
+    stopPlayback(3, 3);
+
     stopRecording();
     stopPreview();
-    stopPlayback(3, 3);
+
     return 0;
 }
 
